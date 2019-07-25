@@ -1,3 +1,0 @@
-Manifest-Version: 1.0
-Built-By: SirBlobman
-Main-Class: com.SirBlobman.discord.SlimyBot

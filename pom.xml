@@ -14,8 +14,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>8</maven.compiler.source>
 		<maven.compiler.target>8</maven.compiler.target>
-		
-		<directory.testing>C:\Users\SirBlobman\Documents\Java Workspace\Minecraft\Testing Servers\Slimy Discord Bot</directory.testing>
 	</properties>
 
 	<repositories>
@@ -30,108 +28,54 @@
 		<dependency>
 			<groupId>org.javacord</groupId>
 			<artifactId>javacord</artifactId>
-			<version>3.0.0</version>
+			<version>3.0.4</version>
 			<type>pom</type>
+			<scope>compile</scope>
 		</dependency>
 		
-		<!-- Apache Commons Lang -->
+		<!-- Log4J Core -->
 		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
-			<version>2.6</version>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.11.0</version>
+			<scope>compile</scope>
 		</dependency>
 		
-		<!-- Google Guava -->
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>16.0.1</version>
-		</dependency>
-
-		<!-- SnakeYAML -->
-		<dependency>
-			<groupId>org.yaml</groupId>
-			<artifactId>snakeyaml</artifactId>
-			<version>1.15</version>
-		</dependency>
-		
-		<!-- Google JSON -->
+		<!-- Google GSON -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
-			<version>2.2.2</version>
-		</dependency>
-
-		<!-- SQLite for databases -->
-		<dependency>
-			<groupId>org.xerial</groupId>
-			<artifactId>sqlite-jdbc</artifactId>
-			<version>3.23.1</version>
+			<version>2.8.5</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
-			<!-- Copy Dependencies -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-
-				<executions>
-					<execution>
-						<id>cop-dependencies</id>
-						<phase>package</phase>
-
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-
-						<configuration>
-							<outputDirectory>${project.build.directory}/lib</outputDirectory>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- Create META-INF -->
+			<!-- Fix Main Class in MANIFEST.MF -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>3.1.0</version>
-
+				<version>3.1.2</version>
 				<configuration>
 					<archive>
 						<manifest>
 							<mainClass>com.SirBlobman.discord.SlimyBot</mainClass>
-
-							<addClasspath>true</addClasspath>
-							<classpathPrefix>lib/</classpathPrefix>
 						</manifest>
-
-						<addMavenDescriptor>false</addMavenDescriptor>
 					</archive>
 				</configuration>
 			</plugin>
 
-			<!-- Copy JAR and Libraries -->
+			<!-- Include Dependencies -->
 			<plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.2.1</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
-						<configuration>
-							<target>
-								<delete dir="${directory.testing}/lib"></delete>
-								<delete file="${directory.testing}/Slimy Bot.jar"></delete>
-								
-								<copy todir="${directory.testing}/lib">
-									<fileset dir="${project.build.directory}/lib"></fileset>
-								</copy>
-								<copy file="${project.build.directory}/SlimyBot-${project.version}.jar" tofile="${directory.testing}/Slimy Bot.jar"></copy>
-							</target>
-						</configuration>
 						<goals>
-							<goal>run</goal>
+							<goal>shade</goal>
 						</goals>
 					</execution>
 				</executions>

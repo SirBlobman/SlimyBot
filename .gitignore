@@ -1,5 +1,7 @@
 # Mac OSX
+logs/
 *.DS_Store
+*.command
 
 # Eclipse IDE
 .settings/

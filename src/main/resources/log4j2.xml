@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration name="Slimy Discord Bot" status="INFO" strict="true">
+    <Appenders>
+        <Console name="Console Appender">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%level]: %msg%n"></PatternLayout>
+            <Filters>
+                <ThresholdFilter level="INFO"/>
+            </Filters>
+        </Console>
+        <RollingRandomAccessFile name="File Appender" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level]: %msg%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <OnStartupTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="1000"/>
+        </RollingRandomAccessFile>
+    </Appenders>
+    <Loggers>
+        <Root level="DEBUG">
+            <AppenderRef ref="Console Appender"/>
+            <AppenderRef ref="File Appender"/>
+        </Root>
+    </Loggers>
+</Configuration>
