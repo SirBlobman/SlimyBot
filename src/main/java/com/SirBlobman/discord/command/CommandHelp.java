@@ -23,7 +23,7 @@ public class CommandHelp extends Command {
 			
 			List<Command> commandList = getCommands();
 			for(Command command : commandList) {
-				if(!getPermission().hasPermission(server, author)) continue;
+				if(!command.getPermission().hasPermission(server, author)) continue;
 				
 				String description = command.getDescription();
 				embed.addField("++" + command.getCommand(), description);
@@ -40,7 +40,7 @@ public class CommandHelp extends Command {
 			return;
 		}
 		
-		if(!getPermission().hasPermission(server, author)) {
+		if(!command.getPermission().hasPermission(server, author)) {
 			channel.sendMessage("You do not have access to the command '" + commandName + "'.");
 			return;
 		}

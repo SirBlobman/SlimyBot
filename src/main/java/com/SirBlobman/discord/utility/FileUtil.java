@@ -9,6 +9,8 @@ import java.util.stream.Stream;
 
 public class FileUtil extends Util {
 	public static String readFile(File file) {
+		if(!file.exists() || file.isDirectory()) return "";
+		
 		StringBuilder builder = new StringBuilder();
 		try {
 			Path path = file.toPath();
@@ -24,6 +26,11 @@ public class FileUtil extends Util {
 	
 	public static void writeFile(File file, String toWrite) {
 		try {
+			if(!file.exists()) {
+				file.getParentFile().mkdirs();
+				file.createNewFile();
+			}
+			
 			Path path = file.toPath();
 			Files.write(path, newList(toWrite), StandardCharsets.UTF_8);
 		} catch(IOException ex) {
@@ -31,5 +38,4 @@ public class FileUtil extends Util {
 			ex.printStackTrace();
 		}
 	}
-	
 }

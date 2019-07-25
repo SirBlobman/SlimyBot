@@ -1,5 +1,4 @@
 # Mac OSX
-logs/
 *.DS_Store
 *.command
 
@@ -11,3 +10,6 @@ logs/
 # Maven
 target/
 *dependency-reduced-pom.xml
+
+# Test Directory
+run/
