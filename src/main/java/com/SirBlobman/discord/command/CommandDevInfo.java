@@ -37,7 +37,7 @@ public class CommandDevInfo extends Command {
 		String osArch = System.getProperty("os.arch");
 		String osVersion = System.getProperty("os.version");
 
-		String osImageName = "/assets/image/icon/os" + (osName.contains("Windows") ? "windows" : (osName.contains("Mac OS") ? "apple" : "linux")) + ".png";
+		String osImageName = "/assets/image/icon/os/" + (osName.contains("Windows") ? "windows" : (osName.contains("Mac OS") ? "apple" : "linux")) + ".png";
 		BufferedImage osImage = ImageUtil.fromJar(osImageName);
 		InputStream osImageStream = ImageUtil.toInputStream(osImage, "PNG");
 

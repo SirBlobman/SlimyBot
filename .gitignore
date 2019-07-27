@@ -2,6 +2,9 @@
 *.DS_Store
 *.command
 
+# Windows
+*.bat
+
 # Eclipse IDE
 .settings/
 *.classpath
