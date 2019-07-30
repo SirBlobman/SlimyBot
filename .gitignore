@@ -5,6 +5,9 @@
 # Windows
 *.bat
 
+# Linux
+*.sh
+
 # Eclipse IDE
 .settings/
 *.classpath

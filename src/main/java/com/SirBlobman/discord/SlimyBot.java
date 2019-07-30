@@ -11,6 +11,7 @@ import org.javacord.api.entity.permission.PermissionsBuilder;
 import com.SirBlobman.discord.command.CommandAddPermission;
 import com.SirBlobman.discord.command.CommandDevInfo;
 import com.SirBlobman.discord.command.CommandHelp;
+import com.SirBlobman.discord.command.CommandTicket;
 import com.SirBlobman.discord.command.CommandUserInfo;
 import com.SirBlobman.discord.command.console.ConsoleCommand;
 import com.SirBlobman.discord.command.console.ConsoleCommandManager;
@@ -67,7 +68,7 @@ public class SlimyBot {
 	
 	private static void registerCommands(DiscordApi discordApi) {
 		CommandListener.registerCommands(
-				new CommandHelp(), new CommandDevInfo(), new CommandUserInfo(), new CommandAddPermission()
+				new CommandHelp(), new CommandDevInfo(), new CommandUserInfo(), new CommandAddPermission(), new CommandTicket()
 		);
 	}
 	

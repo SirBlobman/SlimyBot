@@ -50,6 +50,6 @@ public class CommandListener implements MessageCreateListener {
 		String[] args = split.length > 1 ? Arrays.copyOfRange(split, 1, split.length) : new String[0];
 		command.onMessageCreate(author, channel, commandName, args);
 		
-		Util.print(author.getDiscriminatedName() + " sent command '" + commandName + "' with arguments + '" + String.join(" ", args) + "'.");
+		Util.print(author.getDiscriminatedName() + " sent command '" + commandName + "' with arguments '" + String.join(" ", args) + "'.");
 	}
 }
