@@ -9,7 +9,7 @@ public class ConsoleCommandStop extends ConsoleCommand {
 	public ConsoleCommandStop() {super("stop", aliases);}
 	
 	@Override
-	public void execute(DiscordApi api) {
+	public void execute(DiscordApi api, String[] args) {
 		Util.print("Logging out of Discord and stopping Slimy Bot...");
 		api.disconnect();
 		

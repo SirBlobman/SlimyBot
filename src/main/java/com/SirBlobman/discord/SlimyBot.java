@@ -1,24 +1,27 @@
 package com.SirBlobman.discord;
 
 import java.io.Console;
+import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
+
+import com.SirBlobman.discord.command.console.ConsoleCommand;
+import com.SirBlobman.discord.command.console.ConsoleCommandAnnounce;
+import com.SirBlobman.discord.command.console.ConsoleCommandManager;
+import com.SirBlobman.discord.command.console.ConsoleCommandStop;
+import com.SirBlobman.discord.command.discord.CommandAddPermission;
+import com.SirBlobman.discord.command.discord.CommandDevInfo;
+import com.SirBlobman.discord.command.discord.CommandHelp;
+import com.SirBlobman.discord.command.discord.CommandPing;
+import com.SirBlobman.discord.command.discord.CommandTicket;
+import com.SirBlobman.discord.command.discord.CommandUserInfo;
+import com.SirBlobman.discord.listener.CommandListener;
+import com.SirBlobman.discord.listener.MessageListener;
+import com.SirBlobman.discord.utility.Util;
 
 import org.javacord.api.DiscordApi;
 import org.javacord.api.DiscordApiBuilder;
 import org.javacord.api.entity.permission.Permissions;
 import org.javacord.api.entity.permission.PermissionsBuilder;
-
-import com.SirBlobman.discord.command.CommandAddPermission;
-import com.SirBlobman.discord.command.CommandDevInfo;
-import com.SirBlobman.discord.command.CommandHelp;
-import com.SirBlobman.discord.command.CommandTicket;
-import com.SirBlobman.discord.command.CommandUserInfo;
-import com.SirBlobman.discord.command.console.ConsoleCommand;
-import com.SirBlobman.discord.command.console.ConsoleCommandManager;
-import com.SirBlobman.discord.command.console.ConsoleCommandStop;
-import com.SirBlobman.discord.listener.CommandListener;
-import com.SirBlobman.discord.listener.MessageListener;
-import com.SirBlobman.discord.utility.Util;
 
 public class SlimyBot {
 	public static void main(String[] args) {
@@ -63,12 +66,13 @@ public class SlimyBot {
 	}
 	
 	private static void registerConsoleCommands(DiscordApi discordApi) {
-		ConsoleCommandManager.registerCommand(new ConsoleCommandStop());
+		ConsoleCommandManager.registerCommands(new ConsoleCommandStop(), new ConsoleCommandAnnounce());
 	}
 	
 	private static void registerCommands(DiscordApi discordApi) {
 		CommandListener.registerCommands(
-				new CommandHelp(), new CommandDevInfo(), new CommandUserInfo(), new CommandAddPermission(), new CommandTicket()
+				new CommandHelp(), new CommandDevInfo(), new CommandUserInfo(), new CommandAddPermission(), new CommandTicket(),
+				new CommandPing()
 		);
 	}
 	
@@ -81,8 +85,12 @@ public class SlimyBot {
 			}
 			
 			while(true) {
-				String commandName = console.readLine();
-				Util.print("Console Command Executed: '" + commandName + "'.");
+				String line = console.readLine();
+				Util.print("Console Command Executed: '" + line + "'.");
+				
+				String[] split = line.split(" ");
+				String commandName = split[0];
+				String[] args = (split.length > 1 ? Arrays.copyOfRange(split, 1, split.length) : new String[0]);
 				
 				ConsoleCommand command = ConsoleCommandManager.getCommand(commandName);
 				if(command == null) {
@@ -90,7 +98,7 @@ public class SlimyBot {
 					continue;
 				}
 				
-				command.execute(discordApi);
+				command.execute(discordApi, args);
 			}
 		};
 		Thread thread = new Thread(task);

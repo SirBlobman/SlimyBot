@@ -9,7 +9,7 @@ import org.javacord.api.entity.message.MessageAuthor;
 import org.javacord.api.event.message.MessageCreateEvent;
 import org.javacord.api.listener.message.MessageCreateListener;
 
-import com.SirBlobman.discord.command.Command;
+import com.SirBlobman.discord.command.discord.Command;
 import com.SirBlobman.discord.utility.Util;
 
 public class CommandListener implements MessageCreateListener {

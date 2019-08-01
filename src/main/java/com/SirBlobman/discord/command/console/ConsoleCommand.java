@@ -1,5 +1,7 @@
 package com.SirBlobman.discord.command.console;
 
+import com.SirBlobman.discord.utility.Util;
+
 import org.javacord.api.DiscordApi;
 
 public abstract class ConsoleCommand {
@@ -19,14 +21,19 @@ public abstract class ConsoleCommand {
 	}
 	
 	private String commandUsed;
-	public final void onCommand(DiscordApi discordApi, String label) {
+	public final void onCommand(DiscordApi discordApi, String label, String[] args) {
 		this.commandUsed = label;
-		execute(discordApi);
+		try {
+			execute(discordApi, args);
+		} catch(Exception ex) {
+			Util.print("An error occurred while executing the command '" + label + "'.");
+			ex.printStackTrace();
+		}
 	}
 	
 	public String getCommandUsed() {
 		return this.commandUsed;
 	}
 	
-	public abstract void execute(DiscordApi discordApi);
+	public abstract void execute(DiscordApi discordApi, String[] args);
 }

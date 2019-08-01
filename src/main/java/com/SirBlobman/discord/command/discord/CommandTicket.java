@@ -1,4 +1,4 @@
-package com.SirBlobman.discord.command;
+package com.SirBlobman.discord.command.discord;
 
 import java.awt.Color;
 import java.util.Arrays;
