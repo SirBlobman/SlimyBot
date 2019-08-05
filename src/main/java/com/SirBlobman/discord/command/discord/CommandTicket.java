@@ -191,7 +191,7 @@ public class CommandTicket extends Command {
 	private ServerTextChannel getNewTicketChannel(User creator, Server server, ChannelCategory category) {
 		Permissions creatorPermissions = new PermissionsBuilder()
 				.setAllDenied()
-				.setAllowed(PermissionType.READ_MESSAGES, PermissionType.SEND_MESSAGES, PermissionType.ATTACH_FILE, PermissionType.EMBED_LINKS)
+				.setAllowed(PermissionType.READ_MESSAGES, PermissionType.READ_MESSAGE_HISTORY, PermissionType.SEND_MESSAGES, PermissionType.ATTACH_FILE, PermissionType.EMBED_LINKS)
 				.build();
 		
 		Permissions everyonePermissions = new PermissionsBuilder().setAllDenied().build();
