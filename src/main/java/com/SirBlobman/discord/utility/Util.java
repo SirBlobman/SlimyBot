@@ -1,15 +1,12 @@
 package com.SirBlobman.discord.utility;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import com.SirBlobman.discord.SlimyBot;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.SirBlobman.discord.SlimyBot;
+import org.javacord.api.entity.channel.ServerTextChannel;
 
 public class Util {
 	public static Logger getLogger() {
@@ -23,16 +20,15 @@ public class Util {
 			logger.info(string);
 		}
 	}
+
+	public static <L> List<L> newList(Collection<L> oldList) {
+		return new ArrayList<>(oldList);
+	}
 	
 	@SafeVarargs
 	public static <L> List<L> newList(L... ll) {
-		List<L> newList = new ArrayList<>();
-		for(L l : ll) newList.add(l);
-		return newList;
-	}
-	
-	public static <L> List<L> newList(Collection<L> oldList) {
-		return new ArrayList<>(oldList);
+		List<L> arrayList = Arrays.asList(ll);
+		return newList(arrayList);
 	}
 	
 	public static <K, V> Map<K, V> newMap() {

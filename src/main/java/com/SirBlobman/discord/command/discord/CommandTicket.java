@@ -1,14 +1,13 @@
 package com.SirBlobman.discord.command.discord;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
-import org.javacord.api.entity.channel.ChannelCategory;
-import org.javacord.api.entity.channel.ChannelCategoryBuilder;
-import org.javacord.api.entity.channel.ServerChannel;
-import org.javacord.api.entity.channel.ServerTextChannel;
-import org.javacord.api.entity.channel.ServerTextChannelBuilder;
+import com.SirBlobman.discord.constant.KnownServers;
+import com.SirBlobman.discord.utility.Util;
+
+import org.javacord.api.entity.channel.*;
 import org.javacord.api.entity.message.MessageAuthor;
 import org.javacord.api.entity.message.embed.EmbedBuilder;
 import org.javacord.api.entity.permission.PermissionType;
@@ -17,9 +16,6 @@ import org.javacord.api.entity.permission.PermissionsBuilder;
 import org.javacord.api.entity.permission.Role;
 import org.javacord.api.entity.server.Server;
 import org.javacord.api.entity.user.User;
-
-import com.SirBlobman.discord.constant.KnownServers;
-import com.SirBlobman.discord.utility.Util;
 
 public class CommandTicket extends Command {
 	public CommandTicket() {super("ticket", "Slimy bot ticket system", "Type '++ticket help' to see usage", new Permission("server.sirblobman") {
@@ -97,7 +93,7 @@ public class CommandTicket extends Command {
 	}
 	
 	private void addUserToTicket(MessageAuthor author, ServerTextChannel channel, String[] args) {
-		if(!isTicketChannel(channel)) {
+		if(isNotTicketChannel(channel)) {
 			channel.sendMessage("This channel is not a ticket channel.");
 			return;
 		}
@@ -119,7 +115,7 @@ public class CommandTicket extends Command {
 	}
 	
 	private void closeTicket(MessageAuthor author, ServerTextChannel channel, String[] args) {
-		if(!isTicketChannel(channel)) {
+		if(isNotTicketChannel(channel)) {
 			channel.sendMessage("This channel is not a ticket channel.");
 			return;
 		}
@@ -180,9 +176,7 @@ public class CommandTicket extends Command {
 			try {
 				long channelId = Long.parseLong(channelName);
 				if(channelId > highest) highest = channelId;
-			} catch(NumberFormatException ex) {
-				continue;
-			}
+			} catch(NumberFormatException ignored) {}
 		}
 		
 		return Long.toString(highest + 1);
@@ -213,11 +207,11 @@ public class CommandTicket extends Command {
 		}
 	}
 	
-	private boolean isTicketChannel(ServerTextChannel channel) {
+	private boolean isNotTicketChannel(ServerTextChannel channel) {
 		ChannelCategory ticketCategory = getTicketCategory(channel.getServer());
 		ChannelCategory channelCategory = channel.getCategory().orElse(null);
-		if(ticketCategory == null || channelCategory == null) return false;
+		if(ticketCategory == null || channelCategory == null) return true;
 		
-		return (ticketCategory.getId() == channelCategory.getId());
+		return (ticketCategory.getId() != channelCategory.getId());
 	}
 }

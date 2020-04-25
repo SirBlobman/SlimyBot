@@ -1,17 +1,14 @@
 package com.SirBlobman.discord.utility;
 
-import com.SirBlobman.discord.SlimyBot;
-
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.imageio.ImageIO;
+
+import com.SirBlobman.discord.SlimyBot;
 
 public final class ImageUtil extends Util {
 	public static BufferedImage fromJar(String name) {
@@ -60,8 +57,7 @@ public final class ImageUtil extends Util {
 			ImageIO.write(original, imageType, stream);
 
 			byte[] bytes = stream.toByteArray();
-			ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-			return is;
+			return new ByteArrayInputStream(bytes);
 		} catch(Throwable ex) {
 			print("Failed to create input stream from image with type '" + imageType + "'");
 			ex.printStackTrace();

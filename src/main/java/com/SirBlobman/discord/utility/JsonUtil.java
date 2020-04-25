@@ -10,7 +10,7 @@ import com.google.gson.JsonParser;
 public class JsonUtil extends FileUtil {
 	public static JsonElement parseJSON(File file) {
 		String readFile = readFile(file);
-		if(readFile == null || readFile.isEmpty()) readFile = "{}";
+		if(readFile.isEmpty()) readFile = "{}";
 		return new JsonParser().parse(readFile);
 	}
 	

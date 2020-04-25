@@ -3,16 +3,16 @@ package com.SirBlobman.discord.command.discord;
 import java.io.File;
 import java.util.List;
 
-import org.javacord.api.entity.message.MessageAuthor;
-import org.javacord.api.entity.server.Server;
-import org.javacord.api.entity.user.User;
-
 import com.SirBlobman.discord.constant.KnownUsers;
 import com.SirBlobman.discord.utility.JsonUtil;
 import com.SirBlobman.discord.utility.Util;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.javacord.api.entity.message.MessageAuthor;
+import org.javacord.api.entity.server.Server;
+import org.javacord.api.entity.user.User;
 
 public class Permission {
 	public static final Permission EVERYONE = new Permission("everyone") {
@@ -52,6 +52,16 @@ public class Permission {
 			return "Only the server owner can use that command.";
 		}
 	};
+
+	public static Permission getServerOnlyPermission(long serverID) {
+		return new Permission(Long.toString(serverID)) {
+			@Override
+			public boolean hasPermission(Server server, MessageAuthor author) {
+				long serverId = server.getId();
+				return (serverID == serverId);
+			}
+		};
+	}
 	
 	public static List<String> getPermissionList(Server server, long authorId) {
 		String serverId = server.getIdAsString();

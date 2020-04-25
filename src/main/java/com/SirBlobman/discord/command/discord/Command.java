@@ -4,14 +4,16 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.SirBlobman.discord.utility.Util;
+
 import org.javacord.api.entity.channel.ServerTextChannel;
 import org.javacord.api.entity.message.MessageAuthor;
 
-import com.SirBlobman.discord.utility.Util;
-
 public abstract class Command {
 	private static List<Command> COMMANDS = Util.newList();
-	public static List<Command> getCommands() {return Util.newList(COMMANDS);}
+	public static List<Command> getCommands() {
+		return Util.newList(COMMANDS);
+	}
 	
 	private final String command, description, usage;
 	private final String[] aliases;

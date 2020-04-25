@@ -21,6 +21,7 @@ public class FileUtil extends Util {
 			print("An error occurred while reading the file '" + file + "'.");
 			ex.printStackTrace();
 		}
+
 		return builder.toString();
 	}
 	
