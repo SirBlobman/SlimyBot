@@ -24,8 +24,8 @@ public class SlimyBotMain {
         JDA discordAPI;
         try {
             String discordToken = String.join(" ", args);
-            JDABuilder builder = JDABuilder.createLight(discordToken, GatewayIntent.GUILD_MESSAGES);
-            builder.setMemberCachePolicy(MemberCachePolicy.DEFAULT);
+            JDABuilder builder = JDABuilder.createLight(discordToken, GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS);
+            builder.setMemberCachePolicy(MemberCachePolicy.ALL);
             
             Activity activity = Activity.listening("++help");
             builder.setActivity(activity);
