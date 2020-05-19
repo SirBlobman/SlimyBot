@@ -12,6 +12,8 @@ import com.SirBlobman.discord.slimy.task.ConsoleInputTask;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
 public class DiscordBot {
@@ -53,6 +55,7 @@ public class DiscordBot {
         registerListeners();
         setupConsole();
         
+        quitUnwantedGuilds();
         logger.info("Successfully enabled Slimy Network Discord Bot.");
     }
     
@@ -84,6 +87,7 @@ public class DiscordBot {
         // Normal Commands
         discordCommandManager.registerCommands(
                 DiscordCommandDeveloperInformation.class,
+                DiscordCommandFAQ.class,
                 DiscordCommandHelp.class,
                 DiscordCommandPing.class,
                 DiscordCommandTicket.class,
@@ -108,5 +112,26 @@ public class DiscordBot {
         
         thread.setDaemon(true);
         thread.start();
+    }
+    
+    private void quitUnwantedGuilds() {
+        JDA discordAPI = getDiscordAPI();
+        List<Guild> guildList = discordAPI.getGuilds();
+        
+        for(Guild guild : guildList) {
+            String guildId = guild.getId();
+            if(guildId.equals("472253228856246299")) continue;
+            
+            String guildName = guild.getName();
+            guild.leave().submit(true).whenCompleteAsync((success, error) -> {
+                Logger logger = getLogger();
+                if(error != null) {
+                    logger.log(Level.WARN, "An error occurred when trying to leave a guild", error);
+                    return;
+                }
+                
+                logger.info("Successfully left an unwanted guild: " + guildId + " | " + guildName);
+            });
+        }
     }
 }
