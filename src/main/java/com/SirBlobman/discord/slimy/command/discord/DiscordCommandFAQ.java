@@ -1,7 +1,9 @@
 package com.SirBlobman.discord.slimy.command.discord;
 
 import java.awt.*;
-import java.io.InputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Map;
 
 import com.SirBlobman.discord.slimy.DiscordBot;
@@ -66,23 +68,29 @@ public class DiscordCommandFAQ extends DiscordCommand {
     }
     
     private FAQSolution getSolution(String id) {
-        Class<?> currentClass = getClass();
-        ClassLoader classLoader = currentClass.getClassLoader();
-        InputStream stream = classLoader.getResourceAsStream("questions.yml");
-        if(stream == null) {
+        File file = new File("questions.yml");
+        if(!file.exists()) {
             Logger logger = this.discordBot.getLogger();
-            logger.info("'questions.yml' does not exist in the jar!");
+            logger.info("'questions.yml' does not exist!");
             return null;
         }
     
-        Yaml yaml = new Yaml();
-        Map<String, Map<String, String>> configValues = yaml.load(stream);
-        Map<String, String> solutionMap = configValues.getOrDefault(id, null);
-        if(solutionMap == null) return null;
-        
-        String pluginName = solutionMap.getOrDefault("plugin", null);
-        String question = solutionMap.getOrDefault("question", null);
-        String answer = solutionMap.getOrDefault("answer", null);
-        return new FAQSolution(pluginName, question, answer);
+        try {
+            FileInputStream fileInputStream = new FileInputStream(file);
+    
+            Yaml yaml = new Yaml();
+            Map<String, Map<String, String>> configValues = yaml.load(fileInputStream);
+            Map<String, String> solutionMap = configValues.getOrDefault(id, null);
+            if(solutionMap == null) return null;
+    
+            String pluginName = solutionMap.getOrDefault("plugin", null);
+            String question = solutionMap.getOrDefault("question", null);
+            String answer = solutionMap.getOrDefault("answer", null);
+            return new FAQSolution(pluginName, question, answer);
+        } catch(FileNotFoundException ex) {
+            Logger logger = this.discordBot.getLogger();
+            logger.info("'questions.yml' does not exist!");
+            return null;
+        }
     }
 }

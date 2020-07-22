@@ -1,5 +1,10 @@
 package com.SirBlobman.discord.slimy;
 
+import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import com.SirBlobman.discord.slimy.command.ConsoleCommandManager;
@@ -46,7 +51,10 @@ public class DiscordBot {
     public void onEnable() {
         Logger logger = getLogger();
         logger.info("Successfully logged in, enabling Slimy Network Discord Bot...");
-        
+    
+        saveDefaultConfig("config.yml");
+        saveDefaultConfig("questions.yml");
+    
         String inviteURL = this.discordAPI.getInviteUrl(Permission.ADMINISTRATOR);
         logger.info("Invite URL: '" + inviteURL + "'");
         
@@ -62,6 +70,39 @@ public class DiscordBot {
     public void onDisable() {
         JDA discordAPI = getDiscordAPI();
         discordAPI.shutdownNow();
+    }
+    
+    private void saveDefaultConfig(String fileName) {
+        try {
+            File file = new File(fileName);
+            if(file.exists()) {
+                Logger logger = getLogger();
+                logger.info("File '" + fileName + "' already exists at '" + file.getAbsolutePath() + "'.");
+                return;
+            }
+    
+            boolean newFile = file.createNewFile();
+            if(!newFile) {
+                Logger logger = getLogger();
+                logger.warn("Failed to create file '" + fileName + "'.");
+            }
+    
+            Class<? extends DiscordBot> thisClass = getClass();
+            InputStream resource = thisClass.getResourceAsStream("/" + fileName);
+            if(resource == null) {
+                logger.info("Could not find resource '" + fileName + "' inside of the jar.");
+                return;
+            }
+            
+            Path path = file.toPath();
+            Files.copy(resource, path, StandardCopyOption.REPLACE_EXISTING);
+            
+            Logger logger = getLogger();
+            logger.warn("Successfully created default file '" + path.toAbsolutePath().toString() + "'.");
+        } catch(Exception ex) {
+            Logger logger = getLogger();
+            logger.log(Level.WARN, "An error occurred while saving a default file:", ex);
+        }
     }
     
     private void registerListeners() {
