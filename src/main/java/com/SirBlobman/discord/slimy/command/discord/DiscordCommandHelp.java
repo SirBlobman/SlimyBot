@@ -24,7 +24,7 @@ public class DiscordCommandHelp extends DiscordCommand {
     
     @Override
     public boolean hasPermission(Member sender) {
-        if(sender == null || sender.isFake()) return false;
+        if(sender == null) return false;
         
         User user = sender.getUser();
         return !user.isBot();

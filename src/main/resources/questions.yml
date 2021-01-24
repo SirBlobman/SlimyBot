@@ -3,12 +3,12 @@ damage-tagger:
   question: "Why are players getting tagged by lava/fall/cactus damage?"
   answer: "You have the `Damage Tagger` expansion installed. This expansion is also known as 'NotCombatLogX'."
 
-block-commands:
+cheat-prevention:
   plugin: "CombatLogX"
   question: "How do I prevent players from executing commands during combat?"
   answer: "Install the `Cheat Prevention` expansion and open the `cheat prevention.yml` file to modify the commands that are blocked and allowed."
 
-plugin-yml-dne:
+plugin-yml:
   plugin: "CombatLogX"
   question: "Why do I get a `jar does not contain plugin.yml` error?"
   answer: "Expansions are not plugins. Please read the installation guide on the spigot page for CombatLogX"

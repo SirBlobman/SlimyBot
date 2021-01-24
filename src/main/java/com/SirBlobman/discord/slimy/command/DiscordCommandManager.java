@@ -33,7 +33,7 @@ public class DiscordCommandManager extends ListenerAdapter {
         if(member == null) return;
         
         User user = member.getUser();
-        if(user.isFake() || user.isBot()) return;
+        if(user.isBot()) return;
         
         String[] split = contentRaw.substring(2).split(Pattern.quote(" "));
         String commandName = split[0];

@@ -1,20 +1,22 @@
 package com.SirBlobman.discord.slimy.listener;
 
+import java.util.List;
+
 import com.SirBlobman.discord.slimy.DiscordBot;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.utils.data.DataObject;
 import org.apache.logging.log4j.Logger;
 
-public class ListenerMessages extends ListenerAdapter {
-    private final DiscordBot discordBot;
+public class ListenerMessages extends SlimyBotListener {
     public ListenerMessages(DiscordBot discordBot) {
-        this.discordBot = discordBot;
+        super(discordBot);
     }
     
     @Override
@@ -48,9 +50,16 @@ public class ListenerMessages extends ListenerAdapter {
         
         String guildName = guild.getName();
         String channelName = channel.getName();
-        String contentRaw = message.getContentRaw();
-        String logMessage = String.format("[New Message] [Guild: %s | %s] [Channel: %s | %s] [Message: %s | '%s']", guildId, guildName, channelId, channelName, messageId, contentRaw);
-        
+        StringBuilder contentRaw = new StringBuilder(message.getContentRaw());
+
+        List<MessageEmbed> messageEmbedList = message.getEmbeds();
+        for(MessageEmbed messageEmbed : messageEmbedList) {
+            DataObject dataObject = messageEmbed.toData();
+            String string = dataObject.toString();
+            contentRaw.append("[Embed: ").append(string).append("]");
+        }
+
+        String logMessage = String.format("[New Message] [Guild: %s | %s] [Channel: %s | %s] [Message: %s | '%s']", guildId, guildName, channelId, channelName, messageId, contentRaw.toString());
         Logger logger = this.discordBot.getLogger();
         logger.info(logMessage);
     }

@@ -13,6 +13,7 @@ import com.SirBlobman.discord.slimy.command.console.ConsoleCommandStop;
 import com.SirBlobman.discord.slimy.command.discord.*;
 import com.SirBlobman.discord.slimy.command.discord.minigame.DiscordCommandMagicEightBall;
 import com.SirBlobman.discord.slimy.listener.ListenerMessages;
+import com.SirBlobman.discord.slimy.listener.ListenerReactions;
 import com.SirBlobman.discord.slimy.task.ConsoleInputTask;
 
 import net.dv8tion.jda.api.JDA;
@@ -27,9 +28,11 @@ public class DiscordBot {
     
     private final JDA discordAPI;
     private final Logger logger;
+    private long startupTimestamp;
     public DiscordBot(JDA api, Logger logger) {
         this.discordAPI = api;
         this.logger = logger;
+        this.startupTimestamp = -1L;
     }
     
     public JDA getDiscordAPI() {
@@ -65,11 +68,16 @@ public class DiscordBot {
         
         quitUnwantedGuilds();
         logger.info("Successfully enabled Slimy Network Discord Bot.");
+        this.startupTimestamp = System.currentTimeMillis();
     }
     
     public void onDisable() {
         JDA discordAPI = getDiscordAPI();
         discordAPI.shutdownNow();
+    }
+
+    public long getStartupTimestamp() {
+        return this.startupTimestamp;
     }
     
     private void saveDefaultConfig(String fileName) {
@@ -107,7 +115,10 @@ public class DiscordBot {
     
     private void registerListeners() {
         JDA discordAPI = getDiscordAPI();
-        discordAPI.addEventListener(new ListenerMessages(this));
+        discordAPI.addEventListener(
+                new ListenerMessages(this),
+                new ListenerReactions(this)
+        );
     
         Logger logger = getLogger();
         logger.info("Registered Listeners:");

@@ -1,2 +1,2 @@
-# SlimyBot
- A Discord bot that is very slimy
+# Slimy Bot
+A Discord bot that is very slimy

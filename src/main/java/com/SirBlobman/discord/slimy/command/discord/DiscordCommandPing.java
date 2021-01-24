@@ -23,7 +23,7 @@ public class DiscordCommandPing extends DiscordCommand {
     
     @Override
     public boolean hasPermission(Member sender) {
-        return (sender != null && !sender.isFake());
+        return (sender != null);
     }
     
     @Override

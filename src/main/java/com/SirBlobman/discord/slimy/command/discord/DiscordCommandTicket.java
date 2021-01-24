@@ -32,7 +32,7 @@ public class DiscordCommandTicket extends DiscordCommand {
     
     @Override
     public boolean hasPermission(Member sender) {
-        if(sender == null || sender.isFake()) return false;
+        if(sender == null) return false;
     
         Guild guild = sender.getGuild();
         String guildId = guild.getId();
@@ -50,11 +50,13 @@ public class DiscordCommandTicket extends DiscordCommand {
         String[] newArgs = (args.length < 2 ? new String[0] : Arrays.copyOfRange(args, 1, args.length));
         
         switch(sub) {
-            case "help" -> showUsage(sender, channel);
-            case "new" -> createNewTicket(sender, channel, newArgs);
-            case "add" -> addUserToTicket(sender, channel, newArgs);
-            case "close" -> closeTicket(sender, channel);
-            default -> sendErrorEmbed(sender, channel, "Unknown sub command '" + sub + "'. Please type '++ticket help'");
+            case "help": showUsage(sender, channel); break;
+            case "new": createNewTicket(sender, channel, newArgs); break;
+            case "add": addUserToTicket(sender, channel, newArgs); break;
+            case "close": closeTicket(sender, channel); break;
+            default:
+                sendErrorEmbed(sender, channel, "Unknown sub command '" + sub + "'. Please type '++ticket help'");
+                break;
         }
     }
     
@@ -212,9 +214,13 @@ public class DiscordCommandTicket extends DiscordCommand {
         List<Member> memberList = new ArrayList<>();
         for(String string : args) {
             String idString = string.replaceAll("\\D", "");
-            Member member = guild.getMemberById(idString);
-            if(member == null || member.isFake()) continue;
-            memberList.add(member);
+            try {
+                Member member = guild.retrieveMemberById(idString).complete();
+                if(member != null) memberList.add(member);
+            } catch(Exception ex) {
+                Logger logger = this.discordBot.getLogger();
+                logger.log(Level.WARN, "Failed to get a member with id '" + idString + "':", ex);
+            }
         }
         
         return memberList;

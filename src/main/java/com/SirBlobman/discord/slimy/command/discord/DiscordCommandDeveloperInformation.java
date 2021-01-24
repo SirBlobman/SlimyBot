@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import com.SirBlobman.discord.slimy.DiscordBot;
 import com.SirBlobman.discord.slimy.command.CommandInformation;
@@ -27,7 +28,7 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
     
     @Override
     public boolean hasPermission(Member sender) {
-        if(sender == null || sender.isFake()) return false;
+        if(sender == null) return false;
     
         String memberId = sender.getId();
         return memberId.equalsIgnoreCase("252285975814864898");
@@ -108,6 +109,11 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         String usedMemoryMebibytes = toMebibytes(usedMemoryBytes);
         String freeMemoryMebibytes = toMebibytes(freeMemoryBytes);
         String maxMemoryMebibytes = toMebibytes(maxMemory);
+
+        long startupTimestamp = this.discordBot.getStartupTimestamp();
+        long currentTimestamp = System.currentTimeMillis();
+        long uptime = (currentTimestamp - startupTimestamp);
+        String uptimeString = formatTime(uptime);
         
         EmbedBuilder builder = getExecutedByEmbed(sender);
         builder.setTitle("Resource Information");
@@ -116,6 +122,7 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         builder.addField("Free RAM", freeMemoryMebibytes, true);
         builder.addField("Used RAM", usedMemoryMebibytes, true);
         builder.addField("Max RAM", maxMemoryMebibytes, true);
+        builder.addField("Uptime", uptimeString, true);
     
         MessageEmbed embed = builder.build();
         channel.sendMessage(embed).queue();
@@ -158,5 +165,24 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         DecimalFormat format = new DecimalFormat("0.000");
         String mebibytesString = format.format(mebibytes);
         return (mebibytesString + " MiB");
+    }
+
+    private String formatTime(long milliseconds) {
+        long days = TimeUnit.MILLISECONDS.toDays(milliseconds);
+        milliseconds -= TimeUnit.DAYS.toMillis(days);
+        long hours = TimeUnit.MILLISECONDS.toHours(milliseconds);
+        milliseconds -= TimeUnit.HOURS.toMillis(hours);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(milliseconds);
+        milliseconds -= TimeUnit.MINUTES.toMillis(minutes);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(milliseconds);
+        milliseconds -= TimeUnit.SECONDS.toMillis(seconds);
+
+        StringBuilder builder = new StringBuilder();
+        if(days > 0) builder.append(days).append("d ");
+        if(hours > 0) builder.append(hours).append("h ");
+        if(minutes > 0) builder.append(minutes).append("m ");
+        if(seconds > 0) builder.append(seconds).append("s ");
+        if(milliseconds > 0) builder.append(milliseconds).append("ms");
+        return builder.toString().trim();
     }
 }

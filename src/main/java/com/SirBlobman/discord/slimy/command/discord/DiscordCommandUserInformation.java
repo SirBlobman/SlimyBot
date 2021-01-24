@@ -27,7 +27,7 @@ public class DiscordCommandUserInformation extends DiscordCommand {
     
     @Override
     public boolean hasPermission(Member sender) {
-        if(sender == null || sender.isFake()) return false;
+        if(sender == null) return false;
         return sender.hasPermission(Permission.BAN_MEMBERS);
     }
     
@@ -81,7 +81,7 @@ public class DiscordCommandUserInformation extends DiscordCommand {
         for(String string : args) {
             String idString = string.replaceAll("\\D", "");
             Member member = guild.getMemberById(idString);
-            if(member == null || member.isFake()) continue;
+            if(member == null) continue;
             memberList.add(member);
         }
         
