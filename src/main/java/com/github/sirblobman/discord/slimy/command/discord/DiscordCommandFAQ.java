@@ -1,4 +1,4 @@
-package com.SirBlobman.discord.slimy.command.discord;
+package com.github.sirblobman.discord.slimy.command.discord;
 
 import java.awt.*;
 import java.io.File;
@@ -6,9 +6,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Map;
 
-import com.SirBlobman.discord.slimy.DiscordBot;
-import com.SirBlobman.discord.slimy.command.CommandInformation;
-import com.SirBlobman.discord.slimy.object.FAQSolution;
+import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.command.CommandInformation;
+import com.github.sirblobman.discord.slimy.object.FAQSolution;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;

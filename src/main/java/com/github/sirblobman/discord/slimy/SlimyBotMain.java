@@ -1,4 +1,4 @@
-package com.SirBlobman.discord.slimy;
+package com.github.sirblobman.discord.slimy;
 
 import java.io.File;
 import java.io.FileReader;

@@ -1,7 +1,7 @@
-package com.SirBlobman.discord.slimy.command.console;
+package com.github.sirblobman.discord.slimy.command.console;
 
-import com.SirBlobman.discord.slimy.DiscordBot;
-import com.SirBlobman.discord.slimy.command.CommandInformation;
+import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.command.CommandInformation;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;

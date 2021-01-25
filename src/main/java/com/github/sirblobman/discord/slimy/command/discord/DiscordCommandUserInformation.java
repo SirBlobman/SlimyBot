@@ -1,4 +1,4 @@
-package com.SirBlobman.discord.slimy.command.discord;
+package com.github.sirblobman.discord.slimy.command.discord;
 
 import java.awt.*;
 import java.time.OffsetDateTime;
@@ -8,8 +8,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import com.SirBlobman.discord.slimy.DiscordBot;
-import com.SirBlobman.discord.slimy.command.CommandInformation;
+import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.command.CommandInformation;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;

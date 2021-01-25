@@ -1,8 +1,8 @@
-package com.SirBlobman.discord.slimy.listener;
+package com.github.sirblobman.discord.slimy.listener;
 
 import java.util.List;
 
-import com.SirBlobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.DiscordBot;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;

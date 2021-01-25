@@ -1,4 +1,10 @@
-package com.SirBlobman.discord.slimy.listener;
+package com.github.sirblobman.discord.slimy.listener;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.github.sirblobman.discord.slimy.DiscordBot;
 
 import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.api.entities.Emote;
@@ -8,12 +14,6 @@ import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.SirBlobman.discord.slimy.DiscordBot;
 
 public class ListenerReactions extends SlimyBotListener {
     public ListenerReactions(DiscordBot discordBot) {

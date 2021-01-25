@@ -1,8 +1,9 @@
-package com.SirBlobman.discord.slimy.command.console;
+package com.github.sirblobman.discord.slimy.command.console;
 
-import com.SirBlobman.discord.slimy.DiscordBot;
-import com.SirBlobman.discord.slimy.command.CommandInformation;
+import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.command.CommandInformation;
 
+import net.dv8tion.jda.api.JDA;
 import org.apache.logging.log4j.Logger;
 
 public class ConsoleCommandStop extends ConsoleCommand {
@@ -19,6 +20,10 @@ public class ConsoleCommandStop extends ConsoleCommand {
     public void execute(String label, String[] args) {
         Logger logger = this.discordBot.getLogger();
         logger.info("Logging out of Discord and stopping Slimy Bot...");
+
+        JDA discordAPI = this.discordBot.getDiscordAPI();
+        discordAPI.shutdown();
+
         System.exit(0);
     }
 }

@@ -1,11 +1,16 @@
-package com.SirBlobman.discord.slimy.command;
+package com.github.sirblobman.discord.slimy.command;
 
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.SirBlobman.discord.slimy.DiscordBot;
-import com.SirBlobman.discord.slimy.command.discord.DiscordCommand;
+import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.command.discord.DiscordCommand;
 
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;

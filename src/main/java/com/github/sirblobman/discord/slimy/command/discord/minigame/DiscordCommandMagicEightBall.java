@@ -1,4 +1,4 @@
-package com.SirBlobman.discord.slimy.command.discord.minigame;
+package com.github.sirblobman.discord.slimy.command.discord.minigame;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.SirBlobman.discord.slimy.DiscordBot;
-import com.SirBlobman.discord.slimy.command.CommandInformation;
-import com.SirBlobman.discord.slimy.command.discord.DiscordCommand;
+import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.command.CommandInformation;
+import com.github.sirblobman.discord.slimy.command.discord.DiscordCommand;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;

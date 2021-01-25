@@ -1,4 +1,4 @@
-package com.SirBlobman.discord.slimy.command;
+package com.github.sirblobman.discord.slimy.command;
 
 public class CommandInformation {
     private final String name, description, usage;

@@ -1,10 +1,14 @@
-package com.SirBlobman.discord.slimy.command;
+package com.github.sirblobman.discord.slimy.command;
 
 import java.lang.reflect.Constructor;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import com.SirBlobman.discord.slimy.DiscordBot;
-import com.SirBlobman.discord.slimy.command.console.ConsoleCommand;
+import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.command.console.ConsoleCommand;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;

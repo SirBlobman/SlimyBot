@@ -1,4 +1,4 @@
-package com.SirBlobman.discord.slimy.object;
+package com.github.sirblobman.discord.slimy.object;
 
 import java.util.Objects;
 

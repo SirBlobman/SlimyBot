@@ -1,4 +1,4 @@
-package com.SirBlobman.discord.slimy;
+package com.github.sirblobman.discord.slimy;
 
 import java.io.File;
 import java.io.InputStream;
@@ -7,14 +7,20 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
-import com.SirBlobman.discord.slimy.command.ConsoleCommandManager;
-import com.SirBlobman.discord.slimy.command.DiscordCommandManager;
-import com.SirBlobman.discord.slimy.command.console.ConsoleCommandStop;
-import com.SirBlobman.discord.slimy.command.discord.*;
-import com.SirBlobman.discord.slimy.command.discord.minigame.DiscordCommandMagicEightBall;
-import com.SirBlobman.discord.slimy.listener.ListenerMessages;
-import com.SirBlobman.discord.slimy.listener.ListenerReactions;
-import com.SirBlobman.discord.slimy.task.ConsoleInputTask;
+import com.github.sirblobman.discord.slimy.command.ConsoleCommandManager;
+import com.github.sirblobman.discord.slimy.command.DiscordCommandManager;
+import com.github.sirblobman.discord.slimy.command.console.ConsoleCommandStop;
+import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandDeveloperInformation;
+import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandFAQ;
+import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandHelp;
+import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandPing;
+import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandTicket;
+import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandUserInformation;
+import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandVoter;
+import com.github.sirblobman.discord.slimy.command.discord.minigame.DiscordCommandMagicEightBall;
+import com.github.sirblobman.discord.slimy.listener.ListenerMessages;
+import com.github.sirblobman.discord.slimy.listener.ListenerReactions;
+import com.github.sirblobman.discord.slimy.task.ConsoleInputTask;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
