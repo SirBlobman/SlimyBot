@@ -4,7 +4,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
@@ -14,7 +16,13 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.MessageBuilder.Formatting;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Category;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 import org.apache.logging.log4j.Level;
@@ -183,14 +191,14 @@ public class DiscordCommandTicket extends DiscordCommand {
         
         Role supportRole = getSupportRole();
         if(supportRole == null) throw new IllegalStateException("SirBlobman's Discord does not have a support role!");
-        
-        long supportRolePermissions = supportRole.getPermissionsRaw();
-        long creatorPermissions = Permission.getRaw(Permission.MESSAGE_READ, Permission.MESSAGE_HISTORY, Permission.MESSAGE_WRITE, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS);
+
+        Set<Permission> supportRolePermissions = supportRole.getPermissions();
+        Set<Permission> creatorPermissions = EnumSet.of(Permission.MESSAGE_READ, Permission.MESSAGE_HISTORY, Permission.MESSAGE_WRITE, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS);
         
         String channelName = getNextTicketName();
         ChannelAction<TextChannel> channelAction = category.createTextChannel(channelName)
-                .addPermissionOverride(supportRole, supportRolePermissions, 0)
-                .addPermissionOverride(creator, creatorPermissions, 0);
+                .addPermissionOverride(supportRole, supportRolePermissions, Collections.emptySet())
+                .addPermissionOverride(creator, creatorPermissions, Collections.emptySet());
         
         return channelAction.submit(true).join();
     }
