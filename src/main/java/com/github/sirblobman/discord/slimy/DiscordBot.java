@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.github.sirblobman.discord.slimy.command.ConsoleCommandManager;
 import com.github.sirblobman.discord.slimy.command.DiscordCommandManager;
+import com.github.sirblobman.discord.slimy.command.console.ConsoleCommandHelp;
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommandStop;
 import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandDeveloperInformation;
 import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandFAQ;
@@ -161,7 +162,9 @@ public class DiscordBot {
     
     private void registerConsoleCommands() {
         ConsoleCommandManager consoleCommandManager = getConsoleCommandManager();
-        consoleCommandManager.registerCommands(ConsoleCommandStop.class);
+        consoleCommandManager.registerCommands(
+                ConsoleCommandHelp.class, ConsoleCommandStop.class
+        );
     }
     
     private void setupConsole() {
