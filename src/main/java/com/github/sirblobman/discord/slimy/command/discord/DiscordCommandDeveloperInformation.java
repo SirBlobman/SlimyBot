@@ -1,6 +1,7 @@
 package com.github.sirblobman.discord.slimy.command.discord;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -9,6 +10,11 @@ import java.util.concurrent.TimeUnit;
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
 
+import com.profesorfalken.jsensors.JSensors;
+import com.profesorfalken.jsensors.model.components.Components;
+import com.profesorfalken.jsensors.model.components.Cpu;
+import com.profesorfalken.jsensors.model.components.Gpu;
+import com.profesorfalken.jsensors.model.sensors.Temperature;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
@@ -23,7 +29,10 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
     
     @Override
     public CommandInformation getCommandInformation() {
-        return new CommandInformation("developer-information", "Get information about the bot and its host.", "<password>", "developerinformation", "devinfo");
+        return new CommandInformation("developer-information",
+                "Get information about the bot and the host machine.", "<type>",
+                "developerinformation", "devinfo"
+        );
     }
     
     @Override
@@ -41,20 +50,49 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
             return;
         }
         
-        String password = args[0];
-        if(!password.equals("test")) {
-            sendErrorEmbed(sender, channel, "The password is incorrect.");
-            return;
+        String sub = args[0];
+        switch(sub) {
+            case "os": sendOperatingSystem(sender, channel); return;
+            case "java": sendJavaInformation(sender, channel); return;
+            case "resources": sendResourceInformation(sender, channel); return;
+            case "bot": sendBotInformation(sender, channel); return;
+            case "temperature": sendTemperatureInformation(sender, channel); return;
+            default: break;
         }
-        
-        sendInformation(sender, channel);
+
+        sendErrorEmbed(sender, channel, "Unknown information page '" + sub + "'.");
     }
-    
-    private void sendInformation(Member sender, TextChannel channel) {
-        sendOperatingSystem(sender, channel);
-        sendJavaInformation(sender, channel);
-        sendResourceInformation(sender, channel);
-        sendBotInformation(sender, channel);
+
+    private void sendTemperatureInformation(Member sender, TextChannel channel) {
+        EmbedBuilder builder = getExecutedByEmbed(sender);
+        builder.setTitle("Temperature Sensors");
+
+        DecimalFormatSymbols decimalFormatSymbols = DecimalFormatSymbols.getInstance(Locale.US);
+        DecimalFormat decimalFormat = new DecimalFormat("0.00", decimalFormatSymbols);
+
+        Components components = JSensors.get.components();
+        for(Cpu cpu : components.cpus) {
+            int temperatureId = 0;
+            for(Temperature temperature : cpu.sensors.temperatures) {
+                if(temperature.value == null) continue;
+                String temperatureString = (decimalFormat.format(temperature.value) + " \u00B0C");
+                builder.addField("CPU " + cpu.name + " " + temperatureId, temperatureString, false);
+                temperatureId++;
+            }
+        }
+
+        for(Gpu gpu : components.gpus) {
+            int temperatureId = 0;
+            for(Temperature temperature : gpu.sensors.temperatures) {
+                if(temperature.value == null) continue;
+                String temperatureString = (decimalFormat.format(temperature.value) + " \u00B0C");
+                builder.addField("GPU " + gpu.name + " " + temperatureId, temperatureString, false);
+                temperatureId++;
+            }
+        }
+
+        MessageEmbed embed = builder.build();
+        channel.sendMessage(embed).queue();
     }
     
     private void sendOperatingSystem(Member sender, TextChannel channel) {
@@ -64,7 +102,7 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         
         String osNameLowercase = osName.toLowerCase();
         String osImageName = ((osNameLowercase.contains("windows") ? "windows" : osNameLowercase.contains("mac os") ? "apple" : "linux") + ".png");
-        String osImageURL = ("https://www.slimy-network.xyz/discord/images/" + osImageName);
+        String osImageURL = ("http://resources.sirblobman.xyz/slimy_bot/images/" + osImageName);
     
         EmbedBuilder builder = getExecutedByEmbed(sender);
         builder.setTitle("Operating System");
@@ -81,7 +119,7 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         String javaVendor = System.getProperty("java.vendor");
         String javaURL = System.getProperty("java.vendor.url");
         String javaVersion = System.getProperty("java.version");
-        String javaImageURL = ("https://www.slimy-network.xyz/discord/images/java.png");
+        String javaImageURL = ("http://resources.sirblobman.xyz/slimy_bot/images/java.png");
         
         EmbedBuilder builder = getExecutedByEmbed(sender);
         builder.setTitle("Java Information");
@@ -97,7 +135,7 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
     private void sendResourceInformation(Member sender, TextChannel channel) {
         Runtime runtime = Runtime.getRuntime();
         String cpuCoreCount = Integer.toString(runtime.availableProcessors());
-        String cpuImageURL = ("https://www.slimy-network.xyz/discord/images/cpu.png");
+        String cpuImageURL = ("http://resources.sirblobman.xyz/slimy_bot/images/cpu.png");
         
         long maxMemory = runtime.maxMemory();
         long freeMemory = runtime.freeMemory();
