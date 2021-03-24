@@ -81,10 +81,7 @@ public class SlimyBotMain {
     private static void saveDefaultConfig(Logger logger) {
         try {
             File file = new File("config.yml");
-            if(file.exists()) {
-                logger.info("File '" + "config.yml" + "' already exists at '" + file.getAbsolutePath() + "'.");
-                return;
-            }
+            if(file.exists()) return;
 
             boolean newFile = file.createNewFile();
             if(!newFile) {

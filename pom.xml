@@ -65,11 +65,11 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- jSensors -->
+        <!-- Oshi Core -->
         <dependency>
-            <groupId>com.profesorfalken</groupId>
-            <artifactId>jSensors</artifactId>
-            <version>2.2.1</version>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>5.6.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

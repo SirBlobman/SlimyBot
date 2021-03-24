@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
@@ -46,9 +47,9 @@ public class DiscordCommandManager extends ListenerAdapter {
         
         DiscordCommand command = getCommand(commandName);
         if(command == null) return;
-    
-        message.delete().submit(true).join();
+
         TextChannel channel = e.getChannel();
+        message.delete().queueAfter(1, TimeUnit.SECONDS);
         command.onCommand(member, channel, commandName, commandArgs);
         
         String userTag = user.getAsTag();
