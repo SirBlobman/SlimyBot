@@ -21,7 +21,6 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
-import oshi.software.os.OperatingSystem;
 
 public class DiscordCommandDeveloperInformation extends DiscordCommand {
     private final SystemInfo systemInfo;
