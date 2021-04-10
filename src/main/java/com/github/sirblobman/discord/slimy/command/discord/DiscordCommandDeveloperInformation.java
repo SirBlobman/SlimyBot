@@ -57,7 +57,7 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
             case "os": sendOperatingSystem(sender, channel); return;
             case "bot": sendBotUser(sender, channel); return;
             case "java": sendJava(sender, channel); return;
-            case "uptime": sendUptimeInformation(sender, channel); return;
+            case "uptime": sendUptime(sender, channel); return;
             case "resources": sendResources(sender, channel); return;
             case "temperature": sendTemperature(sender, channel); return;
             default: break;
@@ -190,18 +190,18 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         channel.sendMessage(embed).queue();
     }
 
-    private void sendUptimeInformation(Member sender, TextChannel channel) {
+    private void sendUptime(Member sender, TextChannel channel) {
         EmbedBuilder builder = getExecutedByEmbed(sender);
         builder.setTitle("Uptime");
 
         String systemUptimeString = getSystemUptime();
-        builder.addField("System Uptime", systemUptimeString, true);
+        builder.addField("System Uptime", systemUptimeString, false);
 
         long startupTimestamp = this.discordBot.getStartupTimestamp();
         long currentTimestamp = System.currentTimeMillis();
         long uptime = (currentTimestamp - startupTimestamp);
         String uptimeString = formatTime(uptime);
-        builder.addField("Bot Uptime", uptimeString, true);
+        builder.addField("Bot Uptime", uptimeString, false);
 
         MessageEmbed embed = builder.build();
         channel.sendMessage(embed).queue();

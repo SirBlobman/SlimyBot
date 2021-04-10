@@ -7,7 +7,7 @@
                 <ThresholdFilter level="info"/>
             </Filters>
         </Console>
-        <RollingRandomAccessFile name="File Appender" fileName="logs/latest.log" filePattern="logs/%d{MMMM dd, yyyy}-%i.log.gz">
+        <RollingRandomAccessFile name="File Appender" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
             <PatternLayout pattern="[%d{HH:mm:ss.SSS}] [%t/%level]: %msg%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy/>
