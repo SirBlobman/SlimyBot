@@ -1,2 +1,7 @@
 # Slimy Bot
-A Discord bot that is very slimy
+A custom bot that is used on SirBlobman's Discord.
+This bot uses the JDA library created by dv8tion.
+
+# JDA
+JDA stands for "Java Discord API". You can find out more information by clicking the link below:  
+[https://github.com/DV8FromTheWorld/JDA](DV8FromTheWorld/JDA)
