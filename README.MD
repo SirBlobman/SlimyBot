@@ -4,4 +4,4 @@ This bot uses the JDA library created by dv8tion.
 
 # JDA
 JDA stands for "Java Discord API". You can find out more information by clicking the link below:  
-[https://github.com/DV8FromTheWorld/JDA](DV8FromTheWorld/JDA)
+[DV8FromTheWorld/JDA](https://github.com/DV8FromTheWorld/JDA)
