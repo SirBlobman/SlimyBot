@@ -1,0 +1,70 @@
+@import "./components/base";
+
+main {
+  width: 100%;
+  > section > h1 {
+    margin: 0;
+  }
+  #messages {
+    > div {
+      margin-top: 17px;
+      display: flex;
+
+      &:hover {
+        background-color: rgba(4, 4, 5, 0.07);
+      }
+
+      > img {
+        border-radius: 100%;
+        margin: 2px;
+        height: 40px;
+        width: 40px;
+      }
+
+      pre {
+        font-family: Whitney, Helvetica Neue, Helvetica, Arial, sans-serif;
+      }
+
+      > div {
+        > * {
+          padding-left: 16px;
+          margin: 0;
+        }
+
+        video,
+        img {
+          width: 25%;
+          height: auto;
+        }
+
+        h1 {
+          font-size: 1.1rem;
+          time {
+            margin-left: 1rem;
+            font-size: 0.75rem;
+            color: #72767d;
+          }
+        }
+
+        h2 {
+          font-size: 1.05rem;
+        }
+
+        a {
+          color: #00b0f4;
+          text-decoration: none;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+
+        p {
+          font-size: 1rem;
+          line-height: 1.35rem;
+        }
+        flex-direction: column;
+      }
+    }
+  }
+}
