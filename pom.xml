@@ -27,11 +27,19 @@
     </repositories>
     
     <dependencies>
+        <!-- JetBrains Annotations -->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>20.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Java Discord API -->
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.2.1_255</version>
+            <version>4.2.1_262</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>

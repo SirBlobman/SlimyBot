@@ -1,6 +1,6 @@
 package com.github.sirblobman.discord.slimy.command.discord;
 
-import java.awt.*;
+import java.awt.Color;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;

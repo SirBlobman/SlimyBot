@@ -1,6 +1,6 @@
 package com.github.sirblobman.discord.slimy.command.discord;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
+import com.github.sirblobman.discord.slimy.object.MainConfiguration;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -27,6 +28,7 @@ import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 public class DiscordCommandTicket extends DiscordCommand {
     public DiscordCommandTicket(DiscordBot discordBot) {
@@ -40,13 +42,18 @@ public class DiscordCommandTicket extends DiscordCommand {
     
     @Override
     public boolean hasPermission(Member sender) {
-        if(sender == null) return false;
-    
-        Guild guild = sender.getGuild();
-        String guildId = guild.getId();
-        return guildId.equals("472253228856246299");
+        return (sender != null);
     }
-    
+
+    @Override
+    public boolean shouldDeleteCommandMessage(String[] args) {
+        if(args.length >= 1 && args[0].equalsIgnoreCase("close")) {
+            return false;
+        }
+
+        return super.shouldDeleteCommandMessage(args);
+    }
+
     @Override
     public void execute(Member sender, TextChannel channel, String label, String[] args) {
         if(args.length < 1) {
@@ -90,6 +97,7 @@ public class DiscordCommandTicket extends DiscordCommand {
         
         String ticketTitle = String.join(" ", args);
         Role supportRole = getSupportRole();
+        if(supportRole == null) throw new IllegalStateException("The support role is missing or not configured.");
         
         MessageBuilder builder = new MessageBuilder();
         builder.append(supportRole);
@@ -149,28 +157,30 @@ public class DiscordCommandTicket extends DiscordCommand {
         
         channel.delete().reason("Ticket Closed").queue();
     }
-    
-    private Guild getSirBlobmanDiscordGuild() {
-        JDA discordAPI = this.discordBot.getDiscordAPI();
-        return discordAPI.getGuildById("472253228856246299");
-    }
-    
+
+    @Nullable
     private Role getSupportRole() {
-        Guild guild = getSirBlobmanDiscordGuild();
-        if(guild == null) throw new IllegalStateException("SirBlobman's Discord does not exist!");
-        
-        return guild.getRoleById("472258155720736778");
+        MainConfiguration mainConfiguration = this.discordBot.getMainConfiguration();
+        String supportRoleId = mainConfiguration.getSupportRoleId();
+        if(supportRoleId.equalsIgnoreCase("<none>")) return null;
+
+        JDA discordAPI = this.discordBot.getDiscordAPI();
+        return discordAPI.getRoleById(supportRoleId);
     }
-    
+
+    @Nullable
     private Category getTicketCategory() {
-        Guild guild = getSirBlobmanDiscordGuild();
-        if(guild == null) throw new IllegalStateException("SirBlobman's Discord does not exist!");
-        return guild.getCategoryById("605123223578738698");
+        MainConfiguration mainConfiguration = this.discordBot.getMainConfiguration();
+        String ticketCategoryId = mainConfiguration.getTicketCategoryId();
+        if(ticketCategoryId.equalsIgnoreCase("<none>")) return null;
+
+        JDA discordAPI = this.discordBot.getDiscordAPI();
+        return discordAPI.getCategoryById(ticketCategoryId);
     }
     
     private String getNextTicketName() {
         Category category = getTicketCategory();
-        if(category == null) throw new IllegalStateException("SirBlobman's Discord does not have a ticket category!");
+        if(category == null) throw new IllegalStateException("The ticket category is missing or not configured.");
         
         long highestNumber = 0L;
         List<TextChannel> textChannelList = category.getTextChannels();
@@ -187,18 +197,21 @@ public class DiscordCommandTicket extends DiscordCommand {
     
     private TextChannel createNewTicketChannel(Member creator) {
         Category category = getTicketCategory();
-        if(category == null) throw new IllegalStateException("SirBlobman's Discord does not have a ticket category!");
+        if(category == null) throw new IllegalStateException("The ticket category is missing or not configured.");
         
         Role supportRole = getSupportRole();
-        if(supportRole == null) throw new IllegalStateException("SirBlobman's Discord does not have a support role!");
+        if(supportRole == null) throw new IllegalStateException("The support role is missing or not configured.");
 
-        Set<Permission> supportRolePermissions = supportRole.getPermissions();
-        Set<Permission> creatorPermissions = EnumSet.of(Permission.MESSAGE_READ, Permission.MESSAGE_HISTORY, Permission.MESSAGE_WRITE, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS);
+        Set<Permission> supportPermissionSet = supportRole.getPermissions();
+        Set<Permission> memberPermissionSet = EnumSet.of(
+                Permission.MESSAGE_READ, Permission.MESSAGE_HISTORY, Permission.MESSAGE_WRITE,
+                Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS
+        );
         
         String channelName = getNextTicketName();
         ChannelAction<TextChannel> channelAction = category.createTextChannel(channelName)
-                .addPermissionOverride(supportRole, supportRolePermissions, Collections.emptySet())
-                .addPermissionOverride(creator, creatorPermissions, Collections.emptySet());
+                .addPermissionOverride(supportRole, supportPermissionSet, Collections.emptySet())
+                .addPermissionOverride(creator, memberPermissionSet, Collections.emptySet());
         
         return channelAction.submit(true).join();
     }

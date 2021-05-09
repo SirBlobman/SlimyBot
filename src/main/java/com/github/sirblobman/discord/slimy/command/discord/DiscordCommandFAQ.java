@@ -1,6 +1,6 @@
 package com.github.sirblobman.discord.slimy.command.discord;
 
-import java.awt.*;
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,7 +11,6 @@ import com.github.sirblobman.discord.slimy.command.CommandInformation;
 import com.github.sirblobman.discord.slimy.object.FAQSolution;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -25,16 +24,16 @@ public class DiscordCommandFAQ extends DiscordCommand {
     
     @Override
     public CommandInformation getCommandInformation() {
-        return new CommandInformation("faq", "Use this command to get some default responses to questions.", "<id>", "questions", "ask");
+        return new CommandInformation("faq",
+                "Use this command to get some default responses to questions.",
+                "<id>",
+                "questions", "ask"
+        );
     }
     
     @Override
     public boolean hasPermission(Member sender) {
-        if(sender == null) return false;
-    
-        Guild guild = sender.getGuild();
-        String guildId = guild.getId();
-        return guildId.equals("472253228856246299");
+        return (sender != null);
     }
     
     @Override

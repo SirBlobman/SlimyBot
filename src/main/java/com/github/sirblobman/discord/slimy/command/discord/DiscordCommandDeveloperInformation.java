@@ -42,7 +42,8 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         if(sender == null) return false;
     
         String memberId = sender.getId();
-        return memberId.equalsIgnoreCase("252285975814864898");
+        String botOwnerId = this.discordBot.getMainConfiguration().getBotOwnerId();
+        return memberId.equals(botOwnerId);
     }
     
     @Override

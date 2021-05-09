@@ -49,7 +49,7 @@ public class DiscordCommandManager extends ListenerAdapter {
         if(command == null) return;
 
         TextChannel channel = e.getChannel();
-        message.delete().queueAfter(1, TimeUnit.SECONDS);
+        if(command.shouldDeleteCommandMessage(commandArgs)) message.delete().queueAfter(1, TimeUnit.SECONDS);
         command.onCommand(member, channel, commandName, commandArgs);
         
         String userTag = user.getAsTag();

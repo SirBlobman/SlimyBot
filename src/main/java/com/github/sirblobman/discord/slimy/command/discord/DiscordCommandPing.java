@@ -1,6 +1,6 @@
 package com.github.sirblobman.discord.slimy.command.discord;
 
-import java.awt.*;
+import java.awt.Color;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;

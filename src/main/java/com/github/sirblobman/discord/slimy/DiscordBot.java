@@ -1,11 +1,15 @@
 package com.github.sirblobman.discord.slimy;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import com.github.sirblobman.discord.slimy.command.ConsoleCommandManager;
 import com.github.sirblobman.discord.slimy.command.DiscordCommandManager;
@@ -21,103 +25,130 @@ import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandVoter;
 import com.github.sirblobman.discord.slimy.command.discord.minigame.DiscordCommandMagicEightBall;
 import com.github.sirblobman.discord.slimy.listener.ListenerMessages;
 import com.github.sirblobman.discord.slimy.listener.ListenerReactions;
+import com.github.sirblobman.discord.slimy.object.MainConfiguration;
 import com.github.sirblobman.discord.slimy.task.ConsoleInputTask;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import org.yaml.snakeyaml.Yaml;
 
 public class DiscordBot {
-    private final ConsoleCommandManager consoleCommandManager = new ConsoleCommandManager(this);
-    private final DiscordCommandManager discordCommandManager = new DiscordCommandManager(this);
-    
-    private final JDA discordAPI;
     private final Logger logger;
+    private final ConsoleCommandManager consoleCommandManager;
+    private final DiscordCommandManager discordCommandManager;
+
+    private JDA discordAPI;
     private long startupTimestamp;
-    public DiscordBot(JDA api, Logger logger) {
-        this.discordAPI = api;
-        this.logger = logger;
-        this.startupTimestamp = -1L;
+    private MainConfiguration mainConfiguration;
+
+    public DiscordBot(Logger logger) {
+        this.logger = Objects.requireNonNull(logger, "logger must not be null!");
+        this.consoleCommandManager = new ConsoleCommandManager(this);
+        this.discordCommandManager = new DiscordCommandManager(this);
+    }
+
+    public Logger getLogger() {
+        return this.logger;
+    }
+
+    public ConsoleCommandManager getConsoleCommandManager() {
+        return this.consoleCommandManager;
+    }
+
+    public DiscordCommandManager getDiscordCommandManager() {
+        return this.discordCommandManager;
     }
     
     public JDA getDiscordAPI() {
         return this.discordAPI;
     }
-    
-    public Logger getLogger() {
-        return this.logger;
+
+    public long getStartupTimestamp() {
+        return this.startupTimestamp;
     }
-    
-    public ConsoleCommandManager getConsoleCommandManager() {
-        return this.consoleCommandManager;
+
+    public MainConfiguration getMainConfiguration() {
+        return this.mainConfiguration;
     }
-    
-    public DiscordCommandManager getDiscordCommandManager() {
-        return this.discordCommandManager;
+
+    public void onLoad() {
+        Logger logger = getLogger();
+        logger.info("Loading Slimy Bot...");
+
+        saveDefault("config.yml");
+        saveDefault("questions.yml");
+
+        try {
+            Yaml yaml = new Yaml();
+            File configFile = new File("config.yml");
+            FileInputStream configInputStream = new FileInputStream(configFile);
+
+            Map<String, Object> configMap = yaml.load(configInputStream);
+            this.mainConfiguration = MainConfiguration.serialize(this, configMap);
+            if(this.mainConfiguration == null) throw new IllegalStateException("Invalid Config!");
+        } catch(IOException ex) {
+            logger.log(Level.ERROR, "An error occurred while loading the main configuration file:", ex);
+            return;
+        }
+
+        try {
+            String discordApiToken = this.mainConfiguration.getApiToken();
+            if(discordApiToken.equalsIgnoreCase("<none>")) {
+                logger.error("The bot is not configured correctly!");
+                logger.error("Please configure the bot using the 'config.yml' file.");
+                return;
+            }
+
+            JDABuilder jdaBuilder = JDABuilder.createLight(discordApiToken);
+            jdaBuilder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES,
+                    GatewayIntent.GUILD_MESSAGE_REACTIONS);
+            jdaBuilder.setMemberCachePolicy(MemberCachePolicy.ALL);
+
+            Activity activity = Activity.listening("++help");
+            jdaBuilder.setActivity(activity);
+
+            this.discordAPI = jdaBuilder.build().awaitReady();
+            logger.info("Successfully logged in.");
+        } catch(Exception ex) {
+            logger.log(Level.ERROR, "An error occurred while trying to login to discord:", ex);
+            return;
+        }
+
+        Thread shutdownThread = new Thread(this::onDisable);
+        Runtime.getRuntime().addShutdownHook(shutdownThread);
+
+        logger.info("Finished loading Slimy Bot.");
+        onEnable();
     }
     
     public void onEnable() {
         Logger logger = getLogger();
-        logger.info("Successfully logged in, enabling Slimy Network Discord Bot...");
-    
-        saveDefaultConfig("config.yml");
-        saveDefaultConfig("questions.yml");
+        logger.info("Enabling Slimy Bot...");
     
         String inviteURL = this.discordAPI.getInviteUrl(Permission.ADMINISTRATOR);
         logger.info("Invite URL: '" + inviteURL + "'");
-        
+
         registerDiscordCommands();
-        registerConsoleCommands();
         registerListeners();
-        setupConsole();
-        
-        quitUnwantedGuilds();
-        logger.info("Successfully enabled Slimy Network Discord Bot.");
+
+        if(this.mainConfiguration.isConsoleEnabled()) {
+            registerConsoleCommands();
+            setupConsole();
+        }
+
         this.startupTimestamp = System.currentTimeMillis();
+        logger.info("Successfully enabled Slimy Network Discord Bot.");
     }
     
     public void onDisable() {
         JDA discordAPI = getDiscordAPI();
         discordAPI.shutdownNow();
-    }
-
-    public long getStartupTimestamp() {
-        return this.startupTimestamp;
-    }
-    
-    private void saveDefaultConfig(String fileName) {
-        try {
-            File file = new File(fileName);
-            if(file.exists()) {
-                Logger logger = getLogger();
-                logger.info("File '" + fileName + "' already exists at '" + file.getAbsolutePath() + "'.");
-                return;
-            }
-    
-            boolean newFile = file.createNewFile();
-            if(!newFile) {
-                Logger logger = getLogger();
-                logger.warn("Failed to create file '" + fileName + "'.");
-            }
-    
-            Class<? extends DiscordBot> thisClass = getClass();
-            InputStream resource = thisClass.getResourceAsStream("/" + fileName);
-            if(resource == null) {
-                logger.info("Could not find resource '" + fileName + "' inside of the jar.");
-                return;
-            }
-            
-            Path path = file.toPath();
-            Files.copy(resource, path, StandardCopyOption.REPLACE_EXISTING);
-            
-            Logger logger = getLogger();
-            logger.warn("Successfully created default file '" + path.toAbsolutePath().toString() + "'.");
-        } catch(Exception ex) {
-            Logger logger = getLogger();
-            logger.log(Level.WARN, "An error occurred while saving a default file:", ex);
-        }
     }
     
     private void registerListeners() {
@@ -174,25 +205,27 @@ public class DiscordBot {
         thread.setDaemon(true);
         thread.start();
     }
-    
-    private void quitUnwantedGuilds() {
-        JDA discordAPI = getDiscordAPI();
-        List<Guild> guildList = discordAPI.getGuilds();
-        
-        for(Guild guild : guildList) {
-            String guildId = guild.getId();
-            if(guildId.equals("472253228856246299")) continue;
-            
-            String guildName = guild.getName();
-            guild.leave().submit(true).whenCompleteAsync((success, error) -> {
-                Logger logger = getLogger();
-                if(error != null) {
-                    logger.log(Level.WARN, "An error occurred when trying to leave a guild", error);
-                    return;
-                }
-                
-                logger.info("Successfully left an unwanted guild: " + guildId + " | " + guildName);
-            });
+
+    private void saveDefault(String fileName) {
+        try {
+            File file = new File(fileName);
+            if(file.exists()) return;
+
+            Class<?> thisClass = getClass();
+            InputStream jarResourceStream = thisClass.getResourceAsStream("/" + fileName);
+            if(jarResourceStream == null) throw new IOException("'" + fileName + "' does not exist in the jar file.");
+
+            File parentFolder = file.getParentFile();
+            if(parentFolder != null && !parentFolder.exists()) {
+                boolean makeFolder = parentFolder.mkdirs();
+                if(!makeFolder) throw new IOException("Failed to create parent folder for file '" + fileName + "'.");
+            }
+
+            Path filePath = file.toPath();
+            Files.copy(jarResourceStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+        } catch(IOException ex) {
+            Logger logger = getLogger();
+            logger.log(Level.ERROR, "An I/O error occurred while saving a default file:", ex);
         }
     }
 }

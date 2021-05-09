@@ -1,6 +1,6 @@
 package com.github.sirblobman.discord.slimy.command.discord;
 
-import java.awt.*;
+import java.awt.Color;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
@@ -25,12 +25,19 @@ public abstract class DiscordCommand {
                 execute(sender, channel, label, args);
                 return;
             }
-            
-            sendErrorEmbed(sender, channel, "You don't have access to the '" + label + "' command.");
+
+            sendErrorEmbed(sender, channel,"You don't have access to the '" + label + "' command.");
         } catch(Exception ex) {
             try {
-                String message = ex.getMessage();
-                sendErrorEmbed(sender, channel, message);
+                String errorClassType = ex.getClass().getName();
+                String errorMessage = ex.getMessage();
+
+                EmbedBuilder builder = getErrorEmbed(sender);
+                builder.addField("Error Type", errorClassType, false);
+                builder.addField("Error Message", errorMessage, false);
+
+                MessageEmbed embed = builder.build();
+                channel.sendMessage(embed).queue();
             } catch(Throwable ignored) {}
             
             Logger logger = this.discordBot.getLogger();
@@ -47,15 +54,25 @@ public abstract class DiscordCommand {
         
         return new EmbedBuilder().setFooter(footerMessage, footerIconURL);
     }
-    
-    public final void sendErrorEmbed(Member sender, TextChannel channel, String description) {
+
+    public final EmbedBuilder getErrorEmbed(Member sender) {
         EmbedBuilder builder = getExecutedByEmbed(sender);
         builder.setColor(Color.RED);
         builder.setTitle("Command Error");
+        builder.setDescription("An error occurred while executing that command.");
+        return builder;
+    }
+
+    public final void sendErrorEmbed(Member sender, TextChannel channel, String description) {
+        EmbedBuilder builder = getErrorEmbed(sender);
         builder.setDescription(description);
-    
+
         MessageEmbed embed = builder.build();
         channel.sendMessage(embed).queue();
+    }
+
+    public boolean shouldDeleteCommandMessage(String[] args) {
+        return true;
     }
     
     public abstract CommandInformation getCommandInformation();
