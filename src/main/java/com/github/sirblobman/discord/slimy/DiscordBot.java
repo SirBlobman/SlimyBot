@@ -1,5 +1,16 @@
 package com.github.sirblobman.discord.slimy;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import com.github.sirblobman.discord.slimy.command.ConsoleCommandManager;
 import com.github.sirblobman.discord.slimy.command.DiscordCommandManager;
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommandHelp;
@@ -16,6 +27,7 @@ import com.github.sirblobman.discord.slimy.listener.ListenerMessages;
 import com.github.sirblobman.discord.slimy.listener.ListenerReactions;
 import com.github.sirblobman.discord.slimy.object.MainConfiguration;
 import com.github.sirblobman.discord.slimy.task.ConsoleInputTask;
+
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
@@ -25,17 +37,6 @@ import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class DiscordBot {
     private final Logger logger;
