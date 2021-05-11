@@ -70,10 +70,7 @@ public class ListenerReactions extends SlimyBotListener {
         char numberChar = Character.forDigit(number, 10);
         if(numberChar == '\u0000') return null;
 
-        char emojiConvert = '\uFE0F';
-        char keycapConvert = '\u20E3';
-
-        char[] charArray = {numberChar, emojiConvert, keycapConvert};
+        char[] charArray = {numberChar, '\uFE0F', '\u20E3'};
         return new String(charArray);
     }
 }
