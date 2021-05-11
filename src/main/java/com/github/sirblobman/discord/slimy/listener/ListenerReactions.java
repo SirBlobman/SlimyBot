@@ -29,11 +29,10 @@ public class ListenerReactions extends SlimyBotListener {
         TextChannel channel = e.getChannel();
         String channelId = channel.getId();
         if(!channelId.equals("647078919668891649")) return;
-        Message message = e.getMessage();
 
+        Message message = e.getMessage();
         String rawMessage = message.getContentRaw();
-        List<String> emojiList = EmojiParser.extractEmojis(rawMessage);
-        Set<String> emojiSet = new HashSet<>(emojiList);
+        Set<String> emojiSet = getEmojis(rawMessage);
         for(String emoji : emojiSet) addReaction(message, emoji);
 
         List<Emote> emoteList = message.getEmotes();
@@ -49,5 +48,32 @@ public class ListenerReactions extends SlimyBotListener {
     private void addReaction(Message message, String emoji) {
         RestAction<Void> addReaction = message.addReaction(emoji);
         addReaction.queue(null, ex -> logError("An error occurred while adding a reaction to a message:", ex));
+    }
+
+    private Set<String> getEmojis(String message) {
+        List<String> basicEmojiList = EmojiParser.extractEmojis(message);
+        Set<String> emojiSet = new HashSet<>(basicEmojiList);
+
+        for(int i = 0; i <= 9; i++) {
+            String emojiRaw = getKeycapEmoji(i);
+            if(emojiRaw == null) continue;
+            if(message.contains(emojiRaw)) emojiSet.add(emojiRaw);
+        }
+
+        return emojiSet;
+    }
+
+    private String getKeycapEmoji(int number) {
+        if(number < 0) return null;
+        if(number > 9) return null;
+
+        char numberChar = Character.forDigit(number, 10);
+        if(numberChar == '\u0000') return null;
+
+        char emojiConvert = '\uFE0F';
+        char keycapConvert = '\u20E3';
+
+        char[] charArray = {numberChar, emojiConvert, keycapConvert};
+        return new String(charArray);
     }
 }
