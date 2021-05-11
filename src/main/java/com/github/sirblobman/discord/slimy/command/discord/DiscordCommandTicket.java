@@ -1,15 +1,32 @@
 package com.github.sirblobman.discord.slimy.command.discord;
 
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
 import com.github.sirblobman.discord.slimy.object.MainConfiguration;
+
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.MessageBuilder.Formatting;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
@@ -27,27 +44,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.TimeZone;
-
 public class DiscordCommandTicket extends DiscordCommand {
-
-    private static final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("yyyy MMM dd HH:mm:ss z", Locale.US);
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy MMM dd HH:mm:ss z", Locale.US);
     public DiscordCommandTicket(DiscordBot discordBot) {
         super(discordBot);
     }
@@ -171,110 +169,8 @@ public class DiscordCommandTicket extends DiscordCommand {
             sendErrorEmbed(sender, channel, "This is not a ticket channel.");
             return;
         }
-        File template = new File("archive/ticket_template.html");
-        if(!template.exists()) {
-            channel.delete().reason("Ticket Closed").queue();
-            return;
-        }
-        String id = channel.getName() + "-" + channel.getTimeCreated().toInstant().toEpochMilli();
-        File ticket = new File("archive/tickets/"+id+"/"+id+".html");
-        if(!ticket.mkdirs()) {
-            channel.delete().reason("Ticket Closed").queue();
-            return;
-        }
-        try {
-            Files.copy(Files.newInputStream(template.toPath()), ticket.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            Document document = Jsoup.parse(ticket, StandardCharsets.UTF_8.name());
-            document
-                .head()
-                .getElementsByTag("title")
-                .get(0).text("Ticket ")
-                .appendText(id);
-            Element titleSection = document.getElementById("title");
-            titleSection
-                .getElementsByTag("h1")
-                .get(0)
-                .text("Ticket ")
-                .appendText(id);
-            Element messagesSection = document.getElementById("messages");
-            channel.getIterableHistory().queue((messages -> {
-                channel.delete().reason("Ticket Closed").queue();
-                Collections.reverse(messages);
-                String author = messages.get(0).getMentionedUsers().get(0).getAsTag();
-                titleSection
-                    .getElementsByTag("h2")
-                    .get(0)
-                    .text("Created by ")
-                    .appendText(author);
-                messages.forEach((message -> {
-                    Element messageElement = messagesSection.appendElement("div");
-                    messageElement
-                        .appendElement("img")
-                        .attr("src", message.getAuthor().getEffectiveAvatarUrl())
-                        .attr("alt", message.getAuthor().getAsTag()+" Avatar");
-                    Element textElement = messageElement.appendElement("div");
-                    textElement
-                        .appendElement("h1")
-                        .append(message.getAuthor().getAsTag())
-                        .appendElement("time")
-                        .append(TIME_FORMAT.format(Calendar.getInstance().getTime()));
-                    textElement
-                        .appendElement("p")
-                        .appendElement("pre")
-                        .text(message.getContentStripped());
-                    message.getAttachments().forEach((attachment -> {
-                        if(attachment.isImage()) {
-                            textElement
-                                .appendElement("img")
-                                .attr("src", attachment.getUrl());
-                        } else if(attachment.isVideo()) {
-                            textElement
-                                .appendElement("video")
-                                .attr("controls", null)
-                                .appendElement("source")
-                                .attr("src", attachment.getUrl())
-                                .attr("type", "video/"+attachment.getFileExtension());
-                        } else {
-                            textElement
-                                .appendElement("a")
-                                .attr("href", attachment.getUrl())
-                                .text(attachment.getFileName());
-                        }
-                    }));
-                    message.getEmbeds().forEach((embed) -> {
-                        textElement
-                            .appendElement("h2")
-                            .text(embed.getTitle());
-                        textElement
-                            .appendElement("p")
-                            .text(embed.getDescription());
-                        if(embed.getFooter() != null) {
-                            textElement
-                                .appendElement("p")
-                                .text(embed.getFooter().getText());
-                        }
-                    });
-                }));
-                try {
-                    PrintWriter writer = new PrintWriter(ticket, StandardCharsets.UTF_8);
-                    writer.write(document.html());
-                    writer.close();
-                    MainConfiguration mainConfiguration = this.discordBot.getMainConfiguration();
-                    String ticketHistoryChannelId = mainConfiguration.getTicketHistoryChannelId();
-                    if(ticketHistoryChannelId.equalsIgnoreCase("<none>")) return;
-                    GuildChannel history = discordBot.getDiscordAPI().getGuildChannelById(ticketHistoryChannelId);
-                    if(history instanceof MessageChannel) {
-                        Message message = new MessageBuilder().append("Ticket ").append(id).append(" by ").append(author).build();
-                        MessageChannel historyChannel = (MessageChannel) history;
-                        historyChannel.sendMessage(message).addFile(ticket).queue();
-                    }
-                } catch(IOException e) {
-                    e.printStackTrace();
-                }
-            }));
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
+
+        archiveTicket(channel);
     }
 
     @Nullable
@@ -364,5 +260,118 @@ public class DiscordCommandTicket extends DiscordCommand {
         }
         
         return memberList;
+    }
+
+    private void archiveTicket(TextChannel channel) {
+        File templateFile = new File("archive/ticket_template.html");
+        if(!templateFile.exists()) {
+            channel.delete().reason("Ticket Closed").queue();
+            return;
+        }
+
+        String ticketId = channel.getName() + "-" + channel.getTimeCreated().toInstant().toEpochMilli();
+        File ticketFile = new File("archive/tickets/" + ticketId + "/" + ticketId + ".html");
+        if(!ticketFile.mkdirs()) {
+            channel.delete().reason("Ticket Closed").queue();
+            return;
+        }
+
+        try {
+            Files.copy(Files.newInputStream(templateFile.toPath()), ticketFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Document document = Jsoup.parse(ticketFile, StandardCharsets.UTF_8.name());
+            document
+                    .head()
+                    .getElementsByTag("title")
+                    .get(0).text("Ticket ")
+                    .appendText(ticketId);
+            Element titleSection = document.getElementById("title");
+            titleSection
+                    .getElementsByTag("h1")
+                    .get(0)
+                    .text("Ticket ")
+                    .appendText(ticketId);
+            Element messagesSection = document.getElementById("messages");
+            channel.getIterableHistory().queue((messages -> {
+                channel.delete().reason("Ticket Closed").queue();
+
+                Collections.reverse(messages);
+                String author = messages.get(0).getMentionedUsers().get(0).getAsTag();
+                titleSection
+                        .getElementsByTag("h2")
+                        .get(0)
+                        .text("Created by ")
+                        .appendText(author);
+                messages.forEach((message -> {
+                    Element messageElement = messagesSection.appendElement("div");
+                    messageElement
+                            .appendElement("img")
+                            .attr("src", message.getAuthor().getEffectiveAvatarUrl())
+                            .attr("alt", message.getAuthor().getAsTag()+" Avatar");
+                    Element textElement = messageElement.appendElement("div");
+                    textElement
+                            .appendElement("h1")
+                            .append(message.getAuthor().getAsTag())
+                            .appendElement("time")
+                            .append(DATE_FORMATTER.format(message.getTimeCreated().atZoneSameInstant(ZoneId.of("America/New_York"))));
+                    textElement
+                            .appendElement("p")
+                            .appendElement("pre")
+                            .text(message.getContentStripped());
+                    message.getAttachments().forEach((attachment -> {
+                        if(attachment.isImage()) {
+                            textElement
+                                    .appendElement("img")
+                                    .attr("src", attachment.getUrl());
+                        } else if(attachment.isVideo()) {
+                            textElement
+                                    .appendElement("video")
+                                    .attr("controls", null)
+                                    .appendElement("source")
+                                    .attr("src", attachment.getUrl())
+                                    .attr("type", "video/"+attachment.getFileExtension());
+                        } else {
+                            textElement
+                                    .appendElement("a")
+                                    .attr("href", attachment.getUrl())
+                                    .text(attachment.getFileName());
+                        }
+                    }));
+                    message.getEmbeds().forEach((embed) -> {
+                        textElement
+                                .appendElement("h2")
+                                .text(embed.getTitle());
+                        textElement
+                                .appendElement("p")
+                                .text(embed.getDescription());
+                        if(embed.getFooter() != null) {
+                            textElement
+                                    .appendElement("p")
+                                    .text(embed.getFooter().getText());
+                        }
+                    });
+                }));
+
+                try {
+                    PrintWriter writer = new PrintWriter(ticketFile, StandardCharsets.UTF_8);
+                    writer.write(document.html());
+                    writer.close();
+
+                    MainConfiguration mainConfiguration = this.discordBot.getMainConfiguration();
+                    String ticketHistoryChannelId = mainConfiguration.getTicketHistoryChannelId();
+                    if(ticketHistoryChannelId.equalsIgnoreCase("<none>")) return;
+
+                    GuildChannel history = discordBot.getDiscordAPI().getGuildChannelById(ticketHistoryChannelId);
+                    if(history instanceof MessageChannel) {
+                        Message message = new MessageBuilder().append("Ticket ").append(ticketId).append(" by ").append(author).build();
+                        MessageChannel historyChannel = (MessageChannel) history;
+                        historyChannel.sendMessage(message).addFile(ticketFile).queue();
+                    }
+                } catch(IOException ex) {
+                    ex.printStackTrace();
+                }
+            }));
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -82,7 +82,7 @@ public class DiscordBot {
 
         saveDefault("config.yml");
         saveDefault("questions.yml");
-        saveDefault("archive/css/ticket.min.css");
+        saveDefault("archive/css/ticket.css");
         saveDefault("archive/ticket_template.html");
 
         try {
