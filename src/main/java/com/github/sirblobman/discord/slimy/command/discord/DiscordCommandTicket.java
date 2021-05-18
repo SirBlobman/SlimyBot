@@ -3,11 +3,13 @@ package com.github.sirblobman.discord.slimy.command.discord;
 import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,13 +30,14 @@ import net.dv8tion.jda.api.MessageBuilder.Formatting;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.MessageEmbed.Footer;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
 import org.apache.logging.log4j.Level;
@@ -276,102 +279,133 @@ public class DiscordCommandTicket extends DiscordCommand {
             return;
         }
 
-        try {
-            Files.copy(Files.newInputStream(templateFile.toPath()), ticketFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            Document document = Jsoup.parse(ticketFile, StandardCharsets.UTF_8.name());
-            document
-                    .head()
-                    .getElementsByTag("title")
-                    .get(0).text("Ticket ")
-                    .appendText(ticketId);
-            Element titleSection = document.getElementById("title");
-            titleSection
-                    .getElementsByTag("h1")
-                    .get(0)
-                    .text("Ticket ")
-                    .appendText(ticketId);
-            Element messagesSection = document.getElementById("messages");
-            channel.getIterableHistory().queue((messages -> {
-                channel.delete().reason("Ticket Closed").queue();
+        MainConfiguration mainConfiguration = this.discordBot.getMainConfiguration();
+        String ticketHistoryChannelId = mainConfiguration.getTicketHistoryChannelId();
+        if(ticketHistoryChannelId.equalsIgnoreCase("<none>")) {
+            channel.delete().reason("Ticket Closed").queue();
+            return;
+        }
 
+        try {
+            Path tempateFilePath = templateFile.toPath();
+            Path ticketFilePath = ticketFile.toPath();
+            Files.copy(tempateFilePath, ticketFilePath, StandardCopyOption.REPLACE_EXISTING);
+
+            Document document = Jsoup.parse(ticketFile, "UTF-8");
+            Element documentHead = document.head();
+
+            Element documentHeadTitle = documentHead.getElementsByTag("title").get(0);
+            documentHeadTitle.text("Ticket ").appendText(ticketId);
+
+            Element titleSection = document.getElementById("title");
+            Element titleSectionH1 = titleSection.getElementsByTag("h1").get(0);
+            titleSectionH1.text("Ticket ").appendText(ticketId);
+
+
+            Element messagesSection = document.getElementById("messages");
+            channel.getIterableHistory().queue(messages -> {
                 Collections.reverse(messages);
-                String author = messages.get(0).getMentionedUsers().get(0).getAsTag();
-                titleSection
-                        .getElementsByTag("h2")
-                        .get(0)
-                        .text("Created by ")
-                        .appendText(author);
-                messages.forEach((message -> {
+                channel.delete().reason("Ticket Closed").queue();
+                ZoneId newYorkZone = ZoneId.of("America/New_York");
+
+                String authorTag = messages.get(0).getMentionedUsers().get(0).getAsTag();
+                Element titleSectionH2 = titleSection.getElementsByTag("h2").get(0);
+                titleSectionH2.text("Created by ").appendText(authorTag);
+
+                for(Message message : messages) {
+                    User messageAuthor = message.getAuthor();
+                    String messageAuthorAvatarUrl = messageAuthor.getEffectiveAvatarUrl();
+                    String messageAuthorAsTag = messageAuthor.getAsTag();
+                    String messageContentStripped = message.getContentStripped();
+
+                    ZonedDateTime messageDateTime = message.getTimeCreated().atZoneSameInstant(newYorkZone);
+                    String messageTimeFormatted = DATE_FORMATTER.format(messageDateTime);
+
                     Element messageElement = messagesSection.appendElement("div");
-                    messageElement
-                            .appendElement("img")
-                            .attr("src", message.getAuthor().getEffectiveAvatarUrl())
-                            .attr("alt", message.getAuthor().getAsTag()+" Avatar");
+                    messageElement.appendElement("img").attr("src", messageAuthorAvatarUrl)
+                            .attr("alt", "Avatar for " + messageAuthorAsTag);
+
                     Element textElement = messageElement.appendElement("div");
-                    textElement
-                            .appendElement("h1")
-                            .append(message.getAuthor().getAsTag())
-                            .appendElement("time")
-                            .append(DATE_FORMATTER.format(message.getTimeCreated().atZoneSameInstant(ZoneId.of("America/New_York"))));
-                    textElement
-                            .appendElement("p")
-                            .appendElement("pre")
-                            .text(message.getContentStripped());
-                    message.getAttachments().forEach((attachment -> {
-                        if(attachment.isImage()) {
-                            textElement
-                                    .appendElement("img")
-                                    .attr("src", attachment.getUrl());
-                        } else if(attachment.isVideo()) {
-                            textElement
-                                    .appendElement("video")
-                                    .attr("controls", null)
-                                    .appendElement("source")
-                                    .attr("src", attachment.getUrl())
-                                    .attr("type", "video/"+attachment.getFileExtension());
-                        } else {
-                            textElement
-                                    .appendElement("a")
-                                    .attr("href", attachment.getUrl())
-                                    .text(attachment.getFileName());
+                    Element textElementH1 = textElement.appendElement("h1");
+                    textElementH1.append(messageAuthorAsTag);
+
+                    Element textElementTime = textElementH1.appendElement("time");
+                    textElementTime.appendText(messageTimeFormatted);
+
+                    Element textElementPre = textElement.appendElement("p").appendElement("pre");
+                    textElementPre.text(messageContentStripped);
+
+                    List<Attachment> messageAttachmentList = message.getAttachments();
+                    for(Attachment messageAttachment : messageAttachmentList) {
+                        String attachmentUrl = messageAttachment.getUrl();
+                        if(messageAttachment.isImage()) {
+                            Element imageElement = textElement.appendElement("img");
+                            imageElement.attr("src", attachmentUrl);
+                            continue;
                         }
-                    }));
-                    message.getEmbeds().forEach((embed) -> {
-                        textElement
-                                .appendElement("h2")
-                                .text(embed.getTitle());
-                        textElement
-                                .appendElement("p")
-                                .text(embed.getDescription());
-                        if(embed.getFooter() != null) {
-                            textElement
-                                    .appendElement("p")
-                                    .text(embed.getFooter().getText());
+
+                        if(messageAttachment.isVideo()) {
+                            String attachmentExtension = messageAttachment.getFileExtension();
+                            Element videoElement = textElement.appendElement("video");
+                            videoElement.attr("controls", null);
+
+                            Element sourceElement = videoElement.appendElement("source");
+                            sourceElement.attr("src", attachmentUrl);
+                            sourceElement.attr("type", "video/" + attachmentExtension);
+                            continue;
                         }
-                    });
-                }));
+
+                        String attachmentFileName = messageAttachment.getFileName();
+                        Element anchorElement = textElement.appendElement("a");
+                        anchorElement.attr("href", attachmentUrl);
+                        anchorElement.attr("target", "_blank");
+                        anchorElement.text(attachmentFileName);
+                    }
+
+                    List<MessageEmbed> messageEmbedList = message.getEmbeds();
+                    for(MessageEmbed messageEmbed : messageEmbedList) {
+                        String embedTitle = messageEmbed.getTitle();
+                        if(embedTitle != null) {
+                            Element h2Element = textElement.appendElement("h2");
+                            h2Element.text(embedTitle);
+                        }
+
+                        String embedDescription = messageEmbed.getDescription();
+                        if(embedDescription != null) {
+                            Element pElement = textElement.appendElement("p");
+                            pElement.text(embedDescription);
+                        }
+
+                        Footer embedFooter = messageEmbed.getFooter();
+                        if(embedFooter != null) {
+                            String embedFooterText = embedFooter.getText();
+                            if(embedFooterText != null) {
+                                Element pElement = textElement.appendElement("p");
+                                pElement.text(embedFooterText);
+                            }
+                        }
+                    }
+                }
 
                 try {
-                    PrintWriter writer = new PrintWriter(ticketFile, StandardCharsets.UTF_8);
-                    writer.write(document.html());
-                    writer.close();
+                    String htmlCode = document.html();
+                    Files.writeString(ticketFilePath, htmlCode, StandardCharsets.UTF_8, StandardOpenOption.WRITE);
 
-                    MainConfiguration mainConfiguration = this.discordBot.getMainConfiguration();
-                    String ticketHistoryChannelId = mainConfiguration.getTicketHistoryChannelId();
-                    if(ticketHistoryChannelId.equalsIgnoreCase("<none>")) return;
+                    JDA discordAPI = this.discordBot.getDiscordAPI();
+                    TextChannel textChannel = discordAPI.getTextChannelById(ticketHistoryChannelId);
+                    if(textChannel != null) {
+                        MessageBuilder builder = new MessageBuilder();
+                        builder.append("Ticket ").append(ticketId).append(authorTag);
 
-                    GuildChannel history = discordBot.getDiscordAPI().getGuildChannelById(ticketHistoryChannelId);
-                    if(history instanceof MessageChannel) {
-                        Message message = new MessageBuilder().append("Ticket ").append(ticketId).append(" by ").append(author).build();
-                        MessageChannel historyChannel = (MessageChannel) history;
-                        historyChannel.sendMessage(message).addFile(ticketFile).queue();
+                        Message message = builder.build();
+                        textChannel.sendMessage(message).addFile(ticketFile).queue();
                     }
                 } catch(IOException ex) {
                     ex.printStackTrace();
                 }
-            }));
-        } catch(IOException e) {
-            e.printStackTrace();
+            });
+        } catch(IOException ex) {
+            ex.printStackTrace();
         }
     }
 }
