@@ -395,7 +395,7 @@ public class DiscordCommandTicket extends DiscordCommand {
                     TextChannel textChannel = discordAPI.getTextChannelById(ticketHistoryChannelId);
                     if(textChannel != null) {
                         MessageBuilder builder = new MessageBuilder();
-                        builder.append("Ticket ").append(ticketId).append(authorTag);
+                        builder.append("Ticket ").append(ticketId).append(" by ").append(authorTag);
 
                         Message message = builder.build();
                         textChannel.sendMessage(message).addFile(ticketFile).queue();
