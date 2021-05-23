@@ -1,6 +1,7 @@
 package com.github.sirblobman.discord.slimy.listener;
 
 import java.util.List;
+import java.util.Locale;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 
@@ -59,7 +60,8 @@ public class ListenerMessages extends SlimyBotListener {
             contentRaw.append("[Embed: ").append(string).append("]");
         }
 
-        String logMessage = String.format("[New Message] [Guild: %s | %s] [Channel: %s | %s] [Message: %s | '%s']", guildId, guildName, channelId, channelName, messageId, contentRaw.toString());
+        String logMessage = String.format(Locale.US,"[New Message] [Guild: %s | %s] [Channel: %s | %s] " +
+                        "[Message: %s | '%s']", guildId, guildName, channelId, channelName, messageId, contentRaw);
         Logger logger = this.discordBot.getLogger();
         logger.info(logMessage);
     }
@@ -72,7 +74,8 @@ public class ListenerMessages extends SlimyBotListener {
         String guildName = guild.getName();
         String channelName = channel.getName();
         String contentRaw = message.getContentRaw();
-        String logMessage = String.format("[Message Edited] [Guild: %s | %s] [Channel: %s | %s] [Message ID: %s] [New Content: '%s']", guildId, guildName, channelId, channelName, messageId, contentRaw);
+        String logMessage = String.format("[Message Edited] [Guild: %s | %s] [Channel: %s | %s] [Message ID: %s] " +
+                "[New Content: '%s']", guildId, guildName, channelId, channelName, messageId, contentRaw);
         
         Logger logger = this.discordBot.getLogger();
         logger.info(logMessage);
@@ -84,7 +87,8 @@ public class ListenerMessages extends SlimyBotListener {
         
         String guildName = guild.getName();
         String channelName = channel.getName();
-        String logMessage = String.format("[Message Deleted] [Guild: %s | %s] [Channel: %s | %s] [Message ID: %s]", guildId, guildName, channelId, channelName, messageId);
+        String logMessage = String.format("[Message Deleted] [Guild: %s | %s] [Channel: %s | %s] [Message ID: %s]",
+                guildId, guildName, channelId, channelName, messageId);
         
         Logger logger = this.discordBot.getLogger();
         logger.info(logMessage);

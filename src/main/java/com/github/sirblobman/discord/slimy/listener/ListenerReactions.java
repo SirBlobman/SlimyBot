@@ -47,7 +47,8 @@ public class ListenerReactions extends SlimyBotListener {
 
     private void addReaction(Message message, String emoji) {
         RestAction<Void> addReaction = message.addReaction(emoji);
-        addReaction.queue(null, ex -> logError("An error occurred while adding a reaction to a message:", ex));
+        addReaction.queue(null, ex ->
+                logError("An error occurred while adding a reaction to a message:", ex));
     }
 
     private Set<String> getEmojis(String message) {
