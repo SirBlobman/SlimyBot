@@ -54,6 +54,16 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         }
         
         String sub = args[0];
+        if(sub.equals("all")) {
+            sendOperatingSystem(sender, channel);
+            sendBotUser(sender, channel);
+            sendJava(sender, channel);
+            sendUptime(sender, channel);
+            sendResources(sender, channel);
+            sendTemperature(sender, channel);
+            return;
+        }
+        
         switch(sub) {
             case "os": sendOperatingSystem(sender, channel); return;
             case "bot": sendBotUser(sender, channel); return;
