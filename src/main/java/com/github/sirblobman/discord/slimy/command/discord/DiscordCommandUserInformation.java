@@ -74,7 +74,7 @@ public class DiscordCommandUserInformation extends DiscordCommand {
         builder.addField("Join Date", dateJoinedString, true);
     
         MessageEmbed embed = builder.build();
-        channel.sendMessage(embed).queue();
+        channel.sendMessageEmbeds(embed).queue();
     }
     
     private List<Member> parseMentions(TextChannel channel, String[] args) {

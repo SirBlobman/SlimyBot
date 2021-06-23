@@ -63,7 +63,7 @@ public class DiscordCommandFAQ extends DiscordCommand {
         builder.addField("Answer", answer, false);
     
         MessageEmbed embed = builder.build();
-        channel.sendMessage(embed).queue();
+        channel.sendMessageEmbeds(embed).queue();
     }
     
     private FAQSolution getSolution(String id) {

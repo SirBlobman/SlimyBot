@@ -103,7 +103,7 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         }
 
         MessageEmbed embed = builder.build();
-        channel.sendMessage(embed).queue();
+        channel.sendMessageEmbeds(embed).queue();
     }
     
     private void sendOperatingSystem(Member sender, TextChannel channel) {
@@ -123,7 +123,7 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         builder.addField("Arch", osArch, true);
     
         MessageEmbed embed = builder.build();
-        channel.sendMessage(embed).queue();
+        channel.sendMessageEmbeds(embed).queue();
     }
     
     private void sendJava(Member sender, TextChannel channel) {
@@ -140,7 +140,7 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         builder.addField("URL", javaURL, true);
     
         MessageEmbed embed = builder.build();
-        channel.sendMessage(embed).queue();
+        channel.sendMessageEmbeds(embed).queue();
     }
     
     private void sendResources(Member sender, TextChannel channel) {
@@ -168,7 +168,7 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         builder.addField("Max RAM", maxMemoryMebibytes, true);
     
         MessageEmbed embed = builder.build();
-        channel.sendMessage(embed).queue();
+        channel.sendMessageEmbeds(embed).queue();
     }
     
     private void sendBotUser(Member sender, TextChannel channel) {
@@ -198,7 +198,7 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         builder.addField("Date Joined", dateJoinedString, false);
     
         MessageEmbed embed = builder.build();
-        channel.sendMessage(embed).queue();
+        channel.sendMessageEmbeds(embed).queue();
     }
 
     private void sendUptime(Member sender, TextChannel channel) {
@@ -215,7 +215,7 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         builder.addField("Bot Uptime", uptimeString, false);
 
         MessageEmbed embed = builder.build();
-        channel.sendMessage(embed).queue();
+        channel.sendMessageEmbeds(embed).queue();
     }
 
     private String getSystemUptime() {

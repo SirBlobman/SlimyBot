@@ -37,6 +37,6 @@ public class DiscordCommandPing extends DiscordCommand {
         builder.setDescription("The last ping took " + gatewayPing + " milliseconds.");
     
         MessageEmbed embed = builder.build();
-        channel.sendMessage(embed).queue();
+        channel.sendMessageEmbeds(embed).queue();
     }
 }

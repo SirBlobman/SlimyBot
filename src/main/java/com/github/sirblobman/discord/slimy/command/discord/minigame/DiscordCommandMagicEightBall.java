@@ -61,6 +61,6 @@ public class DiscordCommandMagicEightBall extends DiscordCommand {
         builder.addField("Answer", message, false);
         
         MessageEmbed embed = builder.build();
-        channel.sendMessage(embed).queue();
+        channel.sendMessageEmbeds(embed).queue();
     }
 }

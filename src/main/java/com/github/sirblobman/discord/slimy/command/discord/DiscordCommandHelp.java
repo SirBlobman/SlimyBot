@@ -70,7 +70,7 @@ public class DiscordCommandHelp extends DiscordCommand {
         }
     
         MessageEmbed embed = builder.build();
-        channel.sendMessage(embed).queue();
+        channel.sendMessageEmbeds(embed).queue();
     }
     
     private void sendCommandInformation(Member sender, TextChannel channel, DiscordCommand discordCommand) {
@@ -89,6 +89,6 @@ public class DiscordCommandHelp extends DiscordCommand {
         builder.addField("Aliases", commandAliases, false);
     
         MessageEmbed embed = builder.build();
-        channel.sendMessage(embed).queue();
+        channel.sendMessageEmbeds(embed).queue();
     }
 }

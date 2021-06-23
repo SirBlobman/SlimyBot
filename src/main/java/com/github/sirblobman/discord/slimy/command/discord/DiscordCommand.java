@@ -37,7 +37,7 @@ public abstract class DiscordCommand {
                 builder.addField("Error Message", errorMessage, false);
 
                 MessageEmbed embed = builder.build();
-                channel.sendMessage(embed).queue();
+                channel.sendMessageEmbeds(embed).queue();
             } catch(Throwable ignored) {}
             
             Logger logger = this.discordBot.getLogger();
@@ -68,7 +68,7 @@ public abstract class DiscordCommand {
         builder.setDescription(description);
 
         MessageEmbed embed = builder.build();
-        channel.sendMessage(embed).queue();
+        channel.sendMessageEmbeds(embed).queue();
     }
 
     public boolean shouldDeleteCommandMessage(String[] args) {

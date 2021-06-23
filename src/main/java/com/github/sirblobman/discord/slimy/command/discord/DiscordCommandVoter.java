@@ -73,8 +73,8 @@ public class DiscordCommandVoter extends DiscordCommand {
                     logger.log(Level.WARN, "An error occurred while sending a private message to a user:", error2);
                     return;
                 }
-                
-                privateChannel.sendMessage(embed).queue();
+
+                channel.sendMessageEmbeds(embed).queue();
             });
         });
     }

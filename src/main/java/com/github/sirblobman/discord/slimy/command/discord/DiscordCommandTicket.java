@@ -81,15 +81,14 @@ public class DiscordCommandTicket extends DiscordCommand {
         
         String sub = args[0].toLowerCase();
         String[] newArgs = (args.length < 2 ? new String[0] : Arrays.copyOfRange(args, 1, args.length));
-        
-        switch(sub) {
-            case "help": showUsage(sender, channel); break;
-            case "new": createNewTicket(sender, channel, newArgs); break;
-            case "add": addUserToTicket(sender, channel, newArgs); break;
-            case "close": closeTicket(sender, channel); break;
-            default:
-                sendErrorEmbed(sender, channel, "Unknown sub command '" + sub + "'. Please type '++ticket help'");
-                break;
+
+        switch (sub) {
+            case "help" -> showUsage(sender, channel);
+            case "new" -> createNewTicket(sender, channel, newArgs);
+            case "add" -> addUserToTicket(sender, channel, newArgs);
+            case "close" -> closeTicket(sender, channel);
+            default -> sendErrorEmbed(sender, channel, "Unknown sub command '"+ sub + "'. Please type " +
+                    "'++ticket help'");
         }
     }
     
@@ -100,10 +99,11 @@ public class DiscordCommandTicket extends DiscordCommand {
         builder.addField("New Ticket", "++ticket new [title with spaces...]", false);
         builder.addField("Add User", "++ticket add <@user>", false);
         builder.addField("Close Ticket", "++ticket close", false);
-        builder.addField("More Information", "You can only add users and close the ticket in its own channel.", false);
+        builder.addField("More Information",
+                "You can only add users and close the ticket in its own channel.", false);
     
         MessageEmbed embed = builder.build();
-        channel.sendMessage(embed).queue();
+        channel.sendMessageEmbeds(embed).queue();
     }
     
     private void createNewTicket(Member sender, TextChannel channel, String[] args) {
@@ -144,9 +144,11 @@ public class DiscordCommandTicket extends DiscordCommand {
             return;
         }
         
-        long extraUserPermissions = Permission.getRaw(Permission.MESSAGE_READ, Permission.MESSAGE_HISTORY, Permission.MESSAGE_WRITE, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS);
+        long extraUserPermissions = Permission.getRaw(Permission.MESSAGE_READ, Permission.MESSAGE_HISTORY,
+                Permission.MESSAGE_WRITE, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS);
         for(Member member : memberList) {
-            PermissionOverrideAction permissionOverride = channel.createPermissionOverride(member).clear(Permission.values()).setAllow(extraUserPermissions);
+            PermissionOverrideAction permissionOverride = channel.createPermissionOverride(member)
+                    .clear(Permission.values()).setAllow(extraUserPermissions);
             permissionOverride.submit(true).whenComplete((value, error) -> {
                 if(error != null) {
                     String errorMessage = error.getMessage();
@@ -162,7 +164,7 @@ public class DiscordCommandTicket extends DiscordCommand {
                 builder.setDescription("Successfully added " + member.getAsMention() + " to your ticket.");
                 
                 MessageEmbed embed = builder.build();
-                channel.sendMessage(embed).queue();
+                channel.sendMessageEmbeds(embed).queue();
             });
         }
     }
