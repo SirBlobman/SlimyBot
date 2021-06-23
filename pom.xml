@@ -39,7 +39,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.3.0_277</version>
+            <version>4.3.0_282</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
@@ -119,7 +119,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.2.0</version>
 
                 <configuration>
                     <outputDirectory>${project.basedir}/target/</outputDirectory>
