@@ -22,9 +22,10 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
-public class DiscordCommandManager extends ListenerAdapter {
+public final class DiscordCommandManager extends ListenerAdapter {
     private final DiscordBot discordBot;
     private final Map<String, DiscordCommand> commandMap = new HashMap<>();
+
     public DiscordCommandManager(DiscordBot discordBot) {
         this.discordBot = discordBot;
     }

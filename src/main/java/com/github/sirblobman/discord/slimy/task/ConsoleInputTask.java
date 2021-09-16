@@ -15,8 +15,9 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDA.Status;
 import org.apache.logging.log4j.Logger;
 
-public class ConsoleInputTask implements Runnable {
+public final class ConsoleInputTask implements Runnable {
     private final DiscordBot discordBot;
+
     public ConsoleInputTask(DiscordBot discordBot) {
         this.discordBot = discordBot;
     }
@@ -38,17 +39,20 @@ public class ConsoleInputTask implements Runnable {
     private void setupConsole(Console console) {
         Logger logger = this.discordBot.getLogger();
         JDA discordAPI = this.discordBot.getDiscordAPI();
-        Status status = discordAPI.getStatus();
 
-        while(status != Status.SHUTDOWN && status != Status.SHUTTING_DOWN) {
-            status = discordAPI.getStatus();
+        while(true) {
+            Status status = discordAPI.getStatus();
+            if(status == Status.SHUTDOWN || status == Status.SHUTTING_DOWN) {
+                break;
+            }
 
             String readLine = console.readLine();
             logger.info("Console Command Detected: '" + readLine + "'");
 
             String[] splitLine = readLine.split(Pattern.quote(" "));
             String commandName = splitLine[0];
-            String[] commandArgs = (splitLine.length < 2 ? new String[0] : Arrays.copyOfRange(splitLine, 1, splitLine.length));
+            String[] commandArgs = (splitLine.length < 2 ? new String[0] :
+                    Arrays.copyOfRange(splitLine, 1, splitLine.length));
 
             ConsoleCommandManager consoleCommandManager = this.discordBot.getConsoleCommandManager();
             ConsoleCommand consoleCommand = consoleCommandManager.getCommand(commandName);
@@ -64,11 +68,13 @@ public class ConsoleInputTask implements Runnable {
     private void setupInput() {
         Logger logger = this.discordBot.getLogger();
         JDA discordAPI = this.discordBot.getDiscordAPI();
-        Status status = discordAPI.getStatus();
-
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
-        while(status != Status.SHUTDOWN && status != Status.SHUTTING_DOWN) {
-            status = discordAPI.getStatus();
+        
+        while(true) {
+            Status status = discordAPI.getStatus();
+            if(status == Status.SHUTDOWN || status == Status.SHUTTING_DOWN) {
+                break;
+            }
 
             String readLine;
             try {

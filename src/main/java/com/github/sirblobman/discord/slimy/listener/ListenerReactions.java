@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 
-public class ListenerReactions extends SlimyBotListener {
+public final class ListenerReactions extends SlimyBotListener {
     public ListenerReactions(DiscordBot discordBot) {
         super(discordBot);
     }

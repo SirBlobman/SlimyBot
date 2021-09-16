@@ -13,9 +13,10 @@ import com.github.sirblobman.discord.slimy.command.console.ConsoleCommand;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
-public class ConsoleCommandManager {
+public final class ConsoleCommandManager {
     private final DiscordBot discordBot;
     private final Map<String, ConsoleCommand> commandMap = new HashMap<>();
+
     public ConsoleCommandManager(DiscordBot discordBot) {
         this.discordBot = discordBot;
     }

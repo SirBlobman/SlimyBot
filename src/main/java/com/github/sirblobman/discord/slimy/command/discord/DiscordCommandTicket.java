@@ -18,6 +18,9 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
@@ -40,6 +43,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import net.dv8tion.jda.api.requests.restaction.PermissionOverrideAction;
+import net.dv8tion.jda.api.requests.restaction.pagination.MessagePaginationAction;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -47,15 +51,18 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-public class DiscordCommandTicket extends DiscordCommand {
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy MMM dd HH:mm:ss z", Locale.US);
+public final class DiscordCommandTicket extends DiscordCommand {
+    private static final DateTimeFormatter DATE_FORMATTER
+            = DateTimeFormatter.ofPattern("yyyy MMM dd HH:mm:ss z", Locale.US);
+
     public DiscordCommandTicket(DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
     public CommandInformation getCommandInformation() {
-        return new CommandInformation("ticket", "A ticket system for SirBlobman's Discord", "help");
+        return new CommandInformation("ticket",
+                "A ticket system for SirBlobman's Discord", "help");
     }
 
     @Override
@@ -154,7 +161,7 @@ public class DiscordCommandTicket extends DiscordCommand {
                     String errorMessage = error.getMessage();
                     sendErrorEmbed(sender, channel, errorMessage);
                     
-                    Logger logger = this.discordBot.getLogger();
+                    Logger logger = getLogger();
                     logger.log(Level.WARN, "An error occurred while adding permission overrides:", error);
                     return;
                 }
@@ -180,21 +187,21 @@ public class DiscordCommandTicket extends DiscordCommand {
 
     @Nullable
     private Role getSupportRole() {
-        MainConfiguration mainConfiguration = this.discordBot.getMainConfiguration();
+        MainConfiguration mainConfiguration = getMainConfiguration();
         String supportRoleId = mainConfiguration.getSupportRoleId();
         if(supportRoleId.equalsIgnoreCase("<none>")) return null;
 
-        JDA discordAPI = this.discordBot.getDiscordAPI();
+        JDA discordAPI = getDiscordAPI();
         return discordAPI.getRoleById(supportRoleId);
     }
 
     @Nullable
     private Category getTicketCategory() {
-        MainConfiguration mainConfiguration = this.discordBot.getMainConfiguration();
+        MainConfiguration mainConfiguration = getMainConfiguration();
         String ticketCategoryId = mainConfiguration.getTicketCategoryId();
         if(ticketCategoryId.equalsIgnoreCase("<none>")) return null;
 
-        JDA discordAPI = this.discordBot.getDiscordAPI();
+        JDA discordAPI = getDiscordAPI();
         return discordAPI.getCategoryById(ticketCategoryId);
     }
     
@@ -259,12 +266,22 @@ public class DiscordCommandTicket extends DiscordCommand {
                 Member member = guild.retrieveMemberById(idString).complete();
                 if(member != null) memberList.add(member);
             } catch(Exception ex) {
-                Logger logger = this.discordBot.getLogger();
+                Logger logger = getLogger();
                 logger.log(Level.WARN, "Failed to get a member with id '" + idString + "':", ex);
             }
         }
         
         return memberList;
+    }
+
+    private List<Message> getMessageHistory(TextChannel channel) {
+        try {
+            MessagePaginationAction historyAction = channel.getIterableHistory();
+            CompletableFuture<List<Message>> historyFuture = historyAction.submit(true);
+            return historyFuture.join();
+        } catch(CancellationException | CompletionException ex) {
+            return Collections.emptyList();
+        }
     }
 
     private void archiveTicket(TextChannel channel) {
@@ -281,7 +298,7 @@ public class DiscordCommandTicket extends DiscordCommand {
             return;
         }
 
-        MainConfiguration mainConfiguration = this.discordBot.getMainConfiguration();
+        MainConfiguration mainConfiguration = getMainConfiguration();
         String ticketHistoryChannelId = mainConfiguration.getTicketHistoryChannelId();
         if(ticketHistoryChannelId.equalsIgnoreCase("<none>")) {
             channel.delete().reason("Ticket Closed").queue();
@@ -303,12 +320,22 @@ public class DiscordCommandTicket extends DiscordCommand {
             Element titleSectionH1 = titleSection.getElementsByTag("h1").get(0);
             titleSectionH1.text("Ticket ").appendText(ticketId);
 
-
             Element messagesSection = document.getElementById("messages");
             channel.getIterableHistory().queue(messages -> {
                 Collections.reverse(messages);
                 channel.delete().reason("Ticket Closed").queue();
                 ZoneId newYorkZone = ZoneId.of("America/New_York");
+
+                if(messages.isEmpty()) {
+                    JDA discordAPI = getDiscordAPI();
+                    TextChannel textChannel = discordAPI.getTextChannelById(ticketHistoryChannelId);
+                    if(textChannel != null) {
+                        textChannel.sendMessage("The discord API failed to return any messages for " +
+                                "ticket with ID '" + ticketId + "'.").queue();
+                    }
+
+                    return;
+                }
 
                 String authorTag = messages.get(0).getMentionedUsers().get(0).getAsTag();
                 Element titleSectionH2 = titleSection.getElementsByTag("h2").get(0);
@@ -393,7 +420,7 @@ public class DiscordCommandTicket extends DiscordCommand {
                     String htmlCode = document.html();
                     Files.writeString(ticketFilePath, htmlCode, StandardCharsets.UTF_8, StandardOpenOption.WRITE);
 
-                    JDA discordAPI = this.discordBot.getDiscordAPI();
+                    JDA discordAPI = getDiscordAPI();
                     TextChannel textChannel = discordAPI.getTextChannelById(ticketHistoryChannelId);
                     if(textChannel != null) {
                         MessageBuilder builder = new MessageBuilder();

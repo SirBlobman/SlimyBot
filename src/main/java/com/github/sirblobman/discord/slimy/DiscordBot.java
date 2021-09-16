@@ -10,21 +10,27 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.github.sirblobman.discord.slimy.command.ConsoleCommandManager;
 import com.github.sirblobman.discord.slimy.command.DiscordCommandManager;
+import com.github.sirblobman.discord.slimy.command.SlashCommandManager;
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommandHelp;
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommandStop;
-import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandDeveloperInformation;
-import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandFAQ;
-import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandHelp;
-import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandPing;
 import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandTicket;
-import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandUserInformation;
-import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandVoter;
-import com.github.sirblobman.discord.slimy.command.discord.minigame.DiscordCommandMagicEightBall;
+import com.github.sirblobman.discord.slimy.command.slash.SlashCommand;
+import com.github.sirblobman.discord.slimy.command.slash.SlashCommandDevInfo;
+import com.github.sirblobman.discord.slimy.command.slash.SlashCommandFAQ;
+import com.github.sirblobman.discord.slimy.command.slash.SlashCommandMagicEightBall;
+import com.github.sirblobman.discord.slimy.command.slash.SlashCommandPing;
+import com.github.sirblobman.discord.slimy.command.slash.SlashCommandUserInfo;
+import com.github.sirblobman.discord.slimy.command.slash.SlashCommandVoter;
+import com.github.sirblobman.discord.slimy.database.DatabaseManager;
+import com.github.sirblobman.discord.slimy.database.MessageHistoryManager;
 import com.github.sirblobman.discord.slimy.listener.ListenerMessages;
 import com.github.sirblobman.discord.slimy.listener.ListenerReactions;
+import com.github.sirblobman.discord.slimy.listener.ListenerSlashCommands;
 import com.github.sirblobman.discord.slimy.object.MainConfiguration;
 import com.github.sirblobman.discord.slimy.task.ConsoleInputTask;
 
@@ -32,16 +38,22 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
-public class DiscordBot {
+public final class DiscordBot {
     private final Logger logger;
     private final ConsoleCommandManager consoleCommandManager;
     private final DiscordCommandManager discordCommandManager;
+    private final SlashCommandManager slashCommandManager;
+    
+    private final DatabaseManager databaseManager;
+    private final MessageHistoryManager messageHistoryManager;
 
     private JDA discordAPI;
     private long startupTimestamp;
@@ -51,6 +63,10 @@ public class DiscordBot {
         this.logger = Objects.requireNonNull(logger, "logger must not be null!");
         this.consoleCommandManager = new ConsoleCommandManager(this);
         this.discordCommandManager = new DiscordCommandManager(this);
+        this.slashCommandManager = new SlashCommandManager(this);
+        
+        this.databaseManager = new DatabaseManager(this);
+        this.messageHistoryManager = new MessageHistoryManager(this.databaseManager);
     }
 
     public Logger getLogger() {
@@ -63,6 +79,18 @@ public class DiscordBot {
 
     public DiscordCommandManager getDiscordCommandManager() {
         return this.discordCommandManager;
+    }
+
+    public SlashCommandManager getSlashCommandManager() {
+        return this.slashCommandManager;
+    }
+    
+    public DatabaseManager getDatabaseManager() {
+        return this.databaseManager;
+    }
+    
+    public MessageHistoryManager getMessageHistoryManager() {
+        return this.messageHistoryManager;
     }
     
     public JDA getDiscordAPI() {
@@ -98,7 +126,13 @@ public class DiscordBot {
             logger.log(Level.ERROR, "An error occurred while loading the main configuration file:", ex);
             return;
         }
-
+    
+        DatabaseManager databaseManager = getDatabaseManager();
+        if(!databaseManager.connectToDatabase()) {
+            logger.error("Failed to connect to the SQLite database.");
+            return;
+        }
+    
         try {
             String discordApiToken = this.mainConfiguration.getApiToken();
             if(discordApiToken.equalsIgnoreCase("<none>")) {
@@ -132,7 +166,7 @@ public class DiscordBot {
     public void onEnable() {
         Logger logger = getLogger();
         logger.info("Enabling Slimy Bot...");
-    
+
         String inviteURL = this.discordAPI.getInviteUrl(Permission.ADMINISTRATOR);
         logger.info("Invite URL: '" + inviteURL + "'");
 
@@ -157,7 +191,8 @@ public class DiscordBot {
         JDA discordAPI = getDiscordAPI();
         discordAPI.addEventListener(
                 new ListenerMessages(this),
-                new ListenerReactions(this)
+                new ListenerReactions(this),
+                new ListenerSlashCommands(this)
         );
     
         Logger logger = getLogger();
@@ -175,22 +210,12 @@ public class DiscordBot {
         JDA discordAPI = getDiscordAPI();
         DiscordCommandManager discordCommandManager = getDiscordCommandManager();
         discordAPI.addEventListener(discordCommandManager);
-        
+
         // Normal Commands
-        discordCommandManager.registerCommands(
-                DiscordCommandDeveloperInformation.class,
-                DiscordCommandFAQ.class,
-                DiscordCommandHelp.class,
-                DiscordCommandPing.class,
-                DiscordCommandTicket.class,
-                DiscordCommandUserInformation.class,
-                DiscordCommandVoter.class
-        );
-        
-        // Minigame Commands
-        discordCommandManager.registerCommands(
-                DiscordCommandMagicEightBall.class
-        );
+        discordCommandManager.registerCommands(DiscordCommandTicket.class);
+
+        // Slash Commands
+        registerDiscordSlashCommands();
     }
     
     private void registerConsoleCommands() {
@@ -198,6 +223,30 @@ public class DiscordBot {
         consoleCommandManager.registerCommands(
                 ConsoleCommandHelp.class, ConsoleCommandStop.class
         );
+    }
+
+    private void registerDiscordSlashCommands() {
+        Logger logger = getLogger();
+        JDA discordAPI = getDiscordAPI();
+        MainConfiguration mainConfiguration = getMainConfiguration();
+
+        String guildId = mainConfiguration.getGuildId();
+        Guild guild = discordAPI.getGuildById(guildId);
+        if(guild == null) {
+            logger.warn("Failed to find guild with ID '" + guildId + "'.");
+            return;
+        }
+
+        SlashCommandManager slashCommandManager = getSlashCommandManager();
+        slashCommandManager.registerCommands(
+                SlashCommandDevInfo.class, SlashCommandFAQ.class, SlashCommandMagicEightBall.class,
+                SlashCommandPing.class, SlashCommandUserInfo.class, SlashCommandVoter.class
+        );
+
+        Set<SlashCommand> commandSet = slashCommandManager.getDiscordSlashCommandSet();
+        Set<CommandData> commandDataSet = commandSet.stream().map(SlashCommand::getCommandData)
+                .collect(Collectors.toSet());
+        guild.updateCommands().addCommands(commandDataSet).queue();
     }
     
     private void setupConsole() {
@@ -215,19 +264,23 @@ public class DiscordBot {
 
             Class<?> thisClass = getClass();
             InputStream jarResourceStream = thisClass.getResourceAsStream("/" + fileName);
-            if(jarResourceStream == null) throw new IOException("'" + fileName + "' does not exist in the jar file.");
+            if(jarResourceStream == null) {
+                throw new IOException("'" + fileName + "' does not exist in the jar file.");
+            }
 
             File parentFolder = file.getParentFile();
             if(parentFolder != null && !parentFolder.exists()) {
                 boolean makeFolder = parentFolder.mkdirs();
-                if(!makeFolder) throw new IOException("Failed to create parent folder for file '" + fileName + "'.");
+                if(!makeFolder) {
+                    throw new IOException("Failed to create parent folder for file '" + fileName + "'.");
+                }
             }
 
             Path filePath = file.toPath();
             Files.copy(jarResourceStream, filePath, StandardCopyOption.REPLACE_EXISTING);
         } catch(IOException ex) {
             Logger logger = getLogger();
-            logger.log(Level.ERROR, "An I/O error occurred while saving a default file:", ex);
+            logger.error("An I/O error occurred while saving a default file:", ex);
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.github.sirblobman.discord.slimy.command.discord;
+package com.github.sirblobman.discord.slimy.command.slash;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -10,74 +10,101 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.command.CommandInformation;
+import com.github.sirblobman.discord.slimy.object.MainConfiguration;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.SelfUser;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
 
-public class DiscordCommandDeveloperInformation extends DiscordCommand {
+public final class SlashCommandDevInfo extends SlashCommand {
     private final SystemInfo systemInfo;
-    public DiscordCommandDeveloperInformation(DiscordBot discordBot) {
-        super(discordBot);
+
+    public SlashCommandDevInfo(DiscordBot discordBot) {
+        super(discordBot, "devinfo");
         this.systemInfo = new SystemInfo();
     }
-    
-    @Override
-    public CommandInformation getCommandInformation() {
-        return new CommandInformation("developer-information",
-                "Get information about the bot and the host machine.", "<type>",
-                "developerinformation", "devinfo"
-        );
-    }
-    
-    @Override
-    public boolean hasPermission(Member sender) {
-        if(sender == null) return false;
-    
-        String memberId = sender.getId();
-        String botOwnerId = this.discordBot.getMainConfiguration().getBotOwnerId();
-        return memberId.equals(botOwnerId);
-    }
-    
-    @Override
-    public void execute(Member sender, TextChannel channel, String label, String[] args) {
-        if(args.length < 1) {
-            sendErrorEmbed(sender, channel, "Not enough arguments.");
-            return;
-        }
-        
-        String sub = args[0];
-        if(sub.equals("all")) {
-            sendOperatingSystem(sender, channel);
-            sendBotUser(sender, channel);
-            sendJava(sender, channel);
-            sendUptime(sender, channel);
-            sendResources(sender, channel);
-            sendTemperature(sender, channel);
-            return;
-        }
-        
-        switch(sub) {
-            case "os": sendOperatingSystem(sender, channel); return;
-            case "bot": sendBotUser(sender, channel); return;
-            case "java": sendJava(sender, channel); return;
-            case "uptime": sendUptime(sender, channel); return;
-            case "resources": sendResources(sender, channel); return;
-            case "temperature": sendTemperature(sender, channel); return;
-            default: break;
-        }
 
-        sendErrorEmbed(sender, channel, "Unknown information page '" + sub + "'.");
+    @Override
+    public boolean isEphemeral() {
+        return true;
     }
 
-    private void sendTemperature(Member sender, TextChannel channel) {
+    @Override
+    public CommandData getCommandData() {
+        String commandName = getCommandName();
+        return new CommandData(commandName, "View information for developers and bot owners.")
+                .addOption(OptionType.STRING, "type", "What type of information do you need?");
+    }
+
+    @Override
+    public Message execute(SlashCommandEvent e) {
+        Member sender = e.getMember();
+        if(sender == null) {
+            EmbedBuilder errorEmbed = getErrorEmbed(null);
+            errorEmbed.addField("Error", "This command can only be executed in a guild.", false);
+            return getMessage(errorEmbed);
+        }
+
+        String senderId = sender.getId();
+        DiscordBot discordBot = getDiscordBot();
+        MainConfiguration mainConfiguration = discordBot.getMainConfiguration();
+        String botOwnerId = mainConfiguration.getBotOwnerId();
+
+        if(!senderId.equals(botOwnerId)) {
+            EmbedBuilder errorEmbed = getErrorEmbed(null);
+            errorEmbed.addField("Error", "This command can only be executed by the bot owner.", false);
+            return getMessage(errorEmbed);
+        }
+
+        OptionMapping typeOptionMapping = e.getOption("type");
+        if(typeOptionMapping == null) {
+            EmbedBuilder errorEmbed = getErrorEmbed(sender);
+            errorEmbed.addField("Error", "Missing Argument 'type'.", false);
+            return getMessage(errorEmbed);
+        }
+
+        String typeOption = typeOptionMapping.getAsString().toLowerCase(Locale.US);
+        if(typeOption.equals("all")) {
+            MessageEmbed embed1 = getOperatingSystemEmbed(sender).build();
+            MessageEmbed embed2 = getBotUserInformationEmbed(sender).build();
+            MessageEmbed embed3 = getJavaInformationEmbed(sender).build();
+            MessageEmbed embed4 = getUptimeEmbed(sender).build();
+            MessageEmbed embed5 = getResourceUsageEmbed(sender).build();
+            MessageEmbed embed6 = getTemperatureEmbed(sender).build();
+            return new MessageBuilder().setEmbeds(embed1, embed2, embed3, embed4, embed5, embed6).build();
+        }
+
+        EmbedBuilder embedBuilder = switch(typeOption) {
+            case "os" -> getOperatingSystemEmbed(sender);
+            case "bot" -> getBotUserInformationEmbed(sender);
+            case "java" -> getJavaInformationEmbed(sender);
+            case "uptime" -> getUptimeEmbed(sender);
+            case "resources" -> getResourceUsageEmbed(sender);
+            case "temperature" -> getTemperatureEmbed(sender);
+            default -> null;
+        };
+
+        if(embedBuilder == null) {
+            EmbedBuilder errorEmbed = getErrorEmbed(sender);
+            errorEmbed.addField("Error", "Unknown information type '" + typeOption + "'.", false);
+            return getMessage(errorEmbed);
+        }
+
+        return getMessage(embedBuilder);
+    }
+
+    private EmbedBuilder getTemperatureEmbed(Member sender) {
         EmbedBuilder builder = getExecutedByEmbed(sender);
         builder.setTitle("Sensors");
 
@@ -102,63 +129,60 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
             }
         }
 
-        MessageEmbed embed = builder.build();
-        channel.sendMessageEmbeds(embed).queue();
+        return builder;
     }
-    
-    private void sendOperatingSystem(Member sender, TextChannel channel) {
+
+    private EmbedBuilder getOperatingSystemEmbed(Member sender) {
         String osName = System.getProperty("os.name");
         String osArch = System.getProperty("os.arch");
         String osVersion = System.getProperty("os.version");
-        
+
         String osNameLowercase = osName.toLowerCase();
-        String osImageName = ((osNameLowercase.contains("windows") ? "windows" : osNameLowercase.contains("mac os") ? "apple" : "linux") + ".png");
+        String osImageName = getOperatingSystemImageName(osNameLowercase);
         String osImageURL = ("http://resources.sirblobman.xyz/slimy_bot/images/" + osImageName);
-    
+
         EmbedBuilder builder = getExecutedByEmbed(sender);
         builder.setTitle("Operating System");
         builder.setThumbnail(osImageURL);
         builder.addField("Name", osName, true);
         builder.addField("Version", osVersion, true);
         builder.addField("Arch", osArch, true);
-    
-        MessageEmbed embed = builder.build();
-        channel.sendMessageEmbeds(embed).queue();
+
+        return builder;
     }
-    
-    private void sendJava(Member sender, TextChannel channel) {
+
+    private EmbedBuilder getJavaInformationEmbed(Member sender) {
         String javaVendor = System.getProperty("java.vendor");
         String javaURL = System.getProperty("java.vendor.url");
         String javaVersion = System.getProperty("java.version");
         String javaImageURL = ("http://resources.sirblobman.xyz/slimy_bot/images/java.png");
-        
+
         EmbedBuilder builder = getExecutedByEmbed(sender);
         builder.setTitle("Java Information");
         builder.setThumbnail(javaImageURL);
         builder.addField("Vendor", javaVendor, true);
         builder.addField("Version", javaVersion, true);
         builder.addField("URL", javaURL, true);
-    
-        MessageEmbed embed = builder.build();
-        channel.sendMessageEmbeds(embed).queue();
+
+        return builder;
     }
-    
-    private void sendResources(Member sender, TextChannel channel) {
+
+    private EmbedBuilder getResourceUsageEmbed(Member sender) {
         Runtime runtime = Runtime.getRuntime();
         String cpuCoreCount = Integer.toString(runtime.availableProcessors());
         String cpuImageURL = ("http://resources.sirblobman.xyz/slimy_bot/images/cpu.png");
-        
+
         long maxMemory = runtime.maxMemory();
         long freeMemory = runtime.freeMemory();
         long totalMemory = runtime.totalMemory();
-        
+
         long usedMemoryBytes = (totalMemory - freeMemory);
         long freeMemoryBytes = (maxMemory - usedMemoryBytes);
-    
+
         String usedMemoryMebibytes = toMebibytes(usedMemoryBytes);
         String freeMemoryMebibytes = toMebibytes(freeMemoryBytes);
         String maxMemoryMebibytes = toMebibytes(maxMemory);
-        
+
         EmbedBuilder builder = getExecutedByEmbed(sender);
         builder.setTitle("Resource Information");
         builder.setThumbnail(cpuImageURL);
@@ -166,28 +190,29 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         builder.addField("Free RAM", freeMemoryMebibytes, true);
         builder.addField("Used RAM", usedMemoryMebibytes, true);
         builder.addField("Max RAM", maxMemoryMebibytes, true);
-    
-        MessageEmbed embed = builder.build();
-        channel.sendMessageEmbeds(embed).queue();
+
+        return builder;
     }
-    
-    private void sendBotUser(Member sender, TextChannel channel) {
-        JDA discordAPI = this.discordBot.getDiscordAPI();
+
+    private EmbedBuilder getBotUserInformationEmbed(Member sender) {
+        DiscordBot discordBot = getDiscordBot();
+        JDA discordAPI = discordBot.getDiscordAPI();
         SelfUser selfUser = discordAPI.getSelfUser();
-    
+
         String avatarURL = selfUser.getEffectiveAvatarUrl();
         String name = selfUser.getName();
         String id = selfUser.getId();
         String tag = selfUser.getAsTag();
-    
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy hh:mm:ss.SSSa", Locale.US);
-    
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy hh:mm:ss.SSSa",
+                Locale.US);
+
         OffsetDateTime timeCreated = selfUser.getTimeCreated();
         String dateCreatedString = timeCreated.format(dateTimeFormatter) + " UTC";
-    
+
         OffsetDateTime timeJoined = sender.getTimeJoined();
         String dateJoinedString = timeJoined.format(dateTimeFormatter) + " UTC";
-        
+
         EmbedBuilder builder = getExecutedByEmbed(sender);
         builder.setTitle("Bot Information");
         builder.setThumbnail(avatarURL);
@@ -196,26 +221,25 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         builder.addField("ID", id, true);
         builder.addField("Date Created", dateCreatedString, false);
         builder.addField("Date Joined", dateJoinedString, false);
-    
-        MessageEmbed embed = builder.build();
-        channel.sendMessageEmbeds(embed).queue();
+
+        return builder;
     }
 
-    private void sendUptime(Member sender, TextChannel channel) {
+    private EmbedBuilder getUptimeEmbed(Member sender) {
         EmbedBuilder builder = getExecutedByEmbed(sender);
         builder.setTitle("Uptime");
 
         String systemUptimeString = getSystemUptime();
         builder.addField("System Uptime", systemUptimeString, false);
 
-        long startupTimestamp = this.discordBot.getStartupTimestamp();
+        DiscordBot discordBot = getDiscordBot();
+        long startupTimestamp = discordBot.getStartupTimestamp();
         long currentTimestamp = System.currentTimeMillis();
         long uptime = (currentTimestamp - startupTimestamp);
         String uptimeString = formatTime(uptime);
         builder.addField("Bot Uptime", uptimeString, false);
 
-        MessageEmbed embed = builder.build();
-        channel.sendMessageEmbeds(embed).queue();
+        return builder;
     }
 
     private String getSystemUptime() {
@@ -232,17 +256,19 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
             return "N/A";
         }
     }
-    
+
     private String toMebibytes(double bytes) {
         double kibibytes = (bytes / 1_024.0D);
         double mebibytes = (kibibytes / 1_024.0D);
-    
+
         DecimalFormat format = new DecimalFormat("0.000");
         String mebibytesString = format.format(mebibytes);
         return (mebibytesString + " MiB");
     }
 
     private String formatTime(long milliseconds) {
+        long weeks = (TimeUnit.MILLISECONDS.toDays(milliseconds) / 7L);
+        milliseconds -= (TimeUnit.DAYS.toMillis(weeks * 7L));
         long days = TimeUnit.MILLISECONDS.toDays(milliseconds);
         milliseconds -= TimeUnit.DAYS.toMillis(days);
         long hours = TimeUnit.MILLISECONDS.toHours(milliseconds);
@@ -253,11 +279,18 @@ public class DiscordCommandDeveloperInformation extends DiscordCommand {
         milliseconds -= TimeUnit.SECONDS.toMillis(seconds);
 
         StringBuilder builder = new StringBuilder();
+        if(weeks > 0) builder.append(weeks).append("w ");
         if(days > 0) builder.append(days).append("d ");
         if(hours > 0) builder.append(hours).append("h ");
         if(minutes > 0) builder.append(minutes).append("m ");
         if(seconds > 0) builder.append(seconds).append("s ");
         if(milliseconds > 0) builder.append(milliseconds).append("ms");
         return builder.toString().trim();
+    }
+
+    private String getOperatingSystemImageName(String osName) {
+        if(osName.contains("windows")) return "windows.png";
+        if(osName.contains("mac os")) return "apple.png";
+        return "linux.png";
     }
 }

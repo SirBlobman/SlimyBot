@@ -9,6 +9,9 @@ api-token: "<none>"
 # This is the Discord user ID of the bot owner. This may be used for certain commands.
 bot-owner-id: "<none>"
 
+# This is the Guild ID that the bot will be used in. This may be used for certain commands.
+guild-id: "<none>"
+
 # What is the Discord category ID for tickets?
 ticket-category-id: "<none>"
 
@@ -17,3 +20,6 @@ ticket-history-channel-id: "<none>"
 
 # What is the Discord role ID for the Support role?
 support-role-id: "<none>"
+
+# What is the Discord role ID for the Voter role?
+voter-role-id: "<none>"

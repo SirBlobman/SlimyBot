@@ -1,13 +1,20 @@
 package com.github.sirblobman.discord.slimy.command;
 
-public class CommandInformation {
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+
+public final class CommandInformation {
     private final String name, description, usage;
     private final String[] aliases;
+
     public CommandInformation(String commandName, String description, String usage, String... aliases) {
         this.name = commandName;
         this.description = description;
         this.usage = usage;
         this.aliases = aliases;
+    }
+    
+    public CommandInformation(CommandData commandData) {
+        this(commandData.getName(), commandData.getDescription(), "");
     }
     
     public String getName() {

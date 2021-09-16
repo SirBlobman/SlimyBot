@@ -1,5 +1,7 @@
 package com.github.sirblobman.discord.slimy.command.console;
 
+import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
@@ -8,30 +10,50 @@ import com.github.sirblobman.discord.slimy.command.ConsoleCommandManager;
 
 import org.apache.logging.log4j.Logger;
 
-public class ConsoleCommandHelp extends ConsoleCommand {
+public final class ConsoleCommandHelp extends ConsoleCommand {
     public ConsoleCommandHelp(DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
     public CommandInformation getCommandInformation() {
-        return new CommandInformation("help", "", "", "?");
+        return new CommandInformation("help", "View a list of console commands.",
+                "", "?");
     }
 
     @Override
     public void execute(String label, String[] args) {
-        Logger logger = this.discordBot.getLogger();
+        Logger logger = getLogger();
         logger.info("Console Command List:");
-
-        ConsoleCommandManager consoleCommandManager = this.discordBot.getConsoleCommandManager();
-        Set<ConsoleCommand> consoleCommandSet = consoleCommandManager.getConsoleCommandSet();
+    
+        Set<CommandInformation> commandInformationSet = getCommandInformationSet();
+        commandInformationSet.forEach(this::logInformation);
+    }
+    
+    private Set<ConsoleCommand> getConsoleCommands() {
+        ConsoleCommandManager consoleCommandManager = getConsoleCommandManager();
+        return consoleCommandManager.getConsoleCommandSet();
+    }
+    
+    private Set<CommandInformation> getCommandInformationSet() {
+        Set<ConsoleCommand> consoleCommandSet = getConsoleCommands();
+        Set<CommandInformation> commandInformationSet = new HashSet<>();
+        
         for(ConsoleCommand consoleCommand : consoleCommandSet) {
             CommandInformation commandInformation = consoleCommand.getCommandInformation();
-            String commandName = commandInformation.getName();
-            String commandUsage = commandInformation.getUsage();
-            String commandDescription = commandInformation.getDescription();
-
-            logger.info(commandName + " " + commandUsage + ": " + commandDescription);
+            commandInformationSet.add(commandInformation);
         }
+        
+        return commandInformationSet;
+    }
+    
+    private void logInformation(CommandInformation command) {
+        String name = command.getName();
+        String usage = command.getUsage();
+        String description = command.getDescription();
+    
+        String logMessage = String.format(Locale.US, "- %s%s: %s", name, usage, description);
+        Logger logger = getLogger();
+        logger.info(logMessage);
     }
 }

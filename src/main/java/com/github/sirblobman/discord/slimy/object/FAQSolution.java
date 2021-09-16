@@ -2,8 +2,9 @@ package com.github.sirblobman.discord.slimy.object;
 
 import java.util.Objects;
 
-public class FAQSolution {
+public final class FAQSolution {
     private final String pluginName, question, answer;
+
     public FAQSolution(String pluginName, String question, String answer) {
         this.pluginName = pluginName;
         this.question = Objects.requireNonNull(question, "question must not be null!");

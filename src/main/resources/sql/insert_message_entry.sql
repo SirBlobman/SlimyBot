@@ -1,0 +1,1 @@
+INSERT INTO `message_history` VALUES (?, ?, ?, ?, ?, ?, ?, ?) ;

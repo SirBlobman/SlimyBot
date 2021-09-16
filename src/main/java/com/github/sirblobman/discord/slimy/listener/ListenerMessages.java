@@ -1,11 +1,15 @@
 package com.github.sirblobman.discord.slimy.listener;
 
+import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Locale;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.database.MessageActionType;
+import com.github.sirblobman.discord.slimy.database.MessageEntry;
+import com.github.sirblobman.discord.slimy.database.MessageHistoryManager;
 
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -13,9 +17,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.utils.data.DataObject;
-import org.apache.logging.log4j.Logger;
 
-public class ListenerMessages extends SlimyBotListener {
+public final class ListenerMessages extends SlimyBotListener {
     public ListenerMessages(DiscordBot discordBot) {
         super(discordBot);
     }
@@ -44,13 +47,21 @@ public class ListenerMessages extends SlimyBotListener {
         logDeletedMessage(guild, channel, messageId);
     }
     
+    private MessageHistoryManager getMessageHistoryManager() {
+        DiscordBot discordBot = getDiscordBot();
+        return discordBot.getMessageHistoryManager();
+    }
+    
     private void logCreatedMessage(Guild guild, TextChannel channel, Message message) {
+        String messageId = message.getId();
         String guildId = guild.getId();
         String channelId = channel.getId();
-        String messageId = message.getId();
         
-        String guildName = guild.getName();
-        String channelName = channel.getName();
+        Member member = message.getMember();
+        String memberId = (member == null ? null : member.getId());
+        
+        OffsetDateTime timeCreated = message.getTimeCreated();
+        long timestamp = timeCreated.toInstant().toEpochMilli();
         StringBuilder contentRaw = new StringBuilder(message.getContentRaw());
 
         List<MessageEmbed> messageEmbedList = message.getEmbeds();
@@ -59,38 +70,50 @@ public class ListenerMessages extends SlimyBotListener {
             String string = dataObject.toString();
             contentRaw.append("[Embed: ").append(string).append("]");
         }
-
-        String logMessage = String.format(Locale.US,"[New Message] [Guild: %s | %s] [Channel: %s | %s] " +
-                        "[Message: %s | '%s']", guildId, guildName, channelId, channelName, messageId, contentRaw);
-        Logger logger = this.discordBot.getLogger();
-        logger.info(logMessage);
+    
+        MessageEntry messageEntry = new MessageEntry(messageId, guildId, channelId, memberId,
+                MessageActionType.CREATE, null, contentRaw.toString(), timestamp);
+        MessageHistoryManager messageHistoryManager = getMessageHistoryManager();
+        messageHistoryManager.addMessageEntry(messageEntry);
     }
     
     private void logEditedMessage(Guild guild, TextChannel channel, Message message) {
+        String messageId = message.getId();
         String guildId = guild.getId();
         String channelId = channel.getId();
-        String messageId = message.getId();
         
-        String guildName = guild.getName();
-        String channelName = channel.getName();
-        String contentRaw = message.getContentRaw();
-        String logMessage = String.format("[Message Edited] [Guild: %s | %s] [Channel: %s | %s] [Message ID: %s] " +
-                "[New Content: '%s']", guildId, guildName, channelId, channelName, messageId, contentRaw);
+        Member member = message.getMember();
+        String memberId = (member == null ? null : member.getId());
+    
+        OffsetDateTime timeEdited = message.getTimeEdited();
+        if(timeEdited == null) {
+            timeEdited = message.getTimeCreated();
+        }
         
-        Logger logger = this.discordBot.getLogger();
-        logger.info(logMessage);
+        long timestamp = timeEdited.toInstant().toEpochMilli();
+        StringBuilder contentRaw = new StringBuilder(message.getContentRaw());
+    
+        List<MessageEmbed> messageEmbedList = message.getEmbeds();
+        for(MessageEmbed messageEmbed : messageEmbedList) {
+            DataObject dataObject = messageEmbed.toData();
+            String string = dataObject.toString();
+            contentRaw.append("[Embed: ").append(string).append("]");
+        }
+    
+        MessageEntry messageEntry = new MessageEntry(messageId, guildId, channelId, memberId,
+                MessageActionType.EDIT, null, contentRaw.toString(), timestamp);
+        MessageHistoryManager messageHistoryManager = getMessageHistoryManager();
+        messageHistoryManager.addMessageEntry(messageEntry);
     }
     
     private void logDeletedMessage(Guild guild, TextChannel channel, String messageId) {
         String guildId = guild.getId();
         String channelId = channel.getId();
-        
-        String guildName = guild.getName();
-        String channelName = channel.getName();
-        String logMessage = String.format("[Message Deleted] [Guild: %s | %s] [Channel: %s | %s] [Message ID: %s]",
-                guildId, guildName, channelId, channelName, messageId);
-        
-        Logger logger = this.discordBot.getLogger();
-        logger.info(logMessage);
+        long timestamp = System.currentTimeMillis();
+    
+        MessageEntry messageEntry = new MessageEntry(messageId, guildId, channelId, null,
+                MessageActionType.DELETE, null, null, timestamp);
+        MessageHistoryManager messageHistoryManager = getMessageHistoryManager();
+        messageHistoryManager.addMessageEntry(messageEntry);
     }
 }

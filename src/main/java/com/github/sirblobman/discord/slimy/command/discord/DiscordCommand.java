@@ -3,20 +3,24 @@ package com.github.sirblobman.discord.slimy.command.discord;
 import java.awt.Color;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.command.CommandInformation;
+import com.github.sirblobman.discord.slimy.command.AbstractCommand;
+import com.github.sirblobman.discord.slimy.command.DiscordCommandManager;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
-public abstract class DiscordCommand {
-    protected final DiscordBot discordBot;
+public abstract class DiscordCommand extends AbstractCommand {
     public DiscordCommand(DiscordBot discordBot) {
-        this.discordBot = discordBot;
+        super(discordBot);
+    }
+    
+    protected final DiscordCommandManager getDiscordCommandManager() {
+        DiscordBot discordBot = getDiscordBot();
+        return discordBot.getDiscordCommandManager();
     }
     
     public final void onCommand(Member sender, TextChannel channel, String label, String[] args) {
@@ -40,8 +44,8 @@ public abstract class DiscordCommand {
                 channel.sendMessageEmbeds(embed).queue();
             } catch(Throwable ignored) {}
             
-            Logger logger = this.discordBot.getLogger();
-            logger.log(Level.WARN, "An error occurred while executing the discord command '" + label + "':", ex);
+            Logger logger = getLogger();
+            logger.warn("Failed to execute discord command '" + label + "' because an error occurred:", ex);
         }
     }
     
@@ -75,7 +79,6 @@ public abstract class DiscordCommand {
         return true;
     }
     
-    public abstract CommandInformation getCommandInformation();
     public abstract boolean hasPermission(Member sender);
     public abstract void execute(Member sender, TextChannel channel, String label, String[] args);
 }
