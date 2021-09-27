@@ -1,4 +1,4 @@
-package com.github.sirblobman.discord.slimy.database;
+package com.github.sirblobman.discord.slimy.object;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -51,5 +51,27 @@ public final class MessageEntry {
     
     public Optional<String> getNewContentRaw() {
         return Optional.ofNullable(this.newContentRaw);
+    }
+    
+    @Override
+    public boolean equals(Object object) {
+        if(this == object) {
+            return true;
+        }
+        
+        if(!(object instanceof MessageEntry other)) {
+            return false;
+        }
+        
+        boolean checkMessageId = Objects.equals(this.messageId, other.messageId);
+        boolean checkGuildId = Objects.equals(this.guildId, other.guildId);
+        boolean checkChannelId = Objects.equals(this.channelId, other.channelId);
+        boolean checkMemberId = Objects.equals(this.memberId, other.memberId);
+        boolean checkActionType = Objects.equals(this.actionType, other.actionType);
+        boolean checkOldContentRaw = Objects.equals(this.oldContentRaw, other.oldContentRaw);
+        boolean checkNewContentRaw = Objects.equals(this.newContentRaw, other.newContentRaw);
+        boolean checkTimestamp = Objects.equals(this.timestamp, other.timestamp);
+        return (checkMessageId && checkGuildId && checkChannelId && checkMemberId && checkActionType
+                && checkOldContentRaw && checkNewContentRaw && checkTimestamp);
     }
 }

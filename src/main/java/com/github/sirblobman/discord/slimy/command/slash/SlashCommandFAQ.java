@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -62,12 +63,17 @@ public final class SlashCommandFAQ extends SlashCommand {
         
         try {
             FileInputStream inputStream = new FileInputStream(file);
-            Yaml yaml = new Yaml();
+            Map<String, Map<String, String>> basicSolutionMap = new Yaml().load(inputStream);
+            Map<String, FAQSolution> solutionMap = new HashMap<>();
             
-            Map<String, FAQSolution> solutionMap = yaml.load(inputStream);
-            if(solutionMap == null) {
-                throw new IllegalStateException("Invalid YAML configuration in 'questions.yml'.");
-            }
+            basicSolutionMap.forEach((solutionId, map) -> {
+                String plugin = map.get("plugin");
+                String question = map.get("question");
+                String answer = map.get("answer");
+                
+                FAQSolution solution = new FAQSolution(plugin, question, answer);
+                solutionMap.put(solutionId, solution);
+            });
             
             if(solutionMap.containsKey(questionId)) {
                 return solutionMap.get(questionId);

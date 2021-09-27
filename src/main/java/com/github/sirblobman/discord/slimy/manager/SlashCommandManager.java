@@ -1,4 +1,4 @@
-package com.github.sirblobman.discord.slimy.command;
+package com.github.sirblobman.discord.slimy.manager;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
@@ -14,12 +14,11 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
-public final class SlashCommandManager {
-    private final DiscordBot discordBot;
+public final class SlashCommandManager extends Manager {
     private final Map<String, SlashCommand> commandMap = new HashMap<>();
 
     public SlashCommandManager(DiscordBot discordBot) {
-        this.discordBot = discordBot;
+        super(discordBot);
     }
     
     public SlashCommand getCommand(String commandName) {
@@ -44,13 +43,13 @@ public final class SlashCommandManager {
     private void registerCommand(Class<? extends SlashCommand> commandClass) {
         try {
             Constructor<? extends SlashCommand> constructor = commandClass.getConstructor(DiscordBot.class);
-            SlashCommand command = constructor.newInstance(this.discordBot);
+            SlashCommand command = constructor.newInstance(getDiscordBot());
 
             CommandData commandData = command.getCommandData();
             String commandName = commandData.getName();
             this.commandMap.put(commandName, command);
         } catch(ReflectiveOperationException ex) {
-            Logger logger = this.discordBot.getLogger();
+            Logger logger = getLogger();
             logger.log(Level.WARN, "An error occurred while registering a Discord slash command.", ex);
         }
     }

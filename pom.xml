@@ -19,6 +19,12 @@
     </properties>
     
     <repositories>
+        <!-- SirBlobman Public -->
+        <repository>
+            <id>sirblobman-public</id>
+            <url>https://nexus.sirblobman.xyz/repository/public/</url>
+        </repository>
+
         <!-- dv8tion Releases -->
         <repository>
             <id>dv8tion</id>
@@ -32,14 +38,14 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>22.0.0</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
 
         <!-- Java Discord API -->
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.3.0_324</version>
+            <version>4.3.0_331</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
@@ -81,11 +87,11 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- JSoup HTML -->
+        <!-- J2 HTML -->
         <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>1.14.2</version>
+            <groupId>com.j2html</groupId>
+            <artifactId>j2html</artifactId>
+            <version>1.5.0</version>
             <scope>compile</scope>
         </dependency>
 

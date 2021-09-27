@@ -13,24 +13,24 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.github.sirblobman.discord.slimy.command.ConsoleCommandManager;
-import com.github.sirblobman.discord.slimy.command.DiscordCommandManager;
-import com.github.sirblobman.discord.slimy.command.SlashCommandManager;
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommandHelp;
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommandStop;
-import com.github.sirblobman.discord.slimy.command.discord.DiscordCommandTicket;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommand;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandDevInfo;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandFAQ;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandMagicEightBall;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandPing;
+import com.github.sirblobman.discord.slimy.command.slash.SlashCommandTicket;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandUserInfo;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandVoter;
-import com.github.sirblobman.discord.slimy.database.DatabaseManager;
-import com.github.sirblobman.discord.slimy.database.MessageHistoryManager;
 import com.github.sirblobman.discord.slimy.listener.ListenerMessages;
 import com.github.sirblobman.discord.slimy.listener.ListenerReactions;
 import com.github.sirblobman.discord.slimy.listener.ListenerSlashCommands;
+import com.github.sirblobman.discord.slimy.manager.ConsoleCommandManager;
+import com.github.sirblobman.discord.slimy.manager.DatabaseManager;
+import com.github.sirblobman.discord.slimy.manager.MessageHistoryManager;
+import com.github.sirblobman.discord.slimy.manager.SlashCommandManager;
+import com.github.sirblobman.discord.slimy.manager.TicketArchiveManager;
 import com.github.sirblobman.discord.slimy.object.MainConfiguration;
 import com.github.sirblobman.discord.slimy.task.ConsoleInputTask;
 
@@ -49,11 +49,11 @@ import org.yaml.snakeyaml.Yaml;
 public final class DiscordBot {
     private final Logger logger;
     private final ConsoleCommandManager consoleCommandManager;
-    private final DiscordCommandManager discordCommandManager;
     private final SlashCommandManager slashCommandManager;
     
     private final DatabaseManager databaseManager;
     private final MessageHistoryManager messageHistoryManager;
+    private final TicketArchiveManager ticketArchiveManager;
 
     private JDA discordAPI;
     private long startupTimestamp;
@@ -62,11 +62,11 @@ public final class DiscordBot {
     public DiscordBot(Logger logger) {
         this.logger = Objects.requireNonNull(logger, "logger must not be null!");
         this.consoleCommandManager = new ConsoleCommandManager(this);
-        this.discordCommandManager = new DiscordCommandManager(this);
         this.slashCommandManager = new SlashCommandManager(this);
         
         this.databaseManager = new DatabaseManager(this);
         this.messageHistoryManager = new MessageHistoryManager(this.databaseManager);
+        this.ticketArchiveManager = new TicketArchiveManager(this);
     }
 
     public Logger getLogger() {
@@ -75,10 +75,6 @@ public final class DiscordBot {
 
     public ConsoleCommandManager getConsoleCommandManager() {
         return this.consoleCommandManager;
-    }
-
-    public DiscordCommandManager getDiscordCommandManager() {
-        return this.discordCommandManager;
     }
 
     public SlashCommandManager getSlashCommandManager() {
@@ -91,6 +87,10 @@ public final class DiscordBot {
     
     public MessageHistoryManager getMessageHistoryManager() {
         return this.messageHistoryManager;
+    }
+    
+    public TicketArchiveManager getTicketArchiveManager() {
+        return this.ticketArchiveManager;
     }
     
     public JDA getDiscordAPI() {
@@ -111,8 +111,6 @@ public final class DiscordBot {
 
         saveDefault("config.yml");
         saveDefault("questions.yml");
-        saveDefault("archive/css/ticket.css");
-        saveDefault("archive/ticket_template.html");
 
         try {
             Yaml yaml = new Yaml();
@@ -146,7 +144,7 @@ public final class DiscordBot {
                     GatewayIntent.GUILD_MESSAGE_REACTIONS);
             jdaBuilder.setMemberCachePolicy(MemberCachePolicy.ALL);
 
-            Activity activity = Activity.listening("++help");
+            Activity activity = Activity.listening("/ticket");
             jdaBuilder.setActivity(activity);
 
             this.discordAPI = jdaBuilder.build().awaitReady();
@@ -169,10 +167,9 @@ public final class DiscordBot {
 
         String inviteURL = this.discordAPI.getInviteUrl(Permission.ADMINISTRATOR);
         logger.info("Invite URL: '" + inviteURL + "'");
-
-        registerDiscordCommands();
+        
         registerListeners();
-
+        registerDiscordSlashCommands();
         if(this.mainConfiguration.isConsoleEnabled()) {
             registerConsoleCommands();
             setupConsole();
@@ -206,18 +203,6 @@ public final class DiscordBot {
         }
     }
     
-    private void registerDiscordCommands() {
-        JDA discordAPI = getDiscordAPI();
-        DiscordCommandManager discordCommandManager = getDiscordCommandManager();
-        discordAPI.addEventListener(discordCommandManager);
-
-        // Normal Commands
-        discordCommandManager.registerCommands(DiscordCommandTicket.class);
-
-        // Slash Commands
-        registerDiscordSlashCommands();
-    }
-    
     private void registerConsoleCommands() {
         ConsoleCommandManager consoleCommandManager = getConsoleCommandManager();
         consoleCommandManager.registerCommands(
@@ -240,7 +225,7 @@ public final class DiscordBot {
         SlashCommandManager slashCommandManager = getSlashCommandManager();
         slashCommandManager.registerCommands(
                 SlashCommandDevInfo.class, SlashCommandFAQ.class, SlashCommandMagicEightBall.class,
-                SlashCommandPing.class, SlashCommandUserInfo.class, SlashCommandVoter.class
+                SlashCommandPing.class, SlashCommandTicket.class, SlashCommandUserInfo.class, SlashCommandVoter.class
         );
 
         Set<SlashCommand> commandSet = slashCommandManager.getDiscordSlashCommandSet();

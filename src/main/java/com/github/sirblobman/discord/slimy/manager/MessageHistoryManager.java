@@ -1,22 +1,33 @@
-package com.github.sirblobman.discord.slimy.database;
+package com.github.sirblobman.discord.slimy.manager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+
+import com.github.sirblobman.discord.slimy.object.MessageActionType;
+import com.github.sirblobman.discord.slimy.object.MessageEntry;
 
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Message.Attachment;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.utils.data.DataObject;
 import org.apache.logging.log4j.Logger;
 
-public final class MessageHistoryManager {
+public final class MessageHistoryManager extends Manager {
     private final DatabaseManager databaseManager;
     
     public MessageHistoryManager(DatabaseManager databaseManager) {
+        super(databaseManager.getDiscordBot());
         this.databaseManager = Objects.requireNonNull(databaseManager, "databaseManager must not be null!");
     }
     
@@ -88,13 +99,78 @@ public final class MessageHistoryManager {
         }
     }
     
-    private DatabaseManager getDatabaseManager() {
-        return this.databaseManager;
+    public synchronized void archiveChannel(TextChannel channel) {
+        try {
+            Guild guild = channel.getGuild();
+            String guildId = guild.getId();
+            String channelId = channel.getId();
+            
+            List<MessageEntry> existingMessageHistory = getMessageHistory(channel);
+            CompletableFuture<List<Message>> messageListFuture = channel.getIterableHistory().submit();
+            List<Message> messageList = messageListFuture.join();
+            
+            for(Message message : messageList) {
+                String messageId = message.getId();
+    
+                Member member = message.getMember();
+                String memberId = (member == null ? null : member.getId());
+                String contentRaw = getContentRaw(message);
+                
+                if(message.isEdited()) {
+                    OffsetDateTime timeEdited = message.getTimeEdited();
+                    if(timeEdited == null) {
+                        timeEdited = message.getTimeCreated();
+                    }
+    
+                    long timestamp = timeEdited.toInstant().toEpochMilli();
+                    MessageEntry messageEntry = new MessageEntry(messageId, guildId, channelId, memberId,
+                            MessageActionType.EDIT, null, contentRaw, timestamp);
+                    if(!existingMessageHistory.contains(messageEntry)) {
+                        addMessageEntry(messageEntry);
+                    }
+                } else {
+                    OffsetDateTime timeCreated = message.getTimeCreated();
+                    long timestamp = timeCreated.toInstant().toEpochMilli();
+                    
+                    MessageEntry messageEntry = new MessageEntry(messageId, guildId, channelId, memberId,
+                            MessageActionType.CREATE, null, contentRaw, timestamp);
+                    if(!existingMessageHistory.contains(messageEntry)) {
+                        addMessageEntry(messageEntry);
+                    }
+                }
+            }
+        } catch(Exception ex) {
+            Logger logger = getLogger();
+            logger.error("Failed to get channel message history because an error occurred:", ex);
+        }
     }
     
-    private Logger getLogger() {
-        DatabaseManager databaseManager = getDatabaseManager();
-        return databaseManager.getLogger();
+    private String getContentRaw(Message message) {
+        StringBuilder contentRaw = new StringBuilder(message.getContentRaw());
+        
+        List<MessageEmbed> messageEmbedList = message.getEmbeds();
+        for(MessageEmbed messageEmbed : messageEmbedList) {
+            DataObject dataObject = messageEmbed.toData();
+            contentRaw.append('\n').append("[Embed: ").append(dataObject).append("]");
+        }
+    
+        List<Attachment> attachmentList = message.getAttachments();
+        for(Attachment attachment : attachmentList) {
+            String fileName = attachment.getFileName();
+            String attachmentUrl = attachment.getUrl();
+        
+            DataObject dataObject = DataObject.empty();
+            dataObject.put("file_name", fileName);
+            dataObject.put("attachment_url", attachmentUrl);
+        
+            contentRaw.append('\n').append("[Attachment: ").append(dataObject).append("]");
+        }
+        
+        return contentRaw.toString();
+    }
+    
+    private DatabaseManager getDatabaseManager() {
+        return this.databaseManager;
     }
     
     private Connection getConnection() throws SQLException {

@@ -1,5 +1,6 @@
 package com.github.sirblobman.discord.slimy.command.slash;
 
+import java.awt.Color;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
@@ -92,6 +93,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
             case "uptime" -> getUptimeEmbed(sender);
             case "resources" -> getResourceUsageEmbed(sender);
             case "temperature" -> getTemperatureEmbed(sender);
+            case "embed_example" -> getEmbedExample();
             default -> null;
         };
 
@@ -292,5 +294,75 @@ public final class SlashCommandDevInfo extends SlashCommand {
         if(osName.contains("windows")) return "windows.png";
         if(osName.contains("mac os")) return "apple.png";
         return "linux.png";
+    }
+    
+    private EmbedBuilder getEmbedExample() {
+        // Create the EmbedBuilder instance
+        EmbedBuilder eb = new EmbedBuilder();
+
+        /*
+            Set the title:
+            1. Arg: title as string
+            2. Arg: URL as string or could also be null
+         */
+        eb.setTitle("Title", null);
+
+        /*
+            Set the color
+         */
+        eb.setColor(Color.red);
+        eb.setColor(new Color(0xF40C0C));
+        eb.setColor(new Color(255, 0, 54));
+
+        /*
+            Set the text of the Embed:
+            Arg: text as string
+         */
+        eb.setDescription("Text");
+
+        /*
+            Add fields to embed:
+            1. Arg: title as string
+            2. Arg: text as string
+            3. Arg: inline mode true / false
+         */
+        eb.addField("Title of field", "test of field", false);
+
+        /*
+            Add spacer like field
+            Arg: inline mode true / false
+         */
+        eb.addBlankField(false);
+
+        /*
+            Add embed author:
+            1. Arg: name as string
+            2. Arg: url as string (can be null)
+            3. Arg: icon url as string (can be null)
+         */
+        eb.setAuthor("name", null,
+                "https://github.com/zekroTJA/DiscordBot/raw/master/.websrc/zekroBot_Logo_-_round_small.png");
+
+        /*
+            Set footer:
+            1. Arg: text as string
+            2. icon url as string (can be null)
+         */
+        eb.setFooter("Text",
+                "https://github.com/zekroTJA/DiscordBot/raw/master/.websrc/zekroBot_Logo_-_round_small.png");
+
+        /*
+            Set image:
+            Arg: image url as string
+         */
+        eb.setImage("https://github.com/zekroTJA/DiscordBot/raw/master/.websrc/logo%20-%20title.png");
+
+        /*
+            Set thumbnail image:
+            Arg: image url as string
+         */
+        eb.setThumbnail("https://github.com/zekroTJA/DiscordBot/raw/master/.websrc/logo%20-%20title.png");
+        
+        return eb;
     }
 }

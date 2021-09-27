@@ -4,13 +4,14 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.database.MessageActionType;
-import com.github.sirblobman.discord.slimy.database.MessageEntry;
-import com.github.sirblobman.discord.slimy.database.MessageHistoryManager;
+import com.github.sirblobman.discord.slimy.object.MessageActionType;
+import com.github.sirblobman.discord.slimy.object.MessageEntry;
+import com.github.sirblobman.discord.slimy.manager.MessageHistoryManager;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
@@ -57,6 +58,8 @@ public final class ListenerMessages extends SlimyBotListener {
         String guildId = guild.getId();
         String channelId = channel.getId();
         
+        message.getContentStripped();
+        
         Member member = message.getMember();
         String memberId = (member == null ? null : member.getId());
         
@@ -96,8 +99,19 @@ public final class ListenerMessages extends SlimyBotListener {
         List<MessageEmbed> messageEmbedList = message.getEmbeds();
         for(MessageEmbed messageEmbed : messageEmbedList) {
             DataObject dataObject = messageEmbed.toData();
-            String string = dataObject.toString();
-            contentRaw.append("[Embed: ").append(string).append("]");
+            contentRaw.append('\n').append("[Embed: ").append(dataObject).append("]");
+        }
+    
+        List<Attachment> attachmentList = message.getAttachments();
+        for(Attachment attachment : attachmentList) {
+            String fileName = attachment.getFileName();
+            String attachmentUrl = attachment.getUrl();
+            
+            DataObject dataObject = DataObject.empty();
+            dataObject.put("file_name", fileName);
+            dataObject.put("attachment_url", attachmentUrl);
+            
+            contentRaw.append('\n').append("[Attachment: ").append(dataObject).append("]");
         }
     
         MessageEntry messageEntry = new MessageEntry(messageId, guildId, channelId, memberId,

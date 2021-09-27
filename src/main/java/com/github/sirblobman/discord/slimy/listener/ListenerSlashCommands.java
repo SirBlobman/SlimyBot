@@ -1,7 +1,7 @@
 package com.github.sirblobman.discord.slimy.listener;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.command.SlashCommandManager;
+import com.github.sirblobman.discord.slimy.manager.SlashCommandManager;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommand;
 
 import net.dv8tion.jda.api.entities.Message;

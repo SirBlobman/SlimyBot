@@ -1,4 +1,4 @@
-package com.github.sirblobman.discord.slimy.database;
+package com.github.sirblobman.discord.slimy.manager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,7 +11,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
@@ -20,12 +19,11 @@ import org.apache.logging.log4j.Logger;
 import org.sqlite.JDBC;
 import org.sqlite.SQLiteDataSource;
 
-public final class DatabaseManager {
-    private final DiscordBot discordBot;
+public final class DatabaseManager extends Manager {
     private final SQLiteDataSource dataSource;
     
     public DatabaseManager(DiscordBot discordBot) {
-        this.discordBot = Objects.requireNonNull(discordBot, "discordBot must not be null!");
+        super(discordBot);
         this.dataSource = new SQLiteDataSource();
         
         Path path = Paths.get("database.sqlite");
@@ -35,17 +33,8 @@ public final class DatabaseManager {
         this.dataSource.setUrl(JDBC.PREFIX + filePath);
     }
     
-    DiscordBot getDiscordBot() {
-        return this.discordBot;
-    }
-    
-    Logger getLogger() {
-        DiscordBot discordBot = getDiscordBot();
-        return discordBot.getLogger();
-    }
-    
     public synchronized boolean connectToDatabase() {
-        Logger logger = this.discordBot.getLogger();
+        Logger logger = getLogger();
         try (Connection connection = getConnection()) {
             DatabaseMetaData connectionMeta = connection.getMetaData();
             String driverName = connectionMeta.getDriverName();
@@ -94,7 +83,7 @@ public final class DatabaseManager {
             String sqlCode = finalCommand.toString().trim();
             return String.format(Locale.US, sqlCode, replacements);
         } catch(IOException ex) {
-            Logger logger = this.discordBot.getLogger();
+            Logger logger = getLogger();
             logger.error("An error occurred while getting an SQL command:", ex);
             return "";
         }

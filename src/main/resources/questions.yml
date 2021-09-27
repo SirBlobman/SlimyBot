@@ -12,3 +12,8 @@ plugin-yml:
   plugin: "CombatLogX"
   question: "Why do I get a `jar does not contain plugin.yml` error?"
   answer: "Expansions are not plugins. Please read the installation guide on the spigot page for CombatLogX"
+
+rewards:
+  plugin: "CombatLogX"
+  question: "Why am I getting console messages and money when killing mobs?"
+  answer: "Configure or remove the Rewards expansion to fix this problem."

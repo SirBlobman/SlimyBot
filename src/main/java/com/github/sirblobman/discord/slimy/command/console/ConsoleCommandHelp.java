@@ -6,7 +6,7 @@ import java.util.Set;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
-import com.github.sirblobman.discord.slimy.command.ConsoleCommandManager;
+import com.github.sirblobman.discord.slimy.manager.ConsoleCommandManager;
 
 import org.apache.logging.log4j.Logger;
 

@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.command.ConsoleCommandManager;
+import com.github.sirblobman.discord.slimy.manager.ConsoleCommandManager;
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommand;
 
 import net.dv8tion.jda.api.JDA;
