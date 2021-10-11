@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -21,8 +22,10 @@ import java.util.concurrent.CompletionException;
 import java.util.regex.Pattern;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.object.ChannelRecord;
 import com.github.sirblobman.discord.slimy.object.InvalidConfigurationException;
 import com.github.sirblobman.discord.slimy.object.MainConfiguration;
+import com.github.sirblobman.discord.slimy.object.MemberRecord;
 import com.github.sirblobman.discord.slimy.object.MessageActionType;
 import com.github.sirblobman.discord.slimy.object.MessageEntry;
 import com.github.sirblobman.discord.slimy.object.MessageInformation;
@@ -38,6 +41,7 @@ import j2html.tags.specialized.HeadTag;
 import j2html.tags.specialized.HtmlTag;
 import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.SectionTag;
+import j2html.tags.specialized.TimeTag;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
@@ -221,36 +225,44 @@ public final class TicketArchiveManager extends Manager {
     }
     
     private DivTag createDivTag(MessageInformation information, Guild guild) {
-        Optional<Member> member = information.getMember(guild);
-        ImgTag imgTag = getImgTag(member.orElse(null));
-        DivTag messageTag = getDivTag(guild, member.orElse(null), information.getContentRaw(),
-                information.getTimestamp());
+        DiscordBot discordBot = getDiscordBot();
+        DatabaseManager databaseManager = discordBot.getDatabaseManager();
+        Optional<MemberRecord> optionalMember = information.getMember(databaseManager);
+        
+        MemberRecord member = optionalMember.orElse(null);
+        String rawContent = information.getContentRaw();
+        long timestamp = information.getTimestamp();
+        
+        ImgTag imgTag = getImgTag(member);
+        DivTag messageTag = getDivTag(guild, member, rawContent, timestamp);
         return div(imgTag, messageTag);
     }
     
-    private ImgTag getImgTag(@Nullable Member member) {
+    private ImgTag getImgTag(@Nullable MemberRecord member) {
+        String unknownUserIconBase = ("http://resources.sirblobman.xyz/slimy_bot/images/discord_unknown_user.");
+        String unknownUserIconPNG = (unknownUserIconBase + "png");
+        
         if(member == null) {
-            return img().withSrc("https://discord.com/assets/145dc557845548a36a82337912ca3ac5.svg")
-                    .withAlt("Avatar for an unknown user.");
-        } else {
-            User user = member.getUser();
-            String avatarUrl = user.getEffectiveAvatarUrl();
-            String altName = ("Avatar for user " + user.getAsTag());
-            return img().withSrc(avatarUrl).withAlt(altName).withClass("author-icon");
+            return img().withSrc(unknownUserIconPNG).withAlt("Avatar for an unknown user.");
         }
+        
+        String avatarUrl = member.avatar_url();
+        String altString = ("Avatar for user " + member.tag());
+        return img().withSrc(avatarUrl).withOnerror(unknownUserIconPNG).withAlt(altString);
     }
     
-    private DivTag getDivTag(Guild guild, @Nullable Member member, String message, long timestamp) {
+    private DivTag getDivTag(Guild guild, @Nullable MemberRecord member, String message, long timestamp) {
+        DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy HH:mm:ss.SSS zzz");
+        String timestampDateString = dateFormat.format(new Date(timestamp));
         String timestampString = Long.toString(timestamp);
-        String userTag = (member == null ? "Unknown User" : member.getUser().getAsTag());
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy HH:mm:ss.SSS zzz");
-        H1Tag h1 = h1(userTag).with(time(dateFormat.format(new Date(timestamp))).withDatetime(timestampString));
-        message = replaceMentions(guild, message);
-    
-        return div(
-                h1,
-                fixLineBreaks(message)
-        );
+        
+        String userTag = (member == null ? "Unknown User" : member.tag());
+        TimeTag timeTag = time(timestampDateString).withDatetime(timestampString);
+        H1Tag h1Tag = h1(userTag).with(timeTag);
+        
+        String replaced = replaceMentions(guild, message);
+        DomContent fixedMessage = fixLineBreaks(replaced);
+        return div(h1Tag, fixedMessage);
     }
     
     private String replaceMentions(Guild guild, String contentRaw) {
@@ -271,6 +283,13 @@ public final class TicketArchiveManager extends Manager {
                 String tagName = memberUser.getAsTag();
                 return ("@" + tagName);
             }
+    
+            DatabaseManager databaseManager = getDiscordBot().getDatabaseManager();
+            MemberRecord memberRecord = databaseManager.getKnownMemberById(memberId);
+            if(memberRecord != null) {
+                String tagName = memberRecord.tag();
+                return ("@" + tagName);
+            }
             
             return result.group();
         });
@@ -284,6 +303,13 @@ public final class TicketArchiveManager extends Manager {
             if(memberById != null) {
                 User memberUser = memberById.getUser();
                 String tagName = memberUser.getAsTag();
+                return ("@" + tagName);
+            }
+    
+            DatabaseManager databaseManager = getDiscordBot().getDatabaseManager();
+            MemberRecord memberRecord = databaseManager.getKnownMemberById(memberId);
+            if(memberRecord != null) {
+                String tagName = memberRecord.tag();
                 return ("@" + tagName);
             }
             
@@ -314,7 +340,14 @@ public final class TicketArchiveManager extends Manager {
                 String channelName = guildChannel.getName();
                 return ("#" + channelName);
             }
-            
+    
+            DatabaseManager databaseManager = getDiscordBot().getDatabaseManager();
+            ChannelRecord channelRecord = databaseManager.getKnownChannelById(channelId);
+            if(channelRecord != null) {
+                String channelName = channelRecord.name();
+                return ("#" + channelName);
+            }
+    
             return result.group();
         });
     }
@@ -494,7 +527,7 @@ public final class TicketArchiveManager extends Manager {
             DivTag attachmentDiv = div().withClass("attachment");
             
             String fileName = jsonObject.getString("file_name");
-            String attachmentURL = jsonObject.getString("file_name");
+            String attachmentURL = jsonObject.getString("attachment_url");
             
             attachmentDiv = attachmentDiv.with(a().with(strong("Attachment: ")).withText(fileName)
                     .withHref(attachmentURL));

@@ -4,6 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.manager.DatabaseManager;
 import com.github.sirblobman.discord.slimy.object.MessageActionType;
 import com.github.sirblobman.discord.slimy.object.MessageEntry;
 import com.github.sirblobman.discord.slimy.manager.MessageHistoryManager;
@@ -18,6 +19,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.utils.data.DataObject;
+import org.jetbrains.annotations.Nullable;
 
 public final class ListenerMessages extends SlimyBotListener {
     public ListenerMessages(DiscordBot discordBot) {
@@ -58,10 +60,9 @@ public final class ListenerMessages extends SlimyBotListener {
         String guildId = guild.getId();
         String channelId = channel.getId();
         
-        message.getContentStripped();
-        
         Member member = message.getMember();
         String memberId = (member == null ? null : member.getId());
+        register(guild, channel, member);
         
         OffsetDateTime timeCreated = message.getTimeCreated();
         long timestamp = timeCreated.toInstant().toEpochMilli();
@@ -87,6 +88,7 @@ public final class ListenerMessages extends SlimyBotListener {
         
         Member member = message.getMember();
         String memberId = (member == null ? null : member.getId());
+        register(guild, channel, member);
     
         OffsetDateTime timeEdited = message.getTimeEdited();
         if(timeEdited == null) {
@@ -124,10 +126,28 @@ public final class ListenerMessages extends SlimyBotListener {
         String guildId = guild.getId();
         String channelId = channel.getId();
         long timestamp = System.currentTimeMillis();
+        register(guild, channel, null);
     
         MessageEntry messageEntry = new MessageEntry(messageId, guildId, channelId, null,
                 MessageActionType.DELETE, null, null, timestamp);
         MessageHistoryManager messageHistoryManager = getMessageHistoryManager();
         messageHistoryManager.addMessageEntry(messageEntry);
+    }
+    
+    private void register(@Nullable Guild guild, @Nullable TextChannel channel, @Nullable Member member) {
+        DiscordBot discordBot = getDiscordBot();
+        DatabaseManager databaseManager = discordBot.getDatabaseManager();
+        
+        if(guild != null) {
+            databaseManager.register(guild);
+        }
+        
+        if(channel != null) {
+            databaseManager.register(channel);
+        }
+        
+        if(member != null) {
+            databaseManager.register(member);
+        }
     }
 }

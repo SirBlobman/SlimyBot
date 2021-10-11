@@ -3,8 +3,7 @@ package com.github.sirblobman.discord.slimy.object;
 import java.util.Objects;
 import java.util.Optional;
 
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
+import com.github.sirblobman.discord.slimy.manager.DatabaseManager;
 
 public final class MessageInformation {
     private final String messageId, memberId;
@@ -27,11 +26,12 @@ public final class MessageInformation {
         return Optional.ofNullable(memberId);
     }
     
-    public Optional<Member> getMember(Guild guild) {
+    public Optional<MemberRecord> getMember(DatabaseManager databaseManager) {
         Optional<String> optionalMemberId = getMemberId();
         if(optionalMemberId.isPresent()) {
             String memberId = optionalMemberId.get();
-            return Optional.ofNullable(guild.getMemberById(memberId));
+            MemberRecord member = databaseManager.getKnownMemberById(memberId);
+            return Optional.ofNullable(member);
         }
         
         return Optional.empty();
