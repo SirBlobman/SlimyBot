@@ -64,7 +64,7 @@ public final class SlashCommandMagicEightBall extends SlashCommand {
         int randomValue = random.nextInt(this.messageArraySize);
         String message = this.messageArray[randomValue];
 
-        String imageURL = "http://resources.sirblobman.xyz/slimy_bot/images/magic_eight_ball.png";
+        String imageURL = "https://www.sirblobman.xyz/slimy_bot/images/magic_eight_ball.png";
         EmbedBuilder builder = getExecutedByEmbed(sender).setColor(Color.BLACK).setTitle("Magic 8-Ball");
         builder.setThumbnail(imageURL);
 

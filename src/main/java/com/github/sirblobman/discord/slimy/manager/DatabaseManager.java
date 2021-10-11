@@ -181,7 +181,7 @@ public final class DatabaseManager extends Manager {
     @Nullable
     public synchronized MemberRecord getKnownMemberById(String id) {
         try (Connection connection = getConnection()) {
-            String sqlCommand = ("SELECT `guild_id`,`name`,`tag` FROM `known_members` WHERE `id`=? ;");
+            String sqlCommand = ("SELECT `guild_id`,`name`,`tag`,`avatar_url` FROM `known_members` WHERE `id`=? ;");
             PreparedStatement preparedStatement = connection.prepareStatement(sqlCommand);
             preparedStatement.setString(1, id);
         

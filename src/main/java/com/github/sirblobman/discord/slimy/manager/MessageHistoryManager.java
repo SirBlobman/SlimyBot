@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
+import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.object.MessageActionType;
 import com.github.sirblobman.discord.slimy.object.MessageEntry;
 
@@ -101,7 +102,13 @@ public final class MessageHistoryManager extends Manager {
     
     public synchronized void archiveChannel(TextChannel channel) {
         try {
+            DiscordBot discordBot = getDiscordBot();
+            DatabaseManager databaseManager = discordBot.getDatabaseManager();
+            databaseManager.register(channel);
+    
             Guild guild = channel.getGuild();
+            databaseManager.register(guild);
+            
             String guildId = guild.getId();
             String channelId = channel.getId();
             
@@ -115,6 +122,10 @@ public final class MessageHistoryManager extends Manager {
                 Member member = message.getMember();
                 String memberId = (member == null ? null : member.getId());
                 String contentRaw = getContentRaw(message);
+                
+                if(member != null) {
+                    databaseManager.register(member);
+                }
                 
                 if(message.isEdited()) {
                     OffsetDateTime timeEdited = message.getTimeEdited();

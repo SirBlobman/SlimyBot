@@ -233,15 +233,13 @@ public final class TicketArchiveManager extends Manager {
         String rawContent = information.getContentRaw();
         long timestamp = information.getTimestamp();
         
-        ImgTag imgTag = getImgTag(member);
+        ImgTag imgTag = getImgTag(member).withClass("author-icon");
         DivTag messageTag = getDivTag(guild, member, rawContent, timestamp);
         return div(imgTag, messageTag);
     }
     
     private ImgTag getImgTag(@Nullable MemberRecord member) {
-        String unknownUserIconBase = ("http://resources.sirblobman.xyz/slimy_bot/images/discord_unknown_user.");
-        String unknownUserIconPNG = (unknownUserIconBase + "png");
-        
+        String unknownUserIconPNG = ("https://www.sirblobman.xyz/slimy_bot/images/discord_unknown_user.png");
         if(member == null) {
             return img().withSrc(unknownUserIconPNG).withAlt("Avatar for an unknown user.");
         }

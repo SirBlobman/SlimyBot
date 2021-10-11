@@ -141,7 +141,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
 
         String osNameLowercase = osName.toLowerCase();
         String osImageName = getOperatingSystemImageName(osNameLowercase);
-        String osImageURL = ("http://resources.sirblobman.xyz/slimy_bot/images/" + osImageName);
+        String osImageURL = ("https://www.sirblobman.xyz/slimy_bot/images/" + osImageName);
 
         EmbedBuilder builder = getExecutedByEmbed(sender);
         builder.setTitle("Operating System");
@@ -157,7 +157,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
         String javaVendor = System.getProperty("java.vendor");
         String javaURL = System.getProperty("java.vendor.url");
         String javaVersion = System.getProperty("java.version");
-        String javaImageURL = ("http://resources.sirblobman.xyz/slimy_bot/images/java.png");
+        String javaImageURL = ("https://www.sirblobman.xyz/slimy_bot/images/java.png");
 
         EmbedBuilder builder = getExecutedByEmbed(sender);
         builder.setTitle("Java Information");
@@ -172,7 +172,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
     private EmbedBuilder getResourceUsageEmbed(Member sender) {
         Runtime runtime = Runtime.getRuntime();
         String cpuCoreCount = Integer.toString(runtime.availableProcessors());
-        String cpuImageURL = ("http://resources.sirblobman.xyz/slimy_bot/images/cpu.png");
+        String cpuImageURL = ("https://www.sirblobman.xyz/slimy_bot/images/cpu.png");
 
         long maxMemory = runtime.maxMemory();
         long freeMemory = runtime.freeMemory();
