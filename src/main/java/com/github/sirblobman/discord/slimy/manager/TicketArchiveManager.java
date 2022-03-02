@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
@@ -273,7 +274,9 @@ public final class TicketArchiveManager extends Manager {
     private String replaceMemberMentions(Guild guild, String content) {
         content = replaceMemberMentions2(guild, content);
         Pattern memberPattern = Pattern.compile("<@(\\d*)>");
-        return memberPattern.matcher(content).replaceAll(result -> {
+        
+        Matcher matcher = memberPattern.matcher(content);
+        return matcher.replaceAll(result -> {
             String memberId = result.group(1);
             Member memberById = guild.getMemberById(memberId);
             if(memberById != null) {
@@ -288,14 +291,17 @@ public final class TicketArchiveManager extends Manager {
                 String tagName = memberRecord.tag();
                 return ("@" + tagName);
             }
-            
-            return result.group();
+    
+            String group = result.group();
+            return Matcher.quoteReplacement(group);
         });
     }
     
     private String replaceMemberMentions2(Guild guild, String content) {
         Pattern memberPattern = Pattern.compile("<@!(\\d*)>");
-        return memberPattern.matcher(content).replaceAll(result -> {
+        Matcher matcher = memberPattern.matcher(content);
+        
+        return matcher.replaceAll(result -> {
             String memberId = result.group(1);
             Member memberById = guild.getMemberById(memberId);
             if(memberById != null) {
@@ -310,28 +316,34 @@ public final class TicketArchiveManager extends Manager {
                 String tagName = memberRecord.tag();
                 return ("@" + tagName);
             }
-            
-            return result.group();
+    
+            String group = result.group();
+            return Matcher.quoteReplacement(group);
         });
     }
     
     private String replaceRoleMentions(Guild guild, String content) {
         Pattern rolePattern = Pattern.compile("<@&(\\d*)>");
-        return rolePattern.matcher(content).replaceAll(result -> {
+        Matcher matcher = rolePattern.matcher(content);
+        
+        return matcher.replaceAll(result -> {
             String roleId = result.group(1);
             Role roleById = guild.getRoleById(roleId);
             if(roleById != null) {
                 String roleName = roleById.getName();
                 return ("@" + roleName);
             }
-            
-            return result.group();
+    
+            String group = result.group();
+            return Matcher.quoteReplacement(group);
         });
     }
     
     private String replaceChannelMentions(Guild guild, String content) {
         Pattern channelPattern = Pattern.compile("<#(\\d*)>");
-        return channelPattern.matcher(content).replaceAll(result -> {
+        Matcher matcher = channelPattern.matcher(content);
+        
+        return matcher.replaceAll(result -> {
             String channelId = result.group(1);
             GuildChannel guildChannel = guild.getGuildChannelById(channelId);
             if(guildChannel != null) {
