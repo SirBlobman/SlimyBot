@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommandHelp;
+import com.github.sirblobman.discord.slimy.command.console.ConsoleCommandMessage;
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommandStop;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommand;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandDevInfo;
@@ -206,7 +207,7 @@ public final class DiscordBot {
     private void registerConsoleCommands() {
         ConsoleCommandManager consoleCommandManager = getConsoleCommandManager();
         consoleCommandManager.registerCommands(
-                ConsoleCommandHelp.class, ConsoleCommandStop.class
+                ConsoleCommandHelp.class, ConsoleCommandMessage.class, ConsoleCommandStop.class
         );
     }
 
@@ -245,7 +246,9 @@ public final class DiscordBot {
     private void saveDefault(String fileName) {
         try {
             File file = new File(fileName);
-            if(file.exists()) return;
+            if(file.exists()) {
+                return;
+            }
 
             Class<?> thisClass = getClass();
             InputStream jarResourceStream = thisClass.getResourceAsStream("/" + fileName);
