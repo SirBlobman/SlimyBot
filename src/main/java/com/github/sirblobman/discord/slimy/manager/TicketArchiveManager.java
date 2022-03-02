@@ -282,14 +282,14 @@ public final class TicketArchiveManager extends Manager {
             if(memberById != null) {
                 User memberUser = memberById.getUser();
                 String tagName = memberUser.getAsTag();
-                return ("@" + tagName);
+                return Matcher.quoteReplacement("@" + tagName);
             }
     
             DatabaseManager databaseManager = getDiscordBot().getDatabaseManager();
             MemberRecord memberRecord = databaseManager.getKnownMemberById(memberId);
             if(memberRecord != null) {
                 String tagName = memberRecord.tag();
-                return ("@" + tagName);
+                return Matcher.quoteReplacement("@" + tagName);
             }
     
             String group = result.group();
@@ -307,14 +307,14 @@ public final class TicketArchiveManager extends Manager {
             if(memberById != null) {
                 User memberUser = memberById.getUser();
                 String tagName = memberUser.getAsTag();
-                return ("@" + tagName);
+                return Matcher.quoteReplacement("@" + tagName);
             }
     
             DatabaseManager databaseManager = getDiscordBot().getDatabaseManager();
             MemberRecord memberRecord = databaseManager.getKnownMemberById(memberId);
             if(memberRecord != null) {
                 String tagName = memberRecord.tag();
-                return ("@" + tagName);
+                return Matcher.quoteReplacement("@" + tagName);
             }
     
             String group = result.group();
@@ -331,7 +331,7 @@ public final class TicketArchiveManager extends Manager {
             Role roleById = guild.getRoleById(roleId);
             if(roleById != null) {
                 String roleName = roleById.getName();
-                return ("@" + roleName);
+                return Matcher.quoteReplacement("@" + roleName);
             }
     
             String group = result.group();
@@ -348,14 +348,14 @@ public final class TicketArchiveManager extends Manager {
             GuildChannel guildChannel = guild.getGuildChannelById(channelId);
             if(guildChannel != null) {
                 String channelName = guildChannel.getName();
-                return ("#" + channelName);
+                return Matcher.quoteReplacement("#" + channelName);
             }
     
             DatabaseManager databaseManager = getDiscordBot().getDatabaseManager();
             ChannelRecord channelRecord = databaseManager.getKnownChannelById(channelId);
             if(channelRecord != null) {
                 String channelName = channelRecord.name();
-                return ("#" + channelName);
+                return Matcher.quoteReplacement("#" + channelName);
             }
     
             return result.group();
