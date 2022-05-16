@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -24,6 +25,7 @@ import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
@@ -43,9 +45,20 @@ public final class SlashCommandDevInfo extends SlashCommand {
 
     @Override
     public CommandData getCommandData() {
+        OptionData optionType = new OptionData(OptionType.STRING, "type",
+                "What type of information do you need?", true)
+                .addChoice("All Information", "os")
+                .addChoice("Operating System", "os")
+                .addChoice("Bot Information", "bot")
+                .addChoice("Java Information", "java")
+                .addChoice("Uptime Information", "uptime")
+                .addChoice("Resource Information", "resources")
+                .addChoice("Temperature Information", "temperature")
+                .addChoice("Embed Example", "embed_example");
+
         String commandName = getCommandName();
-        return new CommandData(commandName, "View information for developers and bot owners.")
-                .addOption(OptionType.STRING, "type", "What type of information do you need?");
+        String description = "View information about the bot and host.";
+        return new CommandData(commandName, description).addOptions(optionType);
     }
 
     @Override
@@ -310,9 +323,9 @@ public final class SlashCommandDevInfo extends SlashCommand {
         /*
             Set the color
          */
-        eb.setColor(Color.red);
-        eb.setColor(new Color(0xF40C0C));
-        eb.setColor(new Color(255, 0, 54));
+        eb.setColor(Color.RED);
+        // eb.setColor(0xFF0000);
+        // eb.setColor(new Color(255, 0, 0));
 
         /*
             Set the text of the Embed:
@@ -362,6 +375,12 @@ public final class SlashCommandDevInfo extends SlashCommand {
             Arg: image url as string
          */
         eb.setThumbnail("https://github.com/zekroTJA/DiscordBot/raw/master/.websrc/logo%20-%20title.png");
+
+        /*
+            Set timestamp
+            Arg: A TemporalAccessor for the timestamp (usually an Instant)
+         */
+        eb.setTimestamp(Instant.now());
         
         return eb;
     }

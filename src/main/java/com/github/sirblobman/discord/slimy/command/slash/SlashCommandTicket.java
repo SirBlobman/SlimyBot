@@ -59,6 +59,7 @@ public final class SlashCommandTicket extends SlashCommand {
         }
         
         return switch(subcommandName) {
+            // TODO: case "setup" -> commandSetup(member, e);
             case "new" -> commandNew(member, e);
             case "close" -> commandClose(member, e);
             case "add" -> commandAdd(member, e);
