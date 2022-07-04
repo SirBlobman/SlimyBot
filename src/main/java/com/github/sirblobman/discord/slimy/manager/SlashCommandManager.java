@@ -20,26 +20,26 @@ public final class SlashCommandManager extends Manager {
     public SlashCommandManager(DiscordBot discordBot) {
         super(discordBot);
     }
-    
+
     public SlashCommand getCommand(String commandName) {
-        if(commandName == null || commandName.isEmpty()) return null;
-        
+        if (commandName == null || commandName.isEmpty()) return null;
+
         String lowercase = commandName.toLowerCase();
         return this.commandMap.getOrDefault(lowercase, null);
     }
-    
+
     public Set<SlashCommand> getDiscordSlashCommandSet() {
         Collection<SlashCommand> valueColl = this.commandMap.values();
         return new HashSet<>(valueColl);
     }
-    
+
     @SafeVarargs
     public final void registerCommands(Class<? extends SlashCommand>... commandClassArray) {
-        for(Class<? extends SlashCommand> commandClass : commandClassArray) {
+        for (Class<? extends SlashCommand> commandClass : commandClassArray) {
             registerCommand(commandClass);
         }
     }
-    
+
     private void registerCommand(Class<? extends SlashCommand> commandClass) {
         try {
             Constructor<? extends SlashCommand> constructor = commandClass.getConstructor(DiscordBot.class);
@@ -48,7 +48,7 @@ public final class SlashCommandManager extends Manager {
             CommandData commandData = command.getCommandData();
             String commandName = commandData.getName();
             this.commandMap.put(commandName, command);
-        } catch(ReflectiveOperationException ex) {
+        } catch (ReflectiveOperationException ex) {
             Logger logger = getLogger();
             logger.log(Level.WARN, "An error occurred while registering a Discord slash command.", ex);
         }

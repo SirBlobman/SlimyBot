@@ -51,7 +51,7 @@ public final class DiscordBot {
     private final Logger logger;
     private final ConsoleCommandManager consoleCommandManager;
     private final SlashCommandManager slashCommandManager;
-    
+
     private final DatabaseManager databaseManager;
     private final MessageHistoryManager messageHistoryManager;
     private final TicketArchiveManager ticketArchiveManager;
@@ -64,7 +64,7 @@ public final class DiscordBot {
         this.logger = Objects.requireNonNull(logger, "logger must not be null!");
         this.consoleCommandManager = new ConsoleCommandManager(this);
         this.slashCommandManager = new SlashCommandManager(this);
-        
+
         this.databaseManager = new DatabaseManager(this);
         this.messageHistoryManager = new MessageHistoryManager(this.databaseManager);
         this.ticketArchiveManager = new TicketArchiveManager(this);
@@ -81,19 +81,19 @@ public final class DiscordBot {
     public SlashCommandManager getSlashCommandManager() {
         return this.slashCommandManager;
     }
-    
+
     public DatabaseManager getDatabaseManager() {
         return this.databaseManager;
     }
-    
+
     public MessageHistoryManager getMessageHistoryManager() {
         return this.messageHistoryManager;
     }
-    
+
     public TicketArchiveManager getTicketArchiveManager() {
         return this.ticketArchiveManager;
     }
-    
+
     public JDA getDiscordAPI() {
         return this.discordAPI;
     }
@@ -120,21 +120,21 @@ public final class DiscordBot {
 
             Map<String, Object> configMap = yaml.load(configInputStream);
             this.mainConfiguration = MainConfiguration.serialize(this, configMap);
-            if(this.mainConfiguration == null) throw new IllegalStateException("Invalid Config!");
-        } catch(IOException ex) {
+            if (this.mainConfiguration == null) throw new IllegalStateException("Invalid Config!");
+        } catch (IOException ex) {
             logger.log(Level.ERROR, "An error occurred while loading the main configuration file:", ex);
             return;
         }
-    
+
         DatabaseManager databaseManager = getDatabaseManager();
-        if(!databaseManager.connectToDatabase()) {
+        if (!databaseManager.connectToDatabase()) {
             logger.error("Failed to connect to the SQLite database.");
             return;
         }
-    
+
         try {
             String discordApiToken = this.mainConfiguration.getApiToken();
-            if(discordApiToken.equalsIgnoreCase("<none>")) {
+            if (discordApiToken.equalsIgnoreCase("<none>")) {
                 logger.error("The bot is not configured correctly!");
                 logger.error("Please configure the bot using the 'config.yml' file.");
                 return;
@@ -150,7 +150,7 @@ public final class DiscordBot {
 
             this.discordAPI = jdaBuilder.build().awaitReady();
             logger.info("Successfully logged in.");
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             logger.log(Level.ERROR, "An error occurred while trying to login to discord:", ex);
             return;
         }
@@ -161,17 +161,17 @@ public final class DiscordBot {
         logger.info("Finished loading Slimy Bot.");
         onEnable();
     }
-    
+
     public void onEnable() {
         Logger logger = getLogger();
         logger.info("Enabling Slimy Bot...");
 
         String inviteURL = this.discordAPI.getInviteUrl(Permission.ADMINISTRATOR);
         logger.info("Invite URL: '" + inviteURL + "'");
-        
+
         registerListeners();
         registerDiscordSlashCommands();
-        if(this.mainConfiguration.isConsoleEnabled()) {
+        if (this.mainConfiguration.isConsoleEnabled()) {
             registerConsoleCommands();
             setupConsole();
         }
@@ -179,12 +179,12 @@ public final class DiscordBot {
         this.startupTimestamp = System.currentTimeMillis();
         logger.info("Successfully enabled Slimy Network Discord Bot.");
     }
-    
+
     public void onDisable() {
         JDA discordAPI = getDiscordAPI();
         discordAPI.shutdownNow();
     }
-    
+
     private void registerListeners() {
         JDA discordAPI = getDiscordAPI();
         discordAPI.addEventListener(
@@ -192,18 +192,18 @@ public final class DiscordBot {
                 new ListenerReactions(this),
                 new ListenerSlashCommands(this)
         );
-    
+
         Logger logger = getLogger();
         logger.info("Registered Listeners:");
-        
+
         List<Object> registeredListeners = discordAPI.getRegisteredListeners();
-        for(Object registeredListener : registeredListeners) {
+        for (Object registeredListener : registeredListeners) {
             Class<?> registeredListenerClass = registeredListener.getClass();
             String className = registeredListenerClass.getName();
             logger.info(" - " + className);
         }
     }
-    
+
     private void registerConsoleCommands() {
         ConsoleCommandManager consoleCommandManager = getConsoleCommandManager();
         consoleCommandManager.registerCommands(
@@ -218,7 +218,7 @@ public final class DiscordBot {
 
         String guildId = mainConfiguration.getGuildId();
         Guild guild = discordAPI.getGuildById(guildId);
-        if(guild == null) {
+        if (guild == null) {
             logger.warn("Failed to find guild with ID '" + guildId + "'.");
             return;
         }
@@ -234,11 +234,11 @@ public final class DiscordBot {
                 .collect(Collectors.toSet());
         guild.updateCommands().addCommands(commandDataSet).queue();
     }
-    
+
     private void setupConsole() {
         ConsoleInputTask task = new ConsoleInputTask(this);
         Thread thread = new Thread(task, "Console Input");
-        
+
         thread.setDaemon(true);
         thread.start();
     }
@@ -246,27 +246,27 @@ public final class DiscordBot {
     private void saveDefault(String fileName) {
         try {
             File file = new File(fileName);
-            if(file.exists()) {
+            if (file.exists()) {
                 return;
             }
 
             Class<?> thisClass = getClass();
             InputStream jarResourceStream = thisClass.getResourceAsStream("/" + fileName);
-            if(jarResourceStream == null) {
+            if (jarResourceStream == null) {
                 throw new IOException("'" + fileName + "' does not exist in the jar file.");
             }
 
             File parentFolder = file.getParentFile();
-            if(parentFolder != null && !parentFolder.exists()) {
+            if (parentFolder != null && !parentFolder.exists()) {
                 boolean makeFolder = parentFolder.mkdirs();
-                if(!makeFolder) {
+                if (!makeFolder) {
                     throw new IOException("Failed to create parent folder for file '" + fileName + "'.");
                 }
             }
 
             Path filePath = file.toPath();
             Files.copy(jarResourceStream, filePath, StandardCopyOption.REPLACE_EXISTING);
-        } catch(IOException ex) {
+        } catch (IOException ex) {
             Logger logger = getLogger();
             logger.error("An I/O error occurred while saving a default file:", ex);
         }

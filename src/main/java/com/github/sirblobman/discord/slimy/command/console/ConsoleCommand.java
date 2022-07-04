@@ -10,20 +10,20 @@ public abstract class ConsoleCommand extends AbstractCommand {
     public ConsoleCommand(DiscordBot discordBot) {
         super(discordBot);
     }
-    
+
     public final void onCommand(String label, String[] args) {
         try {
             execute(label, args);
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             Logger logger = getLogger();
             logger.warn("Failed to execute console command '" + label + "' because an error occurred:", ex);
         }
     }
-    
+
     protected final ConsoleCommandManager getConsoleCommandManager() {
         DiscordBot discordBot = getDiscordBot();
         return discordBot.getConsoleCommandManager();
     }
-    
+
     protected abstract void execute(String label, String[] args);
 }

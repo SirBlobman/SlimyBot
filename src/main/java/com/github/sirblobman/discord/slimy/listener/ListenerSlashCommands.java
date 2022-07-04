@@ -19,7 +19,7 @@ public final class ListenerSlashCommands extends SlimyBotListener {
 
         String commandName = e.getName();
         SlashCommand command = slashCommandManager.getCommand(commandName);
-        if(command == null) {
+        if (command == null) {
             return;
         }
 
@@ -27,7 +27,7 @@ public final class ListenerSlashCommands extends SlimyBotListener {
         e.deferReply(ephemeral).queue();
 
         Message message = command.execute(e);
-        if(message != null) {
+        if (message != null) {
             e.getHook().sendMessage(message).queue();
         } else {
             e.getHook().sendMessage("Done.").queue();

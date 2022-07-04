@@ -30,7 +30,7 @@ public final class SlashCommandPing extends SlashCommand {
     @Override
     public Message execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
-        if(sender == null) {
+        if (sender == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "This command can only be executed in a guild.", false);
             return getMessage(errorEmbed);

@@ -49,7 +49,7 @@ public final class MainConfiguration {
 
             return new MainConfiguration(enableConsole, apiToken, botOwnerId, guildId, ticketCategoryId,
                     ticketHistoryChannelId, supportRoleId, voterRoleId);
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             Logger logger = discordBot.getLogger();
             logger.log(Level.ERROR, "An error occurred while serializing the main configuration:", ex);
             return null;
@@ -83,7 +83,7 @@ public final class MainConfiguration {
     public String getSupportRoleId() {
         return this.supportRoleId;
     }
-    
+
     public String getVoterRoleId() {
         return this.voterRoleId;
     }

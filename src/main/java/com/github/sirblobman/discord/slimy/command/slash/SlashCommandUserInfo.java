@@ -31,14 +31,14 @@ public final class SlashCommandUserInfo extends SlashCommand {
     @Override
     public CommandData getCommandData() {
         return Commands.slash(getCommandName(),
-                "View information about users in this guild.")
+                        "View information about users in this guild.")
                 .addOption(OptionType.USER, "user", "The user you want to check.", true);
     }
 
     @Override
     public Message execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
-        if(sender == null) {
+        if (sender == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "This command can only be executed in a guild.", false);
             return getMessage(errorEmbed);
@@ -49,7 +49,7 @@ public final class SlashCommandUserInfo extends SlashCommand {
         MainConfiguration mainConfiguration = discordBot.getMainConfiguration();
         String botOwnerId = mainConfiguration.getBotOwnerId();
 
-        if(!senderId.equals(botOwnerId)) {
+        if (!senderId.equals(botOwnerId)) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "This command can only be executed by the bot owner.",
                     false);
@@ -57,14 +57,14 @@ public final class SlashCommandUserInfo extends SlashCommand {
         }
 
         OptionMapping typeOptionMapping = e.getOption("user");
-        if(typeOptionMapping == null) {
+        if (typeOptionMapping == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(sender);
             errorEmbed.addField("Error", "Missing Argument 'type'.", false);
             return getMessage(errorEmbed);
         }
 
         Member member = typeOptionMapping.getAsMember();
-        if(member == null) {
+        if (member == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(sender);
             errorEmbed.addField("Error", "That user is not available on this server.", false);
             return getMessage(errorEmbed);

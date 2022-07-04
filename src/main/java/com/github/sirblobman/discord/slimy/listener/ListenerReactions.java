@@ -24,26 +24,26 @@ public final class ListenerReactions extends SlimyBotListener {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent e) {
-        if(!e.isFromGuild()) {
+        if (!e.isFromGuild()) {
             return;
         }
 
         Guild guild = e.getGuild();
         String guildId = guild.getId();
-        if(!guildId.equals("472253228856246299")) {
+        if (!guildId.equals("472253228856246299")) {
             return;
         }
 
         MessageChannel channel = e.getChannel();
         String channelId = channel.getId();
-        if(!channelId.equals("647078919668891649")) {
+        if (!channelId.equals("647078919668891649")) {
             return;
         }
 
         Message message = e.getMessage();
         String rawMessage = message.getContentRaw();
         Set<String> emojiSet = getEmojis(rawMessage);
-        for(String emoji : emojiSet) {
+        for (String emoji : emojiSet) {
             addReaction(message, emoji);
         }
 

@@ -65,7 +65,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
     @Override
     public Message execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
-        if(sender == null) {
+        if (sender == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "This command can only be executed in a guild.", false);
             return getMessage(errorEmbed);
@@ -76,21 +76,21 @@ public final class SlashCommandDevInfo extends SlashCommand {
         MainConfiguration mainConfiguration = discordBot.getMainConfiguration();
         String botOwnerId = mainConfiguration.getBotOwnerId();
 
-        if(!senderId.equals(botOwnerId)) {
+        if (!senderId.equals(botOwnerId)) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "This command can only be executed by the bot owner.", false);
             return getMessage(errorEmbed);
         }
 
         OptionMapping typeOptionMapping = e.getOption("type");
-        if(typeOptionMapping == null) {
+        if (typeOptionMapping == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(sender);
             errorEmbed.addField("Error", "Missing Argument 'type'.", false);
             return getMessage(errorEmbed);
         }
 
         String typeOption = typeOptionMapping.getAsString().toLowerCase(Locale.US);
-        if(typeOption.equals("all")) {
+        if (typeOption.equals("all")) {
             MessageEmbed embed1 = getOperatingSystemEmbed(sender).build();
             MessageEmbed embed2 = getBotUserInformationEmbed(sender).build();
             MessageEmbed embed3 = getJavaInformationEmbed(sender).build();
@@ -100,7 +100,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
             return new MessageBuilder().setEmbeds(embed1, embed2, embed3, embed4, embed5, embed6).build();
         }
 
-        EmbedBuilder embedBuilder = switch(typeOption) {
+        EmbedBuilder embedBuilder = switch (typeOption) {
             case "os" -> getOperatingSystemEmbed(sender);
             case "bot" -> getBotUserInformationEmbed(sender);
             case "java" -> getJavaInformationEmbed(sender);
@@ -111,7 +111,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
             default -> null;
         };
 
-        if(embedBuilder == null) {
+        if (embedBuilder == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(sender);
             errorEmbed.addField("Error", "Unknown information type '" + typeOption + "'.", false);
             return getMessage(errorEmbed);
@@ -136,11 +136,11 @@ public final class SlashCommandDevInfo extends SlashCommand {
         builder.addField("CPU Voltage", decimalFormat.format(cpuVoltage) + "V", false);
 
         int[] fanSpeeds = sensors.getFanSpeeds();
-        if(fanSpeeds.length < 1) {
+        if (fanSpeeds.length < 1) {
             builder.addField("Fan Speed", "N/A", false);
         } else {
             int number = 1;
-            for(int fanSpeed : fanSpeeds) {
+            for (int fanSpeed : fanSpeeds) {
                 String fanSpeedString = numberFormat.format(fanSpeed);
                 builder.addField("Fan Speed " + number, fanSpeedString + "rpm", false);
                 number++;
@@ -261,7 +261,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
 
     private String getSystemUptime() {
         String property = System.getProperty("os.name");
-        if(!property.contains("nux")) {
+        if (!property.contains("nux")) {
             return "N/A";
         }
 
@@ -271,7 +271,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
 
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             return bufferedReader.readLine();
-        } catch(Exception ex) {
+        } catch (Exception ex) {
             return "N/A";
         }
     }
@@ -298,27 +298,27 @@ public final class SlashCommandDevInfo extends SlashCommand {
         milliseconds -= TimeUnit.SECONDS.toMillis(seconds);
 
         StringBuilder builder = new StringBuilder();
-        if(weeks > 0) {
+        if (weeks > 0) {
             builder.append(weeks).append("w ");
         }
 
-        if(days > 0) {
+        if (days > 0) {
             builder.append(days).append("d ");
         }
 
-        if(hours > 0) {
+        if (hours > 0) {
             builder.append(hours).append("h ");
         }
 
-        if(minutes > 0) {
+        if (minutes > 0) {
             builder.append(minutes).append("m ");
         }
 
-        if(seconds > 0) {
+        if (seconds > 0) {
             builder.append(seconds).append("s ");
         }
 
-        if(milliseconds > 0) {
+        if (milliseconds > 0) {
             builder.append(milliseconds).append("ms");
         }
 
@@ -326,17 +326,17 @@ public final class SlashCommandDevInfo extends SlashCommand {
     }
 
     private String getOperatingSystemImageName(String osName) {
-        if(osName.contains("windows")) {
+        if (osName.contains("windows")) {
             return "windows.png";
         }
 
-        if(osName.contains("mac os")) {
+        if (osName.contains("mac os")) {
             return "apple.png";
         }
 
         return "linux.png";
     }
-    
+
     private EmbedBuilder getEmbedExample() {
         // Create the EmbedBuilder instance
         EmbedBuilder eb = new EmbedBuilder();
@@ -407,7 +407,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
             Arg: A TemporalAccessor for the timestamp (usually an Instant)
          */
         eb.setTimestamp(Instant.now());
-        
+
         return eb;
     }
 }

@@ -25,33 +25,33 @@ public final class ConsoleCommandHelp extends ConsoleCommand {
     public void execute(String label, String[] args) {
         Logger logger = getLogger();
         logger.info("Console Command List:");
-    
+
         Set<CommandInformation> commandInformationSet = getCommandInformationSet();
         commandInformationSet.forEach(this::logInformation);
     }
-    
+
     private Set<ConsoleCommand> getConsoleCommands() {
         ConsoleCommandManager consoleCommandManager = getConsoleCommandManager();
         return consoleCommandManager.getConsoleCommandSet();
     }
-    
+
     private Set<CommandInformation> getCommandInformationSet() {
         Set<ConsoleCommand> consoleCommandSet = getConsoleCommands();
         Set<CommandInformation> commandInformationSet = new HashSet<>();
-        
-        for(ConsoleCommand consoleCommand : consoleCommandSet) {
+
+        for (ConsoleCommand consoleCommand : consoleCommandSet) {
             CommandInformation commandInformation = consoleCommand.getCommandInformation();
             commandInformationSet.add(commandInformation);
         }
-        
+
         return commandInformationSet;
     }
-    
+
     private void logInformation(CommandInformation command) {
         String name = command.getName();
         String usage = command.getUsage();
         String description = command.getDescription();
-    
+
         String logMessage = String.format(Locale.US, "- %s%s: %s", name, usage, description);
         Logger logger = getLogger();
         logger.info(logMessage);

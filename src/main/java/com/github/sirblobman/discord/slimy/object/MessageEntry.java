@@ -8,7 +8,7 @@ public final class MessageEntry {
     private final MessageActionType actionType;
     private final String oldContentRaw, newContentRaw;
     private final long timestamp;
-    
+
     public MessageEntry(String messageId, String guildId, String channelId, String memberId,
                         MessageActionType actionType, String oldContentRaw, String newContentRaw, long timestamp) {
         this.messageId = Objects.requireNonNull(messageId, "messageId must not be null!");
@@ -20,49 +20,49 @@ public final class MessageEntry {
         this.newContentRaw = newContentRaw;
         this.timestamp = timestamp;
     }
-    
+
     public String getMessageId() {
         return messageId;
     }
-    
+
     public String getGuildId() {
         return guildId;
     }
-    
+
     public String getChannelId() {
         return channelId;
     }
-    
+
     public Optional<String> getMemberId() {
         return Optional.ofNullable(memberId);
     }
-    
+
     public MessageActionType getActionType() {
         return actionType;
     }
-    
+
     public long getTimestamp() {
         return this.timestamp;
     }
-    
+
     public Optional<String> getOldContentRaw() {
         return Optional.ofNullable(this.oldContentRaw);
     }
-    
+
     public Optional<String> getNewContentRaw() {
         return Optional.ofNullable(this.newContentRaw);
     }
-    
+
     @Override
     public boolean equals(Object object) {
-        if(this == object) {
+        if (this == object) {
             return true;
         }
-        
-        if(!(object instanceof MessageEntry other)) {
+
+        if (!(object instanceof MessageEntry other)) {
             return false;
         }
-        
+
         boolean checkMessageId = Objects.equals(this.messageId, other.messageId);
         boolean checkGuildId = Objects.equals(this.guildId, other.guildId);
         boolean checkChannelId = Objects.equals(this.channelId, other.channelId);

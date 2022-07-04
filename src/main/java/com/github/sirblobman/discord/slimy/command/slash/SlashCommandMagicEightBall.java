@@ -21,7 +21,7 @@ public final class SlashCommandMagicEightBall extends SlashCommand {
 
     public SlashCommandMagicEightBall(DiscordBot discordBot) {
         super(discordBot, "magic-eight-ball");
-        this.messageArray = new String[] {
+        this.messageArray = new String[]{
                 "It is certain.", "It is decidedly so.", "Without a doubt.", "Yes - definitely.",
                 "You may rely on it.", "As I see it, yes.", "Most likely.", "Outlook good.", "Yes.",
                 "Signs point to yes.", "Reply hazy, try again.", "Ask again later.", "Better not tell you now.",
@@ -39,21 +39,21 @@ public final class SlashCommandMagicEightBall extends SlashCommand {
     @Override
     public CommandData getCommandData() {
         return Commands.slash(getCommandName(),
-                "Ask the bot a yes/no question and it will be magically answered.")
+                        "Ask the bot a yes/no question and it will be magically answered.")
                 .addOption(OptionType.STRING, "question", "What question do you want to ask?");
     }
 
     @Override
     public Message execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
-        if(sender == null) {
+        if (sender == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "This command can only be executed in a guild.", false);
             return getMessage(errorEmbed);
         }
 
         OptionMapping questionMapping = e.getOption("question");
-        if(questionMapping == null) {
+        if (questionMapping == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(sender);
             errorEmbed.addField("Error", "Missing Argument 'question'.", false);
             return getMessage(errorEmbed);

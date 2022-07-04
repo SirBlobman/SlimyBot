@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 public abstract class SlashCommand extends AbstractCommand {
     private final String commandName;
-    
+
     public SlashCommand(DiscordBot discordBot, String commandName) {
         super(discordBot);
         this.commandName = Objects.requireNonNull(commandName, "commandName must not be null!");
@@ -55,13 +55,14 @@ public abstract class SlashCommand extends AbstractCommand {
     public boolean isEphemeral() {
         return false;
     }
-    
+
     @Override
     public CommandInformation getCommandInformation() {
         CommandData commandData = getCommandData();
         return new CommandInformation(commandData);
     }
-    
+
     public abstract CommandData getCommandData();
+
     public abstract Message execute(SlashCommandInteractionEvent e);
 }

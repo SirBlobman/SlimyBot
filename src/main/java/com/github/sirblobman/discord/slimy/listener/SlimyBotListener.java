@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 public abstract class SlimyBotListener extends ListenerAdapter {
     protected final DiscordBot discordBot;
-    
+
     public SlimyBotListener(DiscordBot discordBot) {
         this.discordBot = Objects.requireNonNull(discordBot, "discordBot must not be null!");
     }

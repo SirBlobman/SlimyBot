@@ -20,38 +20,38 @@ public final class ConsoleCommandManager extends Manager {
     public ConsoleCommandManager(DiscordBot discordBot) {
         super(discordBot);
     }
-    
+
     public ConsoleCommand getCommand(String commandName) {
-        if(commandName == null || commandName.isEmpty()) return null;
-        
+        if (commandName == null || commandName.isEmpty()) return null;
+
         String lowercase = commandName.toLowerCase();
         return this.commandMap.getOrDefault(lowercase, null);
     }
-    
+
     public Set<ConsoleCommand> getConsoleCommandSet() {
         Collection<ConsoleCommand> valueColl = this.commandMap.values();
         return new HashSet<>(valueColl);
     }
-    
+
     @SafeVarargs
     public final void registerCommands(Class<? extends ConsoleCommand>... commandClassArray) {
-        for(Class<? extends ConsoleCommand> commandClass : commandClassArray) {
+        for (Class<? extends ConsoleCommand> commandClass : commandClassArray) {
             registerCommand(commandClass);
         }
     }
-    
+
     private void registerCommand(Class<? extends ConsoleCommand> commandClass) {
         try {
             Constructor<? extends ConsoleCommand> constructor = commandClass.getConstructor(DiscordBot.class);
             ConsoleCommand command = constructor.newInstance(getDiscordBot());
             CommandInformation commandInformation = command.getCommandInformation();
-            
+
             String commandName = commandInformation.getName();
             this.commandMap.put(commandName, command);
-            
+
             String[] aliasArray = commandInformation.getAliases();
-            for(String alias : aliasArray) this.commandMap.put(alias, command);
-        } catch(ReflectiveOperationException ex) {
+            for (String alias : aliasArray) this.commandMap.put(alias, command);
+        } catch (ReflectiveOperationException ex) {
             Logger logger = getLogger();
             logger.log(Level.WARN, "An error occurred while registering a console command.", ex);
         }

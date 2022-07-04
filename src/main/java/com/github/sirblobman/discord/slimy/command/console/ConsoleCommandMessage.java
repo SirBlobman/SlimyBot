@@ -13,33 +13,33 @@ public class ConsoleCommandMessage extends ConsoleCommand {
     public ConsoleCommandMessage(DiscordBot discordBot) {
         super(discordBot);
     }
-    
+
     @Override
     public CommandInformation getCommandInformation() {
         return new CommandInformation("message",
                 "Send a message to a text channel.", "msg");
     }
-    
+
     @Override
     protected void execute(String label, String[] args) {
         Logger logger = getLogger();
-        
-        if(args.length < 2) {
+
+        if (args.length < 2) {
             logger.info("Required Arguments: <channel-id> <message...>");
             return;
         }
-        
+
         String channelId = args[0];
         JDA discordAPI = getDiscordAPI();
         TextChannel textChannel = discordAPI.getTextChannelById(channelId);
-        if(textChannel == null) {
+        if (textChannel == null) {
             logger.info("Unknown channel with id '" + channelId + "'.");
             return;
         }
-        
+
         String[] messageArgs = Arrays.copyOfRange(args, 1, args.length);
         String message = String.join(" ", messageArgs).replace("\\n", "\n");
-        
+
         textChannel.sendMessage(message).queue();
         logger.info("Successfully sent message.");
     }

@@ -8,8 +8,8 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.manager.ConsoleCommandManager;
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommand;
+import com.github.sirblobman.discord.slimy.manager.ConsoleCommandManager;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDA.Status;
@@ -21,12 +21,12 @@ public final class ConsoleInputTask implements Runnable {
     public ConsoleInputTask(DiscordBot discordBot) {
         this.discordBot = discordBot;
     }
-    
+
     @Override
     public void run() {
         Logger logger = this.discordBot.getLogger();
         Console console = System.console();
-        if(console != null) {
+        if (console != null) {
             setupConsole(console);
             return;
         }
@@ -40,9 +40,9 @@ public final class ConsoleInputTask implements Runnable {
         Logger logger = this.discordBot.getLogger();
         JDA discordAPI = this.discordBot.getDiscordAPI();
 
-        while(true) {
+        while (true) {
             Status status = discordAPI.getStatus();
-            if(status == Status.SHUTDOWN || status == Status.SHUTTING_DOWN) {
+            if (status == Status.SHUTDOWN || status == Status.SHUTTING_DOWN) {
                 break;
             }
 
@@ -56,7 +56,7 @@ public final class ConsoleInputTask implements Runnable {
 
             ConsoleCommandManager consoleCommandManager = this.discordBot.getConsoleCommandManager();
             ConsoleCommand consoleCommand = consoleCommandManager.getCommand(commandName);
-            if(consoleCommand == null) {
+            if (consoleCommand == null) {
                 logger.info("Unknown Command '" + commandName + "'.");
                 continue;
             }
@@ -69,10 +69,10 @@ public final class ConsoleInputTask implements Runnable {
         Logger logger = this.discordBot.getLogger();
         JDA discordAPI = this.discordBot.getDiscordAPI();
         BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
-        
-        while(true) {
+
+        while (true) {
             Status status = discordAPI.getStatus();
-            if(status == Status.SHUTDOWN || status == Status.SHUTTING_DOWN) {
+            if (status == Status.SHUTDOWN || status == Status.SHUTTING_DOWN) {
                 break;
             }
 
@@ -80,7 +80,7 @@ public final class ConsoleInputTask implements Runnable {
             try {
                 readLine = console.readLine();
                 logger.info("Console Command Detected: '" + readLine + "'");
-            } catch(IOException ex) {
+            } catch (IOException ex) {
                 logger.warn("Failed to read a line from the System.in, console commands will not be possible!");
                 break;
             }
@@ -91,7 +91,7 @@ public final class ConsoleInputTask implements Runnable {
 
             ConsoleCommandManager consoleCommandManager = this.discordBot.getConsoleCommandManager();
             ConsoleCommand consoleCommand = consoleCommandManager.getCommand(commandName);
-            if(consoleCommand == null) {
+            if (consoleCommand == null) {
                 logger.info("Unknown Command '" + commandName + "'.");
                 continue;
             }
