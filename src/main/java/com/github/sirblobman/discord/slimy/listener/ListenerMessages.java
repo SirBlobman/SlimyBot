@@ -5,19 +5,19 @@ import java.util.List;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.manager.DatabaseManager;
+import com.github.sirblobman.discord.slimy.manager.MessageHistoryManager;
 import com.github.sirblobman.discord.slimy.object.MessageActionType;
 import com.github.sirblobman.discord.slimy.object.MessageEntry;
-import com.github.sirblobman.discord.slimy.manager.MessageHistoryManager;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Message.Attachment;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.utils.data.DataObject;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,27 +25,39 @@ public final class ListenerMessages extends SlimyBotListener {
     public ListenerMessages(DiscordBot discordBot) {
         super(discordBot);
     }
-    
+
     @Override
-    public void onGuildMessageReceived(GuildMessageReceivedEvent e) {
+    public void onMessageReceived(MessageReceivedEvent e) {
+        if(!e.isFromGuild()) {
+            return;
+        }
+
         Guild guild = e.getGuild();
-        TextChannel channel = e.getChannel();
+        MessageChannel channel = e.getChannel();
         Message message = e.getMessage();
         logCreatedMessage(guild, channel, message);
     }
     
     @Override
-    public void onGuildMessageUpdate(GuildMessageUpdateEvent e) {
+    public void onMessageUpdate(MessageUpdateEvent e) {
+        if(!e.isFromGuild()) {
+            return;
+        }
+
         Guild guild = e.getGuild();
-        TextChannel channel = e.getChannel();
+        MessageChannel channel = e.getChannel();
         Message message = e.getMessage();
         logEditedMessage(guild, channel, message);
     }
     
     @Override
-    public void onGuildMessageDelete(GuildMessageDeleteEvent e) {
+    public void onMessageDelete(MessageDeleteEvent e) {
+        if(!e.isFromGuild()) {
+            return;
+        }
+
         Guild guild = e.getGuild();
-        TextChannel channel = e.getChannel();
+        MessageChannel channel = e.getChannel();
         String messageId = e.getMessageId();
         logDeletedMessage(guild, channel, messageId);
     }
@@ -55,7 +67,7 @@ public final class ListenerMessages extends SlimyBotListener {
         return discordBot.getMessageHistoryManager();
     }
     
-    private void logCreatedMessage(Guild guild, TextChannel channel, Message message) {
+    private void logCreatedMessage(Guild guild, MessageChannel channel, Message message) {
         String messageId = message.getId();
         String guildId = guild.getId();
         String channelId = channel.getId();
@@ -81,7 +93,7 @@ public final class ListenerMessages extends SlimyBotListener {
         messageHistoryManager.addMessageEntry(messageEntry);
     }
     
-    private void logEditedMessage(Guild guild, TextChannel channel, Message message) {
+    private void logEditedMessage(Guild guild, MessageChannel channel, Message message) {
         String messageId = message.getId();
         String guildId = guild.getId();
         String channelId = channel.getId();
@@ -122,7 +134,7 @@ public final class ListenerMessages extends SlimyBotListener {
         messageHistoryManager.addMessageEntry(messageEntry);
     }
     
-    private void logDeletedMessage(Guild guild, TextChannel channel, String messageId) {
+    private void logDeletedMessage(Guild guild, MessageChannel channel, String messageId) {
         String guildId = guild.getId();
         String channelId = channel.getId();
         long timestamp = System.currentTimeMillis();
@@ -134,7 +146,7 @@ public final class ListenerMessages extends SlimyBotListener {
         messageHistoryManager.addMessageEntry(messageEntry);
     }
     
-    private void register(@Nullable Guild guild, @Nullable TextChannel channel, @Nullable Member member) {
+    private void register(@Nullable Guild guild, @Nullable MessageChannel channel, @Nullable Member member) {
         DiscordBot discordBot = getDiscordBot();
         DatabaseManager databaseManager = discordBot.getDatabaseManager();
         
@@ -142,7 +154,7 @@ public final class ListenerMessages extends SlimyBotListener {
             databaseManager.register(guild);
         }
         
-        if(channel != null) {
+        if(guild != null &&  channel != null) {
             databaseManager.register(channel);
         }
         

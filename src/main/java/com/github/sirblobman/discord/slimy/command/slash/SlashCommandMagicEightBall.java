@@ -9,10 +9,11 @@ import com.github.sirblobman.discord.slimy.DiscordBot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 public final class SlashCommandMagicEightBall extends SlashCommand {
     private final String[] messageArray;
@@ -37,14 +38,13 @@ public final class SlashCommandMagicEightBall extends SlashCommand {
 
     @Override
     public CommandData getCommandData() {
-        CommandData commandData = new CommandData(getCommandName(),
-                "Ask the bot a yes/no question and it will be magically answered.");
-        commandData.addOption(OptionType.STRING, "question", "What question do you want to ask?");
-        return commandData;
+        return Commands.slash(getCommandName(),
+                "Ask the bot a yes/no question and it will be magically answered.")
+                .addOption(OptionType.STRING, "question", "What question do you want to ask?");
     }
 
     @Override
-    public Message execute(SlashCommandEvent e) {
+    public Message execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
         if(sender == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);

@@ -35,7 +35,9 @@ public final class ConsoleCommandManager extends Manager {
     
     @SafeVarargs
     public final void registerCommands(Class<? extends ConsoleCommand>... commandClassArray) {
-        for(Class<? extends ConsoleCommand> commandClass : commandClassArray) registerCommand(commandClass);
+        for(Class<? extends ConsoleCommand> commandClass : commandClassArray) {
+            registerCommand(commandClass);
+        }
     }
     
     private void registerCommand(Class<? extends ConsoleCommand> commandClass) {

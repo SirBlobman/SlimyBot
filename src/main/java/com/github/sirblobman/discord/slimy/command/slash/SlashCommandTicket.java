@@ -24,10 +24,11 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.requests.restaction.ChannelAction;
 import org.apache.logging.log4j.Logger;
@@ -40,12 +41,12 @@ public final class SlashCommandTicket extends SlashCommand {
     
     @Override
     public CommandData getCommandData() {
-        return new CommandData(getCommandName(), "A command to manage tickets.")
+        return Commands.slash(getCommandName(), "A command to manage tickets.")
                 .addSubcommands(getSubCommands());
     }
     
     @Override
-    public Message execute(SlashCommandEvent e) {
+    public Message execute(SlashCommandInteractionEvent e) {
         String subcommandName = e.getSubcommandName();
         if(subcommandName == null) {
             subcommandName = "help";
@@ -112,8 +113,8 @@ public final class SlashCommandTicket extends SlashCommand {
     }
     
     private Set<Permission> getTicketMemberPermissions() {
-        return EnumSet.of(Permission.MESSAGE_READ, Permission.MESSAGE_HISTORY, Permission.MESSAGE_WRITE,
-                Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS, Permission.USE_SLASH_COMMANDS);
+        return EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND,
+                Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS, Permission.USE_APPLICATION_COMMANDS);
     }
     
     private String getTicketChannelName(Member member) {
@@ -145,7 +146,7 @@ public final class SlashCommandTicket extends SlashCommand {
     }
     
     @Nullable
-    private TextChannel getTicketChannel(Member member, SlashCommandEvent e) {
+    private TextChannel getTicketChannel(Member member, SlashCommandInteractionEvent e) {
         Guild guild = getGuild();
         if(guild == null) {
             return null;
@@ -203,7 +204,7 @@ public final class SlashCommandTicket extends SlashCommand {
         return channelAction.submit(true);
     }
     
-    private Message commandNew(Member member, SlashCommandEvent e) {
+    private Message commandNew(Member member, SlashCommandInteractionEvent e) {
         if(hasTicketChannel(member)) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "Your previous ticket is still open.", false);
@@ -242,7 +243,7 @@ public final class SlashCommandTicket extends SlashCommand {
         }
     }
     
-    private Message commandClose(Member member, SlashCommandEvent e) {
+    private Message commandClose(Member member, SlashCommandInteractionEvent e) {
         Guild guild = getGuild();
         if(guild == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
@@ -277,7 +278,7 @@ public final class SlashCommandTicket extends SlashCommand {
         return getMessage(message);
     }
     
-    private Message commandAdd(Member member, SlashCommandEvent e) {
+    private Message commandAdd(Member member, SlashCommandInteractionEvent e) {
         OptionMapping userOption = e.getOption("user");
         if(userOption == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
@@ -300,7 +301,7 @@ public final class SlashCommandTicket extends SlashCommand {
         }
     
         Set<Permission> memberPermissionSet = getTicketMemberPermissions();
-        ticketChannel.createPermissionOverride(userToAdd).setAllow(memberPermissionSet).queue();
+        ticketChannel.upsertPermissionOverride(userToAdd).setAllowed(memberPermissionSet).queue();
     
         EmbedBuilder embed = getExecutedByEmbed(member);
         embed.setTitle("Success").setDescription("Successfully added user "

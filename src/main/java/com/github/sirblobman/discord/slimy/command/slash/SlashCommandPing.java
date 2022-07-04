@@ -8,8 +8,9 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 public final class SlashCommandPing extends SlashCommand {
     public SlashCommandPing(DiscordBot discordBot) {
@@ -23,11 +24,11 @@ public final class SlashCommandPing extends SlashCommand {
 
     @Override
     public CommandData getCommandData() {
-        return new CommandData(getCommandName(), "A command to view the network latency of the bot.");
+        return Commands.slash(getCommandName(), "A command to view the network latency of the bot.");
     }
 
     @Override
-    public Message execute(SlashCommandEvent e) {
+    public Message execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
         if(sender == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);

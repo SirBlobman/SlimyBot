@@ -12,10 +12,11 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 public final class SlashCommandUserInfo extends SlashCommand {
     public SlashCommandUserInfo(DiscordBot discordBot) {
@@ -29,14 +30,13 @@ public final class SlashCommandUserInfo extends SlashCommand {
 
     @Override
     public CommandData getCommandData() {
-        CommandData commandData = new CommandData(getCommandName(),
-                "View information about users in this guild.");
-        commandData.addOption(OptionType.USER, "user", "The user you want to check.", true);
-        return commandData;
+        return Commands.slash(getCommandName(),
+                "View information about users in this guild.")
+                .addOption(OptionType.USER, "user", "The user you want to check.", true);
     }
 
     @Override
-    public Message execute(SlashCommandEvent e) {
+    public Message execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
         if(sender == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);

@@ -48,7 +48,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.4.0_352</version>
+            <version>5.0.0-alpha.13</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>
@@ -66,11 +66,11 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- Emoji Java -->
+        <!-- Emoji Java Fork -->
         <dependency>
-            <groupId>com.vdurmont</groupId>
+            <groupId>com.github.minndevelopment</groupId>
             <artifactId>emoji-java</artifactId>
-            <version>5.1.1</version>
+            <version>6.1.0</version>
             <scope>compile</scope>
         </dependency>
 

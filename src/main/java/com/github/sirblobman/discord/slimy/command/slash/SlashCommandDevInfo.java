@@ -21,10 +21,11 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.SelfUser;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
@@ -58,11 +59,11 @@ public final class SlashCommandDevInfo extends SlashCommand {
 
         String commandName = getCommandName();
         String description = "View information about the bot and host.";
-        return new CommandData(commandName, description).addOptions(optionType);
+        return Commands.slash(commandName, description).addOptions(optionType);
     }
 
     @Override
-    public Message execute(SlashCommandEvent e) {
+    public Message execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
         if(sender == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
@@ -135,11 +136,13 @@ public final class SlashCommandDevInfo extends SlashCommand {
         builder.addField("CPU Voltage", decimalFormat.format(cpuVoltage) + "V", false);
 
         int[] fanSpeeds = sensors.getFanSpeeds();
-        if(fanSpeeds.length < 1) builder.addField("Fan Speed", "N/A", false);
-        else {
+        if(fanSpeeds.length < 1) {
+            builder.addField("Fan Speed", "N/A", false);
+        } else {
             int number = 1;
             for(int fanSpeed : fanSpeeds) {
-                builder.addField("Fan Speed " + number, numberFormat.format(fanSpeed) + "rpm", false);
+                String fanSpeedString = numberFormat.format(fanSpeed);
+                builder.addField("Fan Speed " + number, fanSpeedString + "rpm", false);
                 number++;
             }
         }
@@ -221,7 +224,6 @@ public final class SlashCommandDevInfo extends SlashCommand {
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy hh:mm:ss.SSSa",
                 Locale.US);
-
         OffsetDateTime timeCreated = selfUser.getTimeCreated();
         String dateCreatedString = timeCreated.format(dateTimeFormatter) + " UTC";
 
@@ -259,7 +261,9 @@ public final class SlashCommandDevInfo extends SlashCommand {
 
     private String getSystemUptime() {
         String property = System.getProperty("os.name");
-        if(!property.contains("nux")) return "N/A";
+        if(!property.contains("nux")) {
+            return "N/A";
+        }
 
         try {
             Runtime runtime = Runtime.getRuntime();
@@ -294,18 +298,42 @@ public final class SlashCommandDevInfo extends SlashCommand {
         milliseconds -= TimeUnit.SECONDS.toMillis(seconds);
 
         StringBuilder builder = new StringBuilder();
-        if(weeks > 0) builder.append(weeks).append("w ");
-        if(days > 0) builder.append(days).append("d ");
-        if(hours > 0) builder.append(hours).append("h ");
-        if(minutes > 0) builder.append(minutes).append("m ");
-        if(seconds > 0) builder.append(seconds).append("s ");
-        if(milliseconds > 0) builder.append(milliseconds).append("ms");
+        if(weeks > 0) {
+            builder.append(weeks).append("w ");
+        }
+
+        if(days > 0) {
+            builder.append(days).append("d ");
+        }
+
+        if(hours > 0) {
+            builder.append(hours).append("h ");
+        }
+
+        if(minutes > 0) {
+            builder.append(minutes).append("m ");
+        }
+
+        if(seconds > 0) {
+            builder.append(seconds).append("s ");
+        }
+
+        if(milliseconds > 0) {
+            builder.append(milliseconds).append("ms");
+        }
+
         return builder.toString().trim();
     }
 
     private String getOperatingSystemImageName(String osName) {
-        if(osName.contains("windows")) return "windows.png";
-        if(osName.contains("mac os")) return "apple.png";
+        if(osName.contains("windows")) {
+            return "windows.png";
+        }
+
+        if(osName.contains("mac os")) {
+            return "apple.png";
+        }
+
         return "linux.png";
     }
     
@@ -324,8 +352,6 @@ public final class SlashCommandDevInfo extends SlashCommand {
             Set the color
          */
         eb.setColor(Color.RED);
-        // eb.setColor(0xFF0000);
-        // eb.setColor(new Color(255, 0, 0));
 
         /*
             Set the text of the Embed:

@@ -7,12 +7,14 @@ import java.util.Set;
 import com.github.sirblobman.discord.slimy.DiscordBot;
 
 import com.vdurmont.emoji.EmojiParser;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageReaction.ReactionEmote;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 
 public final class ListenerReactions extends SlimyBotListener {
@@ -21,57 +23,50 @@ public final class ListenerReactions extends SlimyBotListener {
     }
 
     @Override
-    public void onGuildMessageReceived(GuildMessageReceivedEvent e) {
+    public void onMessageReceived(MessageReceivedEvent e) {
+        if(!e.isFromGuild()) {
+            return;
+        }
+
         Guild guild = e.getGuild();
         String guildId = guild.getId();
-        if(!guildId.equals("472253228856246299")) return;
+        if(!guildId.equals("472253228856246299")) {
+            return;
+        }
 
-        TextChannel channel = e.getChannel();
+        MessageChannel channel = e.getChannel();
         String channelId = channel.getId();
-        if(!channelId.equals("647078919668891649")) return;
+        if(!channelId.equals("647078919668891649")) {
+            return;
+        }
 
         Message message = e.getMessage();
         String rawMessage = message.getContentRaw();
         Set<String> emojiSet = getEmojis(rawMessage);
-        for(String emoji : emojiSet) addReaction(message, emoji);
+        for(String emoji : emojiSet) {
+            addReaction(message, emoji);
+        }
 
-        List<Emote> emoteList = message.getEmotes();
-        for(Emote emote : emoteList) addReaction(message, emote);
+        Mentions mentions = message.getMentions();
+        List<CustomEmoji> customEmojiList = mentions.getCustomEmojis();
+        for (CustomEmoji customEmoji : customEmojiList) {
+            addReaction(message, customEmoji);
+        }
     }
 
-    private void addReaction(Message message, Emote emote) {
-        ReactionEmote reactionEmote = ReactionEmote.fromCustom(emote);
-        String emoji = reactionEmote.getAsReactionCode();
-        addReaction(message, emoji);
+    private void addReaction(Message message, Emoji emoji) {
+        RestAction<Void> addReaction = message.addReaction(emoji);
+        addReaction.queue(null,
+                error -> logError("An error occurred while trying to add a reaction to a message", error));
     }
 
     private void addReaction(Message message, String emoji) {
-        RestAction<Void> addReaction = message.addReaction(emoji);
-        addReaction.queue(null, ex ->
-                logError("An error occurred while adding a reaction to a message:", ex));
+        UnicodeEmoji unicodeEmoji = Emoji.fromUnicode(emoji);
+        addReaction(message, unicodeEmoji);
     }
 
     private Set<String> getEmojis(String message) {
         List<String> basicEmojiList = EmojiParser.extractEmojis(message);
-        Set<String> emojiSet = new HashSet<>(basicEmojiList);
-
-        for(int i = 0; i <= 9; i++) {
-            String emojiRaw = getKeycapEmoji(i);
-            if(emojiRaw == null) continue;
-            if(message.contains(emojiRaw)) emojiSet.add(emojiRaw);
-        }
-
-        return emojiSet;
-    }
-
-    private String getKeycapEmoji(int number) {
-        if(number < 0) return null;
-        if(number > 9) return null;
-
-        char numberChar = Character.forDigit(number, 10);
-        if(numberChar == '\u0000') return null;
-
-        char[] charArray = {numberChar, '\uFE0F', '\u20E3'};
-        return new String(charArray);
+        return new HashSet<>(basicEmojiList);
     }
 }

@@ -14,10 +14,11 @@ import com.github.sirblobman.discord.slimy.object.FAQSolution;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.yaml.snakeyaml.Yaml;
 
 public final class SlashCommandFAQ extends SlashCommand {
@@ -28,12 +29,12 @@ public final class SlashCommandFAQ extends SlashCommand {
     @Override
     public CommandData getCommandData() {
         String commandName = getCommandName();
-        return new CommandData(commandName, "Get some default answers to common questions.")
+        return Commands.slash(commandName, "Get some default answers to common questions.")
                 .addOption(OptionType.STRING, "id", "The ID of the question.", true);
     }
     
     @Override
-    public Message execute(SlashCommandEvent e) {
+    public Message execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
         OptionMapping questionIdOption = e.getOption("id");
         if(questionIdOption == null) {
@@ -94,15 +95,15 @@ public final class SlashCommandFAQ extends SlashCommand {
         builder.setTitle("FAQ");
         builder.setDescription("Question ID: " + questionId);
         
-        String pluginName = solution.getPluginName();
+        String pluginName = solution.pluginName();
         if(pluginName != null) {
             builder.addField("Plugin", pluginName, false);
         }
         
-        String question = solution.getQuestion();
+        String question = solution.question();
         builder.addField("Question", question, false);
         
-        String answer = solution.getAnswer();
+        String answer = solution.answer();
         builder.addField("Answer", answer, false);
         
         return builder;

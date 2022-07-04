@@ -19,6 +19,7 @@ import com.github.sirblobman.discord.slimy.object.ChannelRecord;
 import com.github.sirblobman.discord.slimy.object.GuildRecord;
 import com.github.sirblobman.discord.slimy.object.MemberRecord;
 
+import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
@@ -84,10 +85,16 @@ public final class DatabaseManager extends Manager {
         }
     }
     
-    public synchronized void register(@NotNull GuildChannel channel) {
+    public synchronized void register(Channel channel) {
+        if(!(channel instanceof GuildChannel guildChannel)) {
+            return;
+        }
+
         try (Connection connection = getConnection()) {
+            Guild guild = guildChannel.getGuild();
+            String guildId = guild.getId();
+
             String channelId = channel.getId();
-            String guildId = channel.getGuild().getId();
             String channelName = channel.getName();
             String channelType = channel.getType().name();
         

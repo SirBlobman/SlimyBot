@@ -1,8 +1,19 @@
 package com.github.sirblobman.discord.slimy.command;
 
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import org.jetbrains.annotations.Nullable;
 
 public final class CommandInformation {
+    @Nullable
+    private static String getDescription(CommandData commandData) {
+        if(commandData instanceof SlashCommandData slashCommandData) {
+            return slashCommandData.getDescription();
+        }
+
+        return null;
+    }
+
     private final String name, description, usage;
     private final String[] aliases;
 
@@ -14,7 +25,7 @@ public final class CommandInformation {
     }
     
     public CommandInformation(CommandData commandData) {
-        this(commandData.getName(), commandData.getDescription(), "");
+        this(commandData.getName(), getDescription(commandData), "");
     }
     
     public String getName() {

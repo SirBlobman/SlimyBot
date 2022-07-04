@@ -1,11 +1,11 @@
 package com.github.sirblobman.discord.slimy.listener;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.manager.SlashCommandManager;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommand;
+import com.github.sirblobman.discord.slimy.manager.SlashCommandManager;
 
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
 public final class ListenerSlashCommands extends SlimyBotListener {
     public ListenerSlashCommands(DiscordBot discordBot) {
@@ -13,13 +13,15 @@ public final class ListenerSlashCommands extends SlimyBotListener {
     }
 
     @Override
-    public void onSlashCommand(SlashCommandEvent e) {
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
         DiscordBot discordBot = getDiscordBot();
         SlashCommandManager slashCommandManager = discordBot.getSlashCommandManager();
 
         String commandName = e.getName();
         SlashCommand command = slashCommandManager.getCommand(commandName);
-        if(command == null) return;
+        if(command == null) {
+            return;
+        }
 
         boolean ephemeral = command.isEphemeral();
         e.deferReply(ephemeral).queue();

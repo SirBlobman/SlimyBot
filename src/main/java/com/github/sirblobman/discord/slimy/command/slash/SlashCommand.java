@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,5 +63,5 @@ public abstract class SlashCommand extends AbstractCommand {
     }
     
     public abstract CommandData getCommandData();
-    public abstract Message execute(SlashCommandEvent e);
+    public abstract Message execute(SlashCommandInteractionEvent e);
 }

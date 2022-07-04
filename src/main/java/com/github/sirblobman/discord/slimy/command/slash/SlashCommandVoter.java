@@ -11,8 +11,9 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.jetbrains.annotations.Nullable;
 
 public final class SlashCommandVoter extends SlashCommand {
@@ -27,11 +28,11 @@ public final class SlashCommandVoter extends SlashCommand {
     
     @Override
     public CommandData getCommandData() {
-        return new CommandData(getCommandName(), "Receive the 'Voter' role on this server.");
+        return Commands.slash(getCommandName(), "Receive the 'Voter' role on this server.");
     }
     
     @Override
-    public Message execute(SlashCommandEvent e) {
+    public Message execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
         if(sender == null) {
             EmbedBuilder builder = getErrorEmbed(sender);
