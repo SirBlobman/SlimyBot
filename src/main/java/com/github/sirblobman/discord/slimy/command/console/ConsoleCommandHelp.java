@@ -53,7 +53,7 @@ public final class ConsoleCommandHelp extends ConsoleCommand {
         String description = command.getDescription();
 
         String fullUsage = name;
-        if(usage != null && !usage.isBlank()) {
+        if (usage != null && !usage.isBlank()) {
             fullUsage += (" " + usage);
         }
 

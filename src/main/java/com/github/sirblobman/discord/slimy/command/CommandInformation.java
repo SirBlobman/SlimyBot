@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Nullable;
 public final class CommandInformation {
     private final String name, description, usage;
     private final String[] aliases;
+
     public CommandInformation(String commandName, String description, String usage, String... aliases) {
         this.name = commandName;
         this.description = description;
