@@ -52,7 +52,12 @@ public final class ConsoleCommandHelp extends ConsoleCommand {
         String usage = command.getUsage();
         String description = command.getDescription();
 
-        String logMessage = String.format(Locale.US, "- %s%s: %s", name, usage, description);
+        String fullUsage = name;
+        if(usage != null && !usage.isBlank()) {
+            fullUsage += (" " + usage);
+        }
+
+        String logMessage = String.format(Locale.US, "- %s: %s", fullUsage, description);
         Logger logger = getLogger();
         logger.info(logMessage);
     }

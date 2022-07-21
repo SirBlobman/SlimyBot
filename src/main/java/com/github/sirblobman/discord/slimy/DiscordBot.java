@@ -120,7 +120,9 @@ public final class DiscordBot {
 
             Map<String, Object> configMap = yaml.load(configInputStream);
             this.mainConfiguration = MainConfiguration.serialize(this, configMap);
-            if (this.mainConfiguration == null) throw new IllegalStateException("Invalid Config!");
+            if (this.mainConfiguration == null) {
+                throw new IllegalStateException("Invalid Config!");
+            }
         } catch (IOException ex) {
             logger.log(Level.ERROR, "An error occurred while loading the main configuration file:", ex);
             return;
@@ -142,7 +144,7 @@ public final class DiscordBot {
 
             JDABuilder jdaBuilder = JDABuilder.createLight(discordApiToken);
             jdaBuilder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES,
-                    GatewayIntent.GUILD_MESSAGE_REACTIONS);
+                    GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.MESSAGE_CONTENT);
             jdaBuilder.setMemberCachePolicy(MemberCachePolicy.ALL);
 
             Activity activity = Activity.listening("/ticket");

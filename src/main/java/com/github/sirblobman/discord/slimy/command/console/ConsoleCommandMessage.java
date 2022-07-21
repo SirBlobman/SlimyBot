@@ -17,7 +17,7 @@ public class ConsoleCommandMessage extends ConsoleCommand {
     @Override
     public CommandInformation getCommandInformation() {
         return new CommandInformation("message",
-                "Send a message to a text channel.", "msg");
+                "Send a message to a text channel.", "<channel-id> <message...>");
     }
 
     @Override
