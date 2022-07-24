@@ -8,7 +8,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.DateFormat;
+import java.text.Normalizer;
+import java.text.Normalizer.Form;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -128,8 +132,14 @@ public final class TicketArchiveManager extends Manager {
         String document = TagCreator.document(htmlElement);
 
         String channelName = channel.getName();
-        String timestamp = Long.toString(channel.getTimeCreated().toInstant().toEpochMilli());
-        String ticketId = (channelName + "-" + timestamp);
+        String channelNameNormal = Normalizer.normalize(channelName, Form.NFD);
+        String channelNameForFile = channelNameNormal.replaceAll("[^a-zA-Z\\d-]", "");
+
+        OffsetDateTime timeCreated = channel.getTimeCreated();
+        Instant instantCreated = timeCreated.toInstant();
+        long timestamp = instantCreated.toEpochMilli();
+
+        String ticketId = (channelNameForFile + "-" + timestamp);
         String ticketFileName = (ticketId + ".html");
 
         Path archiveFilePath = Paths.get("archive", "tickets", ticketFileName);
