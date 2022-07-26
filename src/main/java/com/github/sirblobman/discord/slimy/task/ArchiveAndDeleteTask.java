@@ -2,13 +2,15 @@ package com.github.sirblobman.discord.slimy.task;
 
 import java.util.Objects;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.manager.TicketArchiveManager;
 
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.apache.logging.log4j.Logger;
 
-public class ArchiveAndDeleteTask extends TimerTask {
+public final class ArchiveAndDeleteTask extends TimerTask {
     private final TextChannel channel;
     private final DiscordBot discordBot;
 
@@ -19,16 +21,30 @@ public class ArchiveAndDeleteTask extends TimerTask {
 
     @Override
     public void run() {
-        TicketArchiveManager ticketArchiveManager = this.discordBot.getTicketArchiveManager();
-        ticketArchiveManager.archive(this.channel).whenComplete((success, error) -> {
+        DiscordBot discordBot = getDiscordBot();
+        TextChannel channel = getChannel();
+
+        TicketArchiveManager ticketArchiveManager = discordBot.getTicketArchiveManager();
+        CompletableFuture<Void> future = ticketArchiveManager.archive(channel);
+        future.whenComplete((success, error) -> {
             if (error != null) {
-                this.channel.sendMessage("An error occurred with the archive system.").queue();
-                this.channel.sendMessage("Please contact <@252285975814864898>.").queue();
-                error.printStackTrace();
+                Logger logger = discordBot.getLogger();
+                logger.error("An error occurred while archiving a ticket:", error);
+
+                channel.sendMessage("An error occurred with the archive system.").queue();
+                channel.sendMessage("Please contact <@252285975814864898>.").queue();
                 return;
             }
 
-            this.channel.delete().queue();
+            channel.delete().queue();
         });
+    }
+
+    private DiscordBot getDiscordBot() {
+        return this.discordBot;
+    }
+
+    private TextChannel getChannel() {
+        return this.channel;
     }
 }

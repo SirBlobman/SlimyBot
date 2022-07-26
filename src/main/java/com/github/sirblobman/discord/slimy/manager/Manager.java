@@ -3,7 +3,9 @@ package com.github.sirblobman.discord.slimy.manager;
 import java.util.Objects;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.object.MainConfiguration;
 
+import net.dv8tion.jda.api.JDA;
 import org.apache.logging.log4j.Logger;
 
 public abstract class Manager {
@@ -20,5 +22,15 @@ public abstract class Manager {
     protected final Logger getLogger() {
         DiscordBot discordBot = getDiscordBot();
         return discordBot.getLogger();
+    }
+
+    protected final JDA getDiscordAPI() {
+        DiscordBot discordBot = getDiscordBot();
+        return discordBot.getDiscordAPI();
+    }
+
+    protected final MainConfiguration getMainConfiguration() {
+        DiscordBot discordBot = getDiscordBot();
+        return discordBot.getMainConfiguration();
     }
 }

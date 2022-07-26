@@ -1,38 +1,39 @@
 package com.github.sirblobman.discord.slimy.command.slash;
 
 import java.awt.Color;
-import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.manager.TicketManager;
 import com.github.sirblobman.discord.slimy.object.InvalidConfigurationException;
-import com.github.sirblobman.discord.slimy.object.MainConfiguration;
 import com.github.sirblobman.discord.slimy.task.ArchiveAndDeleteTask;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.MessageBuilder.Formatting;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.unions.GuildChannelUnion;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
-import net.dv8tion.jda.api.requests.restaction.ChannelAction;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
 
 public final class SlashCommandTicket extends SlashCommand {
     public SlashCommandTicket(DiscordBot discordBot) {
@@ -60,7 +61,7 @@ public final class SlashCommandTicket extends SlashCommand {
         }
 
         return switch (subcommandName) {
-            // TODO: case "setup" -> commandSetup(member, e);
+            case "setup" -> commandSetup(member, e);
             case "new" -> commandNew(member, e);
             case "close" -> commandClose(member, e);
             case "add" -> commandAdd(member, e);
@@ -69,7 +70,7 @@ public final class SlashCommandTicket extends SlashCommand {
     }
 
     private SubcommandData[] getSubCommands() {
-        return new SubcommandData[]{
+        return new SubcommandData[] {
                 new SubcommandData("new", "Create a new ticket.")
                         .addOption(OptionType.STRING, "title", "The name of your ticket.",
                         false),
@@ -77,135 +78,21 @@ public final class SlashCommandTicket extends SlashCommand {
                 new SubcommandData("add", "Add a user to your ticket.")
                         .addOption(OptionType.USER, "user", "The user to add to this ticket.",
                         true),
-                new SubcommandData("help", "View a list of ticket commands.")
+                new SubcommandData("help", "View a list of ticket commands."),
+                new SubcommandData("setup", "Create a ticket button panel.")
+                        .addOption(OptionType.CHANNEL, "channel",
+                        "The channel to create the panel in.", true)
         };
     }
 
-    @Nullable
-    private Guild getGuild() {
-        MainConfiguration mainConfiguration = getMainConfiguration();
-        String guildId = mainConfiguration.getGuildId();
-        JDA discordAPI = getDiscordAPI();
-        return discordAPI.getGuildById(guildId);
-    }
-
-    @Nullable
-    private Category getTicketCategory() {
-        Guild guild = getGuild();
-        if (guild == null) {
-            return null;
-        }
-
-        MainConfiguration mainConfiguration = getMainConfiguration();
-        String ticketCategoryId = mainConfiguration.getTicketCategoryId();
-        return guild.getCategoryById(ticketCategoryId);
-    }
-
-    private Role getSupportRole() {
-        Guild guild = getGuild();
-        if (guild == null) {
-            return null;
-        }
-
-        MainConfiguration mainConfiguration = getMainConfiguration();
-        String supportRoleId = mainConfiguration.getSupportRoleId();
-        return guild.getRoleById(supportRoleId);
-    }
-
-    private Set<Permission> getTicketMemberPermissions() {
-        return EnumSet.of(Permission.VIEW_CHANNEL, Permission.MESSAGE_HISTORY, Permission.MESSAGE_SEND,
-                Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS, Permission.USE_APPLICATION_COMMANDS);
-    }
-
-    private String getTicketChannelName(Member member) {
-        String username = member.getUser().getName();
-        return ("ticket-" + username);
-    }
-
-    private boolean hasTicketChannel(Member member) {
-        Guild guild = getGuild();
-        if (guild == null) {
-            return false;
-        }
-
-        String ticketChannelName = getTicketChannelName(member);
-        List<TextChannel> textChannelMatchList = guild.getTextChannelsByName(ticketChannelName, true);
-        return !textChannelMatchList.isEmpty();
-    }
-
-    @Nullable
-    private TextChannel getTicketChannel(Member member) {
-        Guild guild = getGuild();
-        if (guild == null) {
-            return null;
-        }
-
-        String channelName = getTicketChannelName(member);
-        List<TextChannel> textChannelList = guild.getTextChannelsByName(channelName, true);
-        return (textChannelList.isEmpty() ? null : textChannelList.get(0));
-    }
-
-    @Nullable
-    private TextChannel getTicketChannel(Member member, SlashCommandInteractionEvent e) {
-        Guild guild = getGuild();
-        if (guild == null) {
-            return null;
-        }
-
-        Role supportRole = getSupportRole();
-        if (supportRole == null) {
-            return null;
-        }
-
-        Category category = getTicketCategory();
-        if (category == null) {
-            return null;
-        }
-
-        List<Role> memberRoleList = member.getRoles();
-        if (memberRoleList.contains(supportRole)) {
-            MessageChannel eventChannel = e.getChannel();
-            if (eventChannel instanceof TextChannel ticketChannel) {
-                List<TextChannel> textChannelList = category.getTextChannels();
-                if (textChannelList.contains(ticketChannel)) {
-                    String topic = ticketChannel.getTopic();
-                    if (topic != null && topic.chars().allMatch(Character::isDigit)) {
-                        return ticketChannel;
-                    }
-                }
-            }
-        }
-
-        return getTicketChannel(member);
-    }
-
-    private CompletableFuture<TextChannel> createTicketChannelFor(Member member)
-            throws InvalidConfigurationException {
-        Category category = getTicketCategory();
-        if (category == null) {
-            throw new InvalidConfigurationException("Invalid ticket category!");
-        }
-
-        Role supportRole = getSupportRole();
-        if (supportRole == null) {
-            throw new InvalidConfigurationException("Invalid support role!");
-        }
-
-        Set<Permission> supportPermissionSet = supportRole.getPermissions();
-        Set<Permission> memberPermissionSet = getTicketMemberPermissions();
-        Set<Permission> emptySet = EnumSet.noneOf(Permission.class);
-        String memberId = member.getId();
-
-        String channelName = getTicketChannelName(member);
-        ChannelAction<TextChannel> channelAction = category.createTextChannel(channelName)
-                .addPermissionOverride(supportRole, supportPermissionSet, emptySet)
-                .addPermissionOverride(member, memberPermissionSet, emptySet)
-                .setTopic(memberId);
-        return channelAction.submit(true);
+    private TicketManager getTicketManager() {
+        DiscordBot discordBot = getDiscordBot();
+        return discordBot.getTicketManager();
     }
 
     private Message commandNew(Member member, SlashCommandInteractionEvent e) {
-        if (hasTicketChannel(member)) {
+        TicketManager ticketManager = getTicketManager();
+        if (ticketManager.hasTicketChannel(member)) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "Your previous ticket is still open.", false);
             return getMessage(errorEmbed);
@@ -215,12 +102,12 @@ public final class SlashCommandTicket extends SlashCommand {
         String title = (titleOption == null ? "N/A" : titleOption.getAsString());
 
         try {
-            Role supportRole = getSupportRole();
+            Role supportRole = ticketManager.getSupportRole();
             if (supportRole == null) {
                 throw new InvalidConfigurationException("Invalid support role!");
             }
 
-            CompletableFuture<TextChannel> ticketChannelFuture = createTicketChannelFor(member);
+            CompletableFuture<TextChannel> ticketChannelFuture = ticketManager.createTicketChannelFor(member);
             TextChannel ticketChannel = ticketChannelFuture.join();
 
             MessageBuilder builder = new MessageBuilder();
@@ -244,28 +131,29 @@ public final class SlashCommandTicket extends SlashCommand {
     }
 
     private Message commandClose(Member member, SlashCommandInteractionEvent e) {
-        Guild guild = getGuild();
+        TicketManager ticketManager = getTicketManager();
+        Guild guild = ticketManager.getGuild();
         if (guild == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "This command can only be executed in a guild.", false);
             return getMessage(errorEmbed);
         }
 
-        Role supportRole = getSupportRole();
+        Role supportRole = ticketManager.getSupportRole();
         if (supportRole == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "Invalid support role!", false);
             return getMessage(errorEmbed);
         }
 
-        Category category = getTicketCategory();
+        Category category = ticketManager.getTicketCategory();
         if (category == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "Invalid ticket category!", false);
             return getMessage(errorEmbed);
         }
 
-        TextChannel ticketChannel = getTicketChannel(member, e);
+        TextChannel ticketChannel = ticketManager.getTicketChannel(member, e);
         if (ticketChannel == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "You don't have a ticket open.", false);
@@ -293,14 +181,15 @@ public final class SlashCommandTicket extends SlashCommand {
             return getMessage(errorEmbed);
         }
 
-        TextChannel ticketChannel = getTicketChannel(member, e);
+        TicketManager ticketManager = getTicketManager();
+        TextChannel ticketChannel = ticketManager.getTicketChannel(member, e);
         if (ticketChannel == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "You don't have a ticket open.", false);
             return getMessage(errorEmbed);
         }
 
-        Set<Permission> memberPermissionSet = getTicketMemberPermissions();
+        Set<Permission> memberPermissionSet = ticketManager.getTicketMemberPermissions();
         ticketChannel.upsertPermissionOverride(userToAdd).setAllowed(memberPermissionSet).queue();
 
         EmbedBuilder embed = getExecutedByEmbed(member);
@@ -324,5 +213,47 @@ public final class SlashCommandTicket extends SlashCommand {
     private void deleteChannelLater(TextChannel channel) {
         ArchiveAndDeleteTask task = new ArchiveAndDeleteTask(channel, getDiscordBot());
         new Timer().schedule(task, 5000L);
+    }
+
+    private Message commandSetup(Member member, SlashCommandInteractionEvent e) {
+        if(!member.isOwner()) {
+            EmbedBuilder errorEmbed = getErrorEmbed(member);
+            errorEmbed.addField("Error", "Only the server owner can create a ticket panel.", false);
+            return getMessage(errorEmbed);
+        }
+
+        OptionMapping channelOption = e.getOption("channel");
+        if(channelOption == null) {
+            EmbedBuilder errorEmbed = getErrorEmbed(member);
+            errorEmbed.addField("Error", "Missing channel argument.", false);
+            return getMessage(errorEmbed);
+        }
+
+        GuildChannelUnion channel = channelOption.getAsChannel();
+        if(!(channel instanceof GuildMessageChannel messageChannel)) {
+            EmbedBuilder errorEmbed = getErrorEmbed(member);
+            errorEmbed.addField("Error", "Only text channels can have a ticket panel.", false);
+            return getMessage(errorEmbed);
+        }
+
+        EmbedBuilder embedBuilder = new EmbedBuilder();
+        embedBuilder.setColor(Color.GREEN);
+        embedBuilder.setTitle("Support Ticket");
+        embedBuilder.setDescription("Click the button to create a new ticket.");
+        MessageEmbed embed = embedBuilder.build();
+
+        Emoji ticketEmoji = Emoji.fromUnicode("\uD83C\uDFAB");
+        Button createTicketButton = Button.of(ButtonStyle.PRIMARY, "slimy-bot-create-ticket",
+                "Create Ticket", ticketEmoji);
+
+        MessageBuilder messageBuilder = new MessageBuilder();
+        messageBuilder.setEmbeds(embed);
+        messageBuilder.setActionRows(ActionRow.of(createTicketButton));
+        Message message = messageBuilder.build();
+        messageChannel.sendMessage(message).queue();
+
+        EmbedBuilder successEmbed = getExecutedByEmbed(member).setTitle("Success")
+                .setDescription("Successfully created the ticket panel.");
+        return getMessage(successEmbed);
     }
 }

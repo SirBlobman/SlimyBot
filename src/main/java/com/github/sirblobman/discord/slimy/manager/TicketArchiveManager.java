@@ -37,6 +37,7 @@ import com.github.sirblobman.discord.slimy.object.MessageInformation;
 
 import j2html.Config;
 import j2html.TagCreator;
+import j2html.rendering.IndentedHtml;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.BodyTag;
@@ -80,6 +81,7 @@ import static j2html.TagCreator.section;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.strong;
 import static j2html.TagCreator.time;
+import static j2html.TagCreator.title;
 
 public final class TicketArchiveManager extends Manager {
     public TicketArchiveManager(DiscordBot discordBot) {
@@ -108,7 +110,14 @@ public final class TicketArchiveManager extends Manager {
         Guild guild = channel.getGuild();
         Member member = guild.getMemberById(topic);
         if (member == null) {
-            return "Unknown";
+            DiscordBot discordBot = getDiscordBot();
+            DatabaseManager databaseManager = discordBot.getDatabaseManager();
+            MemberRecord knownMember = databaseManager.getKnownMemberById(topic);
+            if(knownMember == null) {
+                return "Unknown";
+            }
+
+            return knownMember.tag();
         }
 
         User user = member.getUser();
@@ -125,11 +134,17 @@ public final class TicketArchiveManager extends Manager {
             throw new InvalidConfigurationException("Invalid ticket history channel!");
         }
 
-        Config.closeEmptyTags = true;
         HeadTag headElement = renderHead(channel);
         BodyTag bodyElement = renderBody(channel);
         HtmlTag htmlElement = TagCreator.html().attr("lang", "en").with(headElement, bodyElement);
-        String document = TagCreator.document(htmlElement);
+
+        Config.closeEmptyTags = true;
+        Config htmlConfig = Config.global();
+
+        StringBuilder builder = new StringBuilder();
+        IndentedHtml<StringBuilder> indentedHtml = IndentedHtml.into(builder, htmlConfig);
+        TagCreator.document().render(indentedHtml);
+        htmlElement.render(indentedHtml);
 
         String channelName = channel.getName();
         String channelNameNormal = Normalizer.normalize(channelName, Form.NFD);
@@ -152,7 +167,9 @@ public final class TicketArchiveManager extends Manager {
             Files.createFile(archiveFilePath);
         }
 
+        String document = builder.toString();
         Files.writeString(archiveFilePath, document, StandardCharsets.UTF_8, StandardOpenOption.WRITE);
+
         String creatorTag = getTicketCreator(channel);
         MessageBuilder messageBuilder = new MessageBuilder();
         messageBuilder.append("Ticket ").append(ticketId).append(" by ").append(creatorTag);
@@ -163,11 +180,16 @@ public final class TicketArchiveManager extends Manager {
     }
 
     private HeadTag renderHead(TextChannel channel) {
+        OffsetDateTime timeCreated = channel.getTimeCreated();
+        Instant instantCreated = timeCreated.toInstant();
+        long timestampLong = instantCreated.toEpochMilli();
+        String timestamp = Long.toString(timestampLong);
+
         String channelName = channel.getName();
-        String timestamp = Long.toString(channel.getTimeCreated().toInstant().toEpochMilli());
         String ticketId = (channelName + "-" + timestamp);
 
         return head(
+                title("Ticket " + ticketId),
                 meta().attr("charset", "UTF-8"),
                 meta().attr("http-equiv", "X-UA-Compatible").attr("content", "IE=edge"),
                 meta().attr("name", "viewport")
@@ -176,7 +198,7 @@ public final class TicketArchiveManager extends Manager {
                 link().withRel("stylesheet").withType("text/css")
                         .withHref("https://www.sirblobman.xyz/style/ticket.min.css"),
                 script().withSrc("https://www.sirblobman.xyz/script/discord-markdown.min.js")
-        ).withTitle("Ticket " + ticketId);
+        );
     }
 
     private BodyTag renderBody(TextChannel channel) {
@@ -420,7 +442,8 @@ public final class TicketArchiveManager extends Manager {
             }
 
             String hex = String.format(Locale.US, "#%06X", color);
-            embedDiv = embedDiv.with(div().withStyle("background-color: " + hex + ";").withClass("embed-color"));
+            embedDiv = embedDiv.with(div().withStyle("background-color: " + hex + ";")
+                    .withClass("embed-color"));
 
             if (jsonObject.has("author")) {
                 JSONObject authorObject = jsonObject.getJSONObject("author");

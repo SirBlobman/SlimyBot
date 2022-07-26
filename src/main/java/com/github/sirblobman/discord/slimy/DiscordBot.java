@@ -24,6 +24,7 @@ import com.github.sirblobman.discord.slimy.command.slash.SlashCommandPing;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandTicket;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandUserInfo;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandVoter;
+import com.github.sirblobman.discord.slimy.listener.ListenerCreateTicketButton;
 import com.github.sirblobman.discord.slimy.listener.ListenerMessages;
 import com.github.sirblobman.discord.slimy.listener.ListenerReactions;
 import com.github.sirblobman.discord.slimy.listener.ListenerSlashCommands;
@@ -32,6 +33,7 @@ import com.github.sirblobman.discord.slimy.manager.DatabaseManager;
 import com.github.sirblobman.discord.slimy.manager.MessageHistoryManager;
 import com.github.sirblobman.discord.slimy.manager.SlashCommandManager;
 import com.github.sirblobman.discord.slimy.manager.TicketArchiveManager;
+import com.github.sirblobman.discord.slimy.manager.TicketManager;
 import com.github.sirblobman.discord.slimy.object.MainConfiguration;
 import com.github.sirblobman.discord.slimy.task.ConsoleInputTask;
 
@@ -55,6 +57,7 @@ public final class DiscordBot {
     private final DatabaseManager databaseManager;
     private final MessageHistoryManager messageHistoryManager;
     private final TicketArchiveManager ticketArchiveManager;
+    private final TicketManager ticketManager;
 
     private JDA discordAPI;
     private long startupTimestamp;
@@ -68,6 +71,7 @@ public final class DiscordBot {
         this.databaseManager = new DatabaseManager(this);
         this.messageHistoryManager = new MessageHistoryManager(this.databaseManager);
         this.ticketArchiveManager = new TicketArchiveManager(this);
+        this.ticketManager = new TicketManager(this);
     }
 
     public Logger getLogger() {
@@ -92,6 +96,10 @@ public final class DiscordBot {
 
     public TicketArchiveManager getTicketArchiveManager() {
         return this.ticketArchiveManager;
+    }
+
+    public TicketManager getTicketManager() {
+        return this.ticketManager;
     }
 
     public JDA getDiscordAPI() {
@@ -192,7 +200,8 @@ public final class DiscordBot {
         discordAPI.addEventListener(
                 new ListenerMessages(this),
                 new ListenerReactions(this),
-                new ListenerSlashCommands(this)
+                new ListenerSlashCommands(this),
+                new ListenerCreateTicketButton(this)
         );
 
         Logger logger = getLogger();

@@ -6,6 +6,7 @@ import com.github.sirblobman.discord.slimy.manager.SlashCommandManager;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 
 public final class ListenerSlashCommands extends SlimyBotListener {
     public ListenerSlashCommands(DiscordBot discordBot) {
@@ -16,10 +17,12 @@ public final class ListenerSlashCommands extends SlimyBotListener {
     public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
         DiscordBot discordBot = getDiscordBot();
         SlashCommandManager slashCommandManager = discordBot.getSlashCommandManager();
+        InteractionHook interaction = e.getHook();
 
         String commandName = e.getName();
         SlashCommand command = slashCommandManager.getCommand(commandName);
         if (command == null) {
+            e.reply("Unknown command '/" + commandName + "'.").queue();
             return;
         }
 
@@ -28,9 +31,9 @@ public final class ListenerSlashCommands extends SlimyBotListener {
 
         Message message = command.execute(e);
         if (message != null) {
-            e.getHook().sendMessage(message).queue();
+            interaction.sendMessage(message).queue();
         } else {
-            e.getHook().sendMessage("Done.").queue();
+            interaction.sendMessage("Done.").queue();
         }
     }
 }

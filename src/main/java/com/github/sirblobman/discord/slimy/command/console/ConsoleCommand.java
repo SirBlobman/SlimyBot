@@ -16,7 +16,7 @@ public abstract class ConsoleCommand extends AbstractCommand {
             execute(label, args);
         } catch (Exception ex) {
             Logger logger = getLogger();
-            logger.warn("Failed to execute console command '" + label + "' because an error occurred:", ex);
+            logger.error("Failed to execute console command '" + label + "':", ex);
         }
     }
 

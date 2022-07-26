@@ -3,7 +3,7 @@ package com.github.sirblobman.discord.slimy.manager;
 import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,15 +22,17 @@ public final class ConsoleCommandManager extends Manager {
     }
 
     public ConsoleCommand getCommand(String commandName) {
-        if (commandName == null || commandName.isEmpty()) return null;
+        if (commandName == null || commandName.isBlank()) {
+            return null;
+        }
 
-        String lowercase = commandName.toLowerCase();
+        String lowercase = commandName.toLowerCase(Locale.US);
         return this.commandMap.getOrDefault(lowercase, null);
     }
 
     public Set<ConsoleCommand> getConsoleCommandSet() {
         Collection<ConsoleCommand> valueColl = this.commandMap.values();
-        return new HashSet<>(valueColl);
+        return Set.copyOf(valueColl);
     }
 
     @SafeVarargs
@@ -42,15 +44,18 @@ public final class ConsoleCommandManager extends Manager {
 
     private void registerCommand(Class<? extends ConsoleCommand> commandClass) {
         try {
+            DiscordBot discordBot = getDiscordBot();
             Constructor<? extends ConsoleCommand> constructor = commandClass.getConstructor(DiscordBot.class);
-            ConsoleCommand command = constructor.newInstance(getDiscordBot());
+            ConsoleCommand command = constructor.newInstance(discordBot);
             CommandInformation commandInformation = command.getCommandInformation();
 
             String commandName = commandInformation.getName();
             this.commandMap.put(commandName, command);
 
             String[] aliasArray = commandInformation.getAliases();
-            for (String alias : aliasArray) this.commandMap.put(alias, command);
+            for (String alias : aliasArray) {
+                this.commandMap.putIfAbsent(alias, command);
+            }
         } catch (ReflectiveOperationException ex) {
             Logger logger = getLogger();
             logger.log(Level.WARN, "An error occurred while registering a console command.", ex);

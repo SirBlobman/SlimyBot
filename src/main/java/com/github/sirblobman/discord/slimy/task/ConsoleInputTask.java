@@ -24,7 +24,8 @@ public final class ConsoleInputTask implements Runnable {
 
     @Override
     public void run() {
-        Logger logger = this.discordBot.getLogger();
+        DiscordBot discordBot = getDiscordBot();
+        Logger logger = discordBot.getLogger();
         Console console = System.console();
         if (console != null) {
             setupConsole(console);
@@ -36,46 +37,55 @@ public final class ConsoleInputTask implements Runnable {
         setupInput();
     }
 
-    private void setupConsole(Console console) {
-        Logger logger = this.discordBot.getLogger();
+    private DiscordBot getDiscordBot() {
+        return this.discordBot;
+    }
+
+    private void tryRunCommand(String inputLine) {
+        String spacePattern = Pattern.quote(" ");
+        String[] split = inputLine.split(spacePattern);
+
+        String commandName = split[0];
+        String[] args = (split.length < 2 ? new String[0] : Arrays.copyOfRange(split, 1, split.length));
+        tryRunCommand(commandName, args);
+    }
+
+    private void tryRunCommand(String commandName, String[] args) {
+        DiscordBot discordBot = getDiscordBot();
+        ConsoleCommandManager consoleCommandManager = discordBot.getConsoleCommandManager();
+        ConsoleCommand consoleCommand = consoleCommandManager.getCommand(commandName);
+        if (consoleCommand == null) {
+            Logger logger = discordBot.getLogger();
+            logger.info("Unknown Command '" + commandName + "'.");
+            return;
+        }
+
+        consoleCommand.onCommand(commandName, args);
+    }
+
+    private boolean isOnline() {
         JDA discordAPI = this.discordBot.getDiscordAPI();
+        Status status = discordAPI.getStatus();
+        return (status != Status.SHUTDOWN && status != Status.SHUTTING_DOWN);
+    }
 
-        while (true) {
-            Status status = discordAPI.getStatus();
-            if (status == Status.SHUTDOWN || status == Status.SHUTTING_DOWN) {
-                break;
-            }
-
+    private void setupConsole(Console console) {
+        DiscordBot discordBot = getDiscordBot();
+        Logger logger = discordBot.getLogger();
+        while (isOnline()) {
             String readLine = console.readLine();
             logger.info("Console Command Detected: '" + readLine + "'");
-
-            String[] splitLine = readLine.split(Pattern.quote(" "));
-            String commandName = splitLine[0];
-            String[] commandArgs = (splitLine.length < 2 ? new String[0] :
-                    Arrays.copyOfRange(splitLine, 1, splitLine.length));
-
-            ConsoleCommandManager consoleCommandManager = this.discordBot.getConsoleCommandManager();
-            ConsoleCommand consoleCommand = consoleCommandManager.getCommand(commandName);
-            if (consoleCommand == null) {
-                logger.info("Unknown Command '" + commandName + "'.");
-                continue;
-            }
-
-            consoleCommand.onCommand(commandName, commandArgs);
+            tryRunCommand(readLine);
         }
     }
 
     private void setupInput() {
-        Logger logger = this.discordBot.getLogger();
-        JDA discordAPI = this.discordBot.getDiscordAPI();
-        BufferedReader console = new BufferedReader(new InputStreamReader(System.in));
+        DiscordBot discordBot = getDiscordBot();
+        Logger logger = discordBot.getLogger();
+        InputStreamReader consoleReader = new InputStreamReader(System.in);
+        BufferedReader console = new BufferedReader(consoleReader);
 
-        while (true) {
-            Status status = discordAPI.getStatus();
-            if (status == Status.SHUTDOWN || status == Status.SHUTTING_DOWN) {
-                break;
-            }
-
+        while (isOnline()) {
             String readLine;
             try {
                 readLine = console.readLine();
@@ -85,18 +95,7 @@ public final class ConsoleInputTask implements Runnable {
                 break;
             }
 
-            String[] splitLine = readLine.split(Pattern.quote(" "));
-            String commandName = splitLine[0];
-            String[] commandArgs = (splitLine.length < 2 ? new String[0] : Arrays.copyOfRange(splitLine, 1, splitLine.length));
-
-            ConsoleCommandManager consoleCommandManager = this.discordBot.getConsoleCommandManager();
-            ConsoleCommand consoleCommand = consoleCommandManager.getCommand(commandName);
-            if (consoleCommand == null) {
-                logger.info("Unknown Command '" + commandName + "'.");
-                continue;
-            }
-
-            consoleCommand.onCommand(commandName, commandArgs);
+            tryRunCommand(readLine);
         }
     }
 }
