@@ -113,7 +113,7 @@ public final class TicketArchiveManager extends Manager {
             DiscordBot discordBot = getDiscordBot();
             DatabaseManager databaseManager = discordBot.getDatabaseManager();
             MemberRecord knownMember = databaseManager.getKnownMemberById(topic);
-            if(knownMember == null) {
+            if (knownMember == null) {
                 return "Unknown";
             }
 

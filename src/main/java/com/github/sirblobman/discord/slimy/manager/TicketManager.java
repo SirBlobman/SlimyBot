@@ -49,7 +49,7 @@ public final class TicketManager extends Manager {
 
         String channelName = getTicketChannelName(member);
         List<TextChannel> textChannelList = guild.getTextChannelsByName(channelName, true);
-        if(textChannelList.isEmpty()) {
+        if (textChannelList.isEmpty()) {
             return null;
         }
 
@@ -157,7 +157,7 @@ public final class TicketManager extends Manager {
 
         String usernameNormal = Normalizer.normalize(username, Form.NFD);
         String usernameAlphanumeric = usernameNormal.replaceAll("[^a-zA-Z\\d-]", "");
-        if(usernameAlphanumeric.isBlank()) {
+        if (usernameAlphanumeric.isBlank()) {
             usernameAlphanumeric = "unknown";
         }
 

@@ -70,7 +70,7 @@ public final class SlashCommandTicket extends SlashCommand {
     }
 
     private SubcommandData[] getSubCommands() {
-        return new SubcommandData[] {
+        return new SubcommandData[]{
                 new SubcommandData("new", "Create a new ticket.")
                         .addOption(OptionType.STRING, "title", "The name of your ticket.",
                         false),
@@ -216,21 +216,21 @@ public final class SlashCommandTicket extends SlashCommand {
     }
 
     private Message commandSetup(Member member, SlashCommandInteractionEvent e) {
-        if(!member.isOwner()) {
+        if (!member.isOwner()) {
             EmbedBuilder errorEmbed = getErrorEmbed(member);
             errorEmbed.addField("Error", "Only the server owner can create a ticket panel.", false);
             return getMessage(errorEmbed);
         }
 
         OptionMapping channelOption = e.getOption("channel");
-        if(channelOption == null) {
+        if (channelOption == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(member);
             errorEmbed.addField("Error", "Missing channel argument.", false);
             return getMessage(errorEmbed);
         }
 
         GuildChannelUnion channel = channelOption.getAsChannel();
-        if(!(channel instanceof GuildMessageChannel messageChannel)) {
+        if (!(channel instanceof GuildMessageChannel messageChannel)) {
             EmbedBuilder errorEmbed = getErrorEmbed(member);
             errorEmbed.addField("Error", "Only text channels can have a ticket panel.", false);
             return getMessage(errorEmbed);

@@ -41,12 +41,12 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
         Logger logger = discordBot.getLogger();
         logger.info("Detected button click with id '" + buttonId + "'.");
 
-        if(buttonId == null || !buttonId.equals("slimy-bot-create-ticket")) {
+        if (buttonId == null || !buttonId.equals("slimy-bot-create-ticket")) {
             return;
         }
 
         Member member = e.getMember();
-        if(member == null) {
+        if (member == null) {
             return;
         }
 
@@ -57,12 +57,12 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
     @Override
     public void onModalInteraction(ModalInteractionEvent e) {
         String modalId = e.getModalId();
-        if(!modalId.equals("slimy-bot-create-ticket")) {
+        if (!modalId.equals("slimy-bot-create-ticket")) {
             return;
         }
 
         Member member = e.getMember();
-        if(member == null) {
+        if (member == null) {
             return;
         }
 
@@ -72,7 +72,7 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
         ModalMapping pluginMapping = e.getValue("plugin");
         ModalMapping titleMapping = e.getValue("title");
         ModalMapping descriptionMapping = e.getValue("description");
-        if(pluginMapping == null || titleMapping == null || descriptionMapping == null) {
+        if (pluginMapping == null || titleMapping == null || descriptionMapping == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(member);
             errorEmbed.addField("Error", "Please fill out the form properly.", false);
             Message message = getMessage(errorEmbed);
