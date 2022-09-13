@@ -430,12 +430,12 @@ public final class TicketArchiveManager extends Manager {
     }
 
     private ContainerTag<?> getContainerTag(String line) {
-        if(line.startsWith("> ")) {
+        if (line.startsWith("> ")) {
             String quote = line.substring(2);
             return blockquote(quote);
         }
 
-        if(line.startsWith("[Embed: ") && line.endsWith("]")) {
+        if (line.startsWith("[Embed: ") && line.endsWith("]")) {
             int length = line.length();
             int begin = "[Embed: ]".length();
             int end = (length - 1);
@@ -444,7 +444,7 @@ public final class TicketArchiveManager extends Manager {
             return parseEmbed(embedJson);
         }
 
-        if(line.startsWith("[Attachment: ") && line.endsWith("]")) {
+        if (line.startsWith("[Attachment: ") && line.endsWith("]")) {
             int length = line.length();
             int begin = "[Attachment: ]".length();
             int end = (length - 1);
