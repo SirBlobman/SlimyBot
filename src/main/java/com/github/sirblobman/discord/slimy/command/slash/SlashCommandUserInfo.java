@@ -10,13 +10,13 @@ import com.github.sirblobman.discord.slimy.object.MainConfiguration;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public final class SlashCommandUserInfo extends SlashCommand {
     public SlashCommandUserInfo(DiscordBot discordBot) {
@@ -36,7 +36,7 @@ public final class SlashCommandUserInfo extends SlashCommand {
     }
 
     @Override
-    public Message execute(SlashCommandInteractionEvent e) {
+    public MessageCreateData execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
         if (sender == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);

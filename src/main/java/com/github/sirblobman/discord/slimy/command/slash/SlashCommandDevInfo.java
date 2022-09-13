@@ -16,9 +16,7 @@ import com.github.sirblobman.discord.slimy.object.MainConfiguration;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.SelfUser;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -27,6 +25,8 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import oshi.SystemInfo;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.Sensors;
@@ -63,7 +63,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
     }
 
     @Override
-    public Message execute(SlashCommandInteractionEvent e) {
+    public MessageCreateData execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
         if (sender == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
@@ -97,7 +97,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
             MessageEmbed embed4 = getUptimeEmbed(sender).build();
             MessageEmbed embed5 = getResourceUsageEmbed(sender).build();
             MessageEmbed embed6 = getTemperatureEmbed(sender).build();
-            return new MessageBuilder().setEmbeds(embed1, embed2, embed3, embed4, embed5, embed6).build();
+            return new MessageCreateBuilder().setEmbeds(embed1, embed2, embed3, embed4, embed5, embed6).build();
         }
 
         EmbedBuilder embedBuilder = switch (typeOption) {

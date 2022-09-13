@@ -10,7 +10,7 @@ import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Mentions;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
@@ -34,7 +34,7 @@ public final class ListenerReactions extends SlimyBotListener {
             return;
         }
 
-        MessageChannel channel = e.getChannel();
+        MessageChannelUnion channel = e.getChannel();
         String channelId = channel.getId();
         if (!channelId.equals("647078919668891649")) {
             return;

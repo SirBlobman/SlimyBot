@@ -8,14 +8,11 @@ import com.github.sirblobman.discord.slimy.manager.TicketManager;
 import com.github.sirblobman.discord.slimy.object.InvalidConfigurationException;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.MessageBuilder.Formatting;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -24,6 +21,8 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
@@ -75,7 +74,7 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
         if (pluginMapping == null || titleMapping == null || descriptionMapping == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(member);
             errorEmbed.addField("Error", "Please fill out the form properly.", false);
-            Message message = getMessage(errorEmbed);
+            MessageCreateData message = getMessage(errorEmbed);
             interaction.sendMessage(message).setEphemeral(true).queue();
             return;
         }
@@ -84,7 +83,7 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
         if (ticketManager.hasTicketChannel(member)) {
             EmbedBuilder errorEmbed = getErrorEmbed(member);
             errorEmbed.addField("Error", "Your previous ticket is still open.", false);
-            Message message = getMessage(errorEmbed);
+            MessageCreateData message = getMessage(errorEmbed);
             interaction.sendMessage(message).setEphemeral(true).queue();
             return;
         }
@@ -96,7 +95,7 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
         if (supportRole == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(member);
             errorEmbed.addField("Error", "An error occurred while creating your ticket.", false);
-            Message message = getMessage(errorEmbed);
+            MessageCreateData message = getMessage(errorEmbed);
             interaction.sendMessage(message).setEphemeral(true).queue();
             throw new IllegalStateException("Invalid support role!");
         }
@@ -105,25 +104,25 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
             CompletableFuture<TextChannel> ticketChannelFuture = ticketManager.createTicketChannelFor(member);
             TextChannel ticketChannel = ticketChannelFuture.join();
 
-            MessageBuilder builder = new MessageBuilder();
-            builder.append(supportRole).append('\n');
-            builder.append("New Ticket", Formatting.BOLD).append('\n');
-            builder.append("Made By: ", Formatting.BOLD).append(member).append('\n');
-            builder.append("Title: ", Formatting.BOLD).append(title).append('\n');
-            builder.append("Plugin: ", Formatting.BOLD).append(pluginName).append('\n');
-            builder.append("Description: ", Formatting.BOLD).append(description).append('\n');
+            MessageCreateBuilder builder = new MessageCreateBuilder();
+            builder.addContent(supportRole.getAsMention()).addContent("\n");
+            builder.addContent(formatBold("New Ticket")).addContent("\n");
+            builder.addContent(formatBold("Made by: ")).addContent(member.getAsMention()).addContent("\n");
+            builder.addContent(formatBold("Title: ")).addContent(title).addContent("\n");
+            builder.addContent(formatBold("Plugin: ")).addContent(pluginName).addContent("\n");
+            builder.addContent(formatBold("Description: ")).addContent(description).addContent("\n");
 
-            Message message = builder.build();
+            MessageCreateData message = builder.build();
             ticketChannel.sendMessage(message).queue();
 
             EmbedBuilder errorEmbed = getClickedByEmbed(member);
             errorEmbed.addField("Success", "Your ticket was created successfully.", false);
-            Message message2 = getMessage(errorEmbed);
+            MessageCreateData message2 = getMessage(errorEmbed);
             interaction.sendMessage(message2).setEphemeral(true).queue();
         } catch (InvalidConfigurationException ex) {
             EmbedBuilder errorEmbed = getErrorEmbed(member);
             errorEmbed.addField("Error", "An error occurred while creating your ticket.", false);
-            Message message = getMessage(errorEmbed);
+            MessageCreateData message = getMessage(errorEmbed);
             interaction.sendMessage(message).setEphemeral(true).queue();
             throw new IllegalStateException(ex);
         }
@@ -152,9 +151,10 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
         return builder;
     }
 
-    private Message getMessage(EmbedBuilder embedBuilder) {
-        MessageBuilder messageBuilder = new MessageBuilder();
-        messageBuilder.setEmbeds(embedBuilder.build());
+    private MessageCreateData getMessage(EmbedBuilder embedBuilder) {
+        MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
+        MessageEmbed embed = embedBuilder.build();
+        messageBuilder.setEmbeds(embed);
         return messageBuilder.build();
     }
 

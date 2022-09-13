@@ -9,11 +9,11 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.Nullable;
 
 public final class SlashCommandVoter extends SlashCommand {
@@ -32,7 +32,7 @@ public final class SlashCommandVoter extends SlashCommand {
     }
 
     @Override
-    public Message execute(SlashCommandInteractionEvent e) {
+    public MessageCreateData execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
         if (sender == null) {
             EmbedBuilder builder = getErrorEmbed(sender);

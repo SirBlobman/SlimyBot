@@ -11,17 +11,14 @@ import com.github.sirblobman.discord.slimy.object.InvalidConfigurationException;
 import com.github.sirblobman.discord.slimy.task.ArchiveAndDeleteTask;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.MessageBuilder.Formatting;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Category;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.Category;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.unions.GuildChannelUnion;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -33,6 +30,8 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.apache.logging.log4j.Logger;
 
 public final class SlashCommandTicket extends SlashCommand {
@@ -47,7 +46,7 @@ public final class SlashCommandTicket extends SlashCommand {
     }
 
     @Override
-    public Message execute(SlashCommandInteractionEvent e) {
+    public MessageCreateData execute(SlashCommandInteractionEvent e) {
         String subcommandName = e.getSubcommandName();
         if (subcommandName == null) {
             subcommandName = "help";
@@ -90,7 +89,7 @@ public final class SlashCommandTicket extends SlashCommand {
         return discordBot.getTicketManager();
     }
 
-    private Message commandNew(Member member, SlashCommandInteractionEvent e) {
+    private MessageCreateData commandNew(Member member, SlashCommandInteractionEvent e) {
         TicketManager ticketManager = getTicketManager();
         if (ticketManager.hasTicketChannel(member)) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
@@ -110,12 +109,14 @@ public final class SlashCommandTicket extends SlashCommand {
             CompletableFuture<TextChannel> ticketChannelFuture = ticketManager.createTicketChannelFor(member);
             TextChannel ticketChannel = ticketChannelFuture.join();
 
-            MessageBuilder builder = new MessageBuilder();
-            builder.append(supportRole).append('\n');
-            builder.append("New Ticket", Formatting.BOLD).append('\n');
-            builder.append("Made By: ", Formatting.BOLD).append(member).append('\n');
-            builder.append("Title: ", Formatting.BOLD).append(title);
-            ticketChannel.sendMessage(builder.build()).queue();
+            MessageCreateBuilder builder = new MessageCreateBuilder();
+            builder.addContent(supportRole.getAsMention()).addContent("\n");
+            builder.addContent(formatBold("New Ticket")).addContent("\n");
+            builder.addContent(formatBold("Made By: ")).addContent(member.getAsMention()).addContent("\n");
+            builder.addContent(formatBold("Title: ")).addContent(title);
+
+            MessageCreateData message = builder.build();
+            ticketChannel.sendMessage(message).queue();
 
             EmbedBuilder embed = getExecutedByEmbed(member).setTitle("Success")
                     .setDescription("Ticket created successfully.");
@@ -130,7 +131,7 @@ public final class SlashCommandTicket extends SlashCommand {
         }
     }
 
-    private Message commandClose(Member member, SlashCommandInteractionEvent e) {
+    private MessageCreateData commandClose(Member member, SlashCommandInteractionEvent e) {
         TicketManager ticketManager = getTicketManager();
         Guild guild = ticketManager.getGuild();
         if (guild == null) {
@@ -166,7 +167,7 @@ public final class SlashCommandTicket extends SlashCommand {
         return getMessage(message);
     }
 
-    private Message commandAdd(Member member, SlashCommandInteractionEvent e) {
+    private MessageCreateData commandAdd(Member member, SlashCommandInteractionEvent e) {
         OptionMapping userOption = e.getOption("user");
         if (userOption == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
@@ -198,7 +199,7 @@ public final class SlashCommandTicket extends SlashCommand {
         return getMessage(embed);
     }
 
-    private Message commandHelp(Member member) {
+    private MessageCreateData commandHelp(Member member) {
         EmbedBuilder builder = getExecutedByEmbed(member);
         builder.setColor(Color.GREEN);
         builder.setTitle("Ticket Command Usage");
@@ -215,7 +216,7 @@ public final class SlashCommandTicket extends SlashCommand {
         new Timer().schedule(task, 5000L);
     }
 
-    private Message commandSetup(Member member, SlashCommandInteractionEvent e) {
+    private MessageCreateData commandSetup(Member member, SlashCommandInteractionEvent e) {
         if (!member.isOwner()) {
             EmbedBuilder errorEmbed = getErrorEmbed(member);
             errorEmbed.addField("Error", "Only the server owner can create a ticket panel.", false);
@@ -246,10 +247,13 @@ public final class SlashCommandTicket extends SlashCommand {
         Button createTicketButton = Button.of(ButtonStyle.PRIMARY, "slimy-bot-create-ticket",
                 "Create Ticket", ticketEmoji);
 
-        MessageBuilder messageBuilder = new MessageBuilder();
+        MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
         messageBuilder.setEmbeds(embed);
-        messageBuilder.setActionRows(ActionRow.of(createTicketButton));
-        Message message = messageBuilder.build();
+
+        ActionRow actionRow = ActionRow.of(createTicketButton);
+        messageBuilder.addComponents(actionRow);
+
+        MessageCreateData message = messageBuilder.build();
         messageChannel.sendMessage(message).queue();
 
         EmbedBuilder successEmbed = getExecutedByEmbed(member).setTitle("Success")

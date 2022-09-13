@@ -1,6 +1,5 @@
 package com.github.sirblobman.discord.slimy.manager;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -38,9 +37,11 @@ import com.github.sirblobman.discord.slimy.object.MessageInformation;
 import j2html.Config;
 import j2html.TagCreator;
 import j2html.rendering.IndentedHtml;
+import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.BodyTag;
+import j2html.tags.specialized.BrTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.HeadTag;
@@ -48,14 +49,15 @@ import j2html.tags.specialized.HtmlTag;
 import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.SectionTag;
 import j2html.tags.specialized.TimeTag;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
+import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -89,16 +91,18 @@ public final class TicketArchiveManager extends Manager {
     }
 
     public CompletableFuture<Void> archive(TextChannel channel) {
-        return CompletableFuture.runAsync(() -> {
-            try {
-                DiscordBot discordBot = getDiscordBot();
-                MessageHistoryManager messageHistoryManager = discordBot.getMessageHistoryManager();
-                messageHistoryManager.archiveChannel(channel);
-                archiveInternal(channel);
-            } catch (Exception ex) {
-                throw new CompletionException(ex);
-            }
-        });
+        return CompletableFuture.runAsync(() -> archive0(channel));
+    }
+
+    private void archive0(TextChannel channel) {
+        try {
+            DiscordBot discordBot = getDiscordBot();
+            MessageHistoryManager messageHistoryManager = discordBot.getMessageHistoryManager();
+            messageHistoryManager.archiveChannel(channel);
+            archiveInternal(channel);
+        } catch (Exception ex) {
+            throw new CompletionException(ex);
+        }
     }
 
     private String getTicketCreator(TextChannel channel) {
@@ -171,12 +175,14 @@ public final class TicketArchiveManager extends Manager {
         Files.writeString(archiveFilePath, document, StandardCharsets.UTF_8, StandardOpenOption.WRITE);
 
         String creatorTag = getTicketCreator(channel);
-        MessageBuilder messageBuilder = new MessageBuilder();
-        messageBuilder.append("Ticket ").append(ticketId).append(" by ").append(creatorTag);
-        Message message = messageBuilder.build();
+        MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
+        messageBuilder.addContent("Ticket ").addContent(ticketId).addContent(" by ").addContent(creatorTag);
 
-        File file = archiveFilePath.toFile();
-        historyChannel.sendMessage(message).addFile(file).queue();
+        FileUpload fileUpload = FileUpload.fromData(archiveFilePath);
+        messageBuilder.addFiles(fileUpload);
+
+        MessageCreateData message = messageBuilder.build();
+        historyChannel.sendMessage(message).queue();
     }
 
     private HeadTag renderHead(TextChannel channel) {
@@ -188,16 +194,24 @@ public final class TicketArchiveManager extends Manager {
         String channelName = channel.getName();
         String ticketId = (channelName + "-" + timestamp);
 
+        String title = ("Ticket " + ticketId);
+        String baseUrl = "https://www.sirblobman.xyz";
+        String stylesheetUrl = (baseUrl + "/style/ticket.min.css");
+        String markdownScriptUrl = (baseUrl + "/script/discord-markdown.min.js");
+        String convertScriptUrl = (baseUrl + "/script/discord-convert.js");
+
         return head(
-                title("Ticket " + ticketId),
+                title(title),
                 meta().attr("charset", "UTF-8"),
-                meta().attr("http-equiv", "X-UA-Compatible").attr("content", "IE=edge"),
+                meta().attr("http-equiv", "X-UA-Compatible")
+                        .attr("content", "IE=edge"),
                 meta().attr("name", "viewport")
                         .attr("content", "width=device-width, initial-scale=1.0"),
-                meta().attr("name", "author").attr("content", "Olivo"),
-                link().withRel("stylesheet").withType("text/css")
-                        .withHref("https://www.sirblobman.xyz/style/ticket.min.css"),
-                script().withSrc("https://www.sirblobman.xyz/script/discord-markdown.min.js")
+                meta().attr("name", "author")
+                        .attr("content", "Olivo, SirBlobman"),
+                link().withRel("stylesheet").withType("text/css").withHref(stylesheetUrl),
+                script().withSrc(markdownScriptUrl).isDefer(),
+                script().withSrc(convertScriptUrl).isDefer()
         );
     }
 
@@ -214,8 +228,7 @@ public final class TicketArchiveManager extends Manager {
                                 h2("Created by " + creatorTag)
                         ).withId("title"),
                         getMessagesSection(channel)
-                ),
-                script().withSrc("https://www.sirblobman.xyz/script/discord-convert.js")
+                )
         );
     }
 
@@ -247,10 +260,11 @@ public final class TicketArchiveManager extends Manager {
             }
         }
 
+        Guild guild = channel.getGuild();
         Set<Entry<String, MessageInformation>> entrySet = messageContentMap.entrySet();
         for (Entry<String, MessageInformation> entry : entrySet) {
             MessageInformation messageInformation = entry.getValue();
-            DivTag divTag = createDivTag(messageInformation, channel.getGuild());
+            DivTag divTag = createDivTag(messageInformation, guild);
             section = section.with(divTag);
         }
 
@@ -398,39 +412,51 @@ public final class TicketArchiveManager extends Manager {
         DivTag div = div();
 
         String[] split = content.split("\n\n");
-        for (int i = 0; i < split.length; i++) {
-            if (i != 0) {
-                div = div.with(br());
-            }
-
-            String line = split[i];
-            String[] secondSplit = line.split("\n");
-            for (String line2 : secondSplit) {
-                if (line2.startsWith("> ")) {
-                    String quotedText = line2.substring(2);
-                    DomContent quoteTag = div(blockquote(quotedText).withClass("markdown"));
-                    div = div.with(quoteTag);
-                } else if (line2.startsWith("[Embed: ") && line2.endsWith("]")) {
-                    int line2Length = line2.length();
-                    String embedJson = line2.substring("[Embed: ".length(), line2Length - 1);
-                    DomContent embed = parseEmbed(embedJson);
-                    div = div.with(embed);
-                } else if (line2.startsWith("[Attachment: ") && line2.endsWith("]")) {
-                    int line2Length = line2.length();
-                    String attachmentJson = line2.substring("[Attachment: ".length(), line2Length - 1);
-                    DomContent attachment = parseAttachment(attachmentJson);
-                    div = div.with(attachment);
-                } else {
-                    DivTag markdownDiv = div(line2).withClass("markdown");
-                    div = div.with(markdownDiv);
+        for (String lineString : split) {
+            String[] lineParts = lineString.split("\n");
+            for (int index = 0; index < lineParts.length; index++) {
+                if (index != 0) {
+                    BrTag lineBreak = br();
+                    div = div.with(lineBreak);
                 }
+
+                String linePart = lineParts[index];
+                ContainerTag<?> line = getContainerTag(linePart).withClass("markdown");
+                div = div.with(line);
             }
         }
 
         return div;
     }
 
-    private DomContent parseEmbed(String embedJson) {
+    private ContainerTag<?> getContainerTag(String line) {
+        if(line.startsWith("> ")) {
+            String quote = line.substring(2);
+            return blockquote(quote);
+        }
+
+        if(line.startsWith("[Embed: ") && line.endsWith("]")) {
+            int length = line.length();
+            int begin = "[Embed: ]".length();
+            int end = (length - 1);
+
+            String embedJson = line.substring(begin, end);
+            return parseEmbed(embedJson);
+        }
+
+        if(line.startsWith("[Attachment: ") && line.endsWith("]")) {
+            int length = line.length();
+            int begin = "[Attachment: ]".length();
+            int end = (length - 1);
+
+            String attachmentJson = line.substring(begin, end);
+            return parseAttachment(attachmentJson);
+        }
+
+        return span(line);
+    }
+
+    private ContainerTag<?> parseEmbed(String embedJson) {
         try {
             JSONTokener tokener = new JSONTokener(embedJson);
             JSONObject jsonObject = new JSONObject(tokener);
@@ -558,17 +584,17 @@ public final class TicketArchiveManager extends Manager {
         return embedDiv;
     }
 
-    private DomContent parseAttachment(String attachmentJson) {
+    private ContainerTag<?> parseAttachment(String attachmentJson) {
         try {
             JSONTokener tokener = new JSONTokener(attachmentJson);
             JSONObject jsonObject = new JSONObject(tokener);
             DivTag attachmentDiv = div().withClass("attachment");
 
             String fileName = jsonObject.getString("file_name");
-            String attachmentURL = jsonObject.getString("attachment_url");
+            String attachmentUrl = jsonObject.getString("attachment_url");
+            ATag attachmentAnchor = a().with(strong("Attachment: ")).withText(fileName).withHref(attachmentUrl);
 
-            attachmentDiv = attachmentDiv.with(a().with(strong("Attachment: ")).withText(fileName)
-                    .withHref(attachmentURL));
+            attachmentDiv = attachmentDiv.with(attachmentAnchor);
             return attachmentDiv;
         } catch (JSONException ex) {
             return div("Attachment Error: " + ex.getMessage());

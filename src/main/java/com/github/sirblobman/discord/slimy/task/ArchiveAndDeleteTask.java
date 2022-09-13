@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.manager.TicketArchiveManager;
 
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.apache.logging.log4j.Logger;
 
 public final class ArchiveAndDeleteTask extends TimerTask {

@@ -13,12 +13,12 @@ import com.github.sirblobman.discord.slimy.object.FAQSolution;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.yaml.snakeyaml.Yaml;
 
 public final class SlashCommandFAQ extends SlashCommand {
@@ -34,7 +34,7 @@ public final class SlashCommandFAQ extends SlashCommand {
     }
 
     @Override
-    public Message execute(SlashCommandInteractionEvent e) {
+    public MessageCreateData execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
         OptionMapping questionIdOption = e.getOption("id");
         if (questionIdOption == null) {

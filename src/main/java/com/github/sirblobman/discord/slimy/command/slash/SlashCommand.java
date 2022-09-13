@@ -1,6 +1,7 @@
 package com.github.sirblobman.discord.slimy.command.slash;
 
 import java.awt.Color;
+import java.util.Locale;
 import java.util.Objects;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
@@ -8,12 +9,13 @@ import com.github.sirblobman.discord.slimy.command.AbstractCommand;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class SlashCommand extends AbstractCommand {
@@ -46,10 +48,11 @@ public abstract class SlashCommand extends AbstractCommand {
         return builder;
     }
 
-    protected final Message getMessage(EmbedBuilder embedBuilder) {
-        MessageBuilder messageBuilder = new MessageBuilder();
-        messageBuilder.setEmbeds(embedBuilder.build());
-        return messageBuilder.build();
+    protected final MessageCreateData getMessage(EmbedBuilder embedBuilder) {
+        MessageCreateBuilder builder = new MessageCreateBuilder();
+        MessageEmbed embed = embedBuilder.build();
+        builder.setEmbeds(embed);
+        return builder.build();
     }
 
     public boolean isEphemeral() {
@@ -64,5 +67,9 @@ public abstract class SlashCommand extends AbstractCommand {
 
     public abstract CommandData getCommandData();
 
-    public abstract Message execute(SlashCommandInteractionEvent e);
+    public abstract MessageCreateData execute(SlashCommandInteractionEvent e);
+
+    protected final String formatBold(String message) {
+        return String.format(Locale.US, "**%s**", message);
+    }
 }

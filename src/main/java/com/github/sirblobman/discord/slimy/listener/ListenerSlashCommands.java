@@ -4,9 +4,9 @@ import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommand;
 import com.github.sirblobman.discord.slimy.manager.SlashCommandManager;
 
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public final class ListenerSlashCommands extends SlimyBotListener {
     public ListenerSlashCommands(DiscordBot discordBot) {
@@ -29,7 +29,7 @@ public final class ListenerSlashCommands extends SlimyBotListener {
         boolean ephemeral = command.isEphemeral();
         e.deferReply(ephemeral).queue();
 
-        Message message = command.execute(e);
+        MessageCreateData message = command.execute(e);
         if (message != null) {
             interaction.sendMessage(message).queue();
         } else {

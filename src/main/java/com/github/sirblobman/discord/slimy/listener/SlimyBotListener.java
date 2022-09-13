@@ -1,5 +1,6 @@
 package com.github.sirblobman.discord.slimy.listener;
 
+import java.util.Locale;
 import java.util.Objects;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
@@ -22,5 +23,9 @@ public abstract class SlimyBotListener extends ListenerAdapter {
         DiscordBot discordBot = getDiscordBot();
         Logger logger = discordBot.getLogger();
         logger.warn(message, ex);
+    }
+
+    protected final String formatBold(String message) {
+        return String.format(Locale.US, "**%s**", message);
     }
 }

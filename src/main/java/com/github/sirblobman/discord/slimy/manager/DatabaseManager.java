@@ -16,14 +16,12 @@ import java.util.Set;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.object.ChannelRecord;
-import com.github.sirblobman.discord.slimy.object.GuildRecord;
 import com.github.sirblobman.discord.slimy.object.MemberRecord;
 
-import net.dv8tion.jda.api.entities.Channel;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.GuildChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -85,13 +83,9 @@ public final class DatabaseManager extends Manager {
         }
     }
 
-    public synchronized void register(Channel channel) {
-        if (!(channel instanceof GuildChannel guildChannel)) {
-            return;
-        }
-
+    public synchronized void register(GuildChannel channel) {
         try (Connection connection = getConnection()) {
-            Guild guild = guildChannel.getGuild();
+            Guild guild = channel.getGuild();
             String guildId = guild.getId();
 
             String channelId = channel.getId();
@@ -138,27 +132,6 @@ public final class DatabaseManager extends Manager {
         } catch (SQLException ex) {
             Logger logger = getLogger();
             logger.error("An error occurred while updating known members in the SQLite database:", ex);
-        }
-    }
-
-    @Nullable
-    public synchronized GuildRecord getKnownGuildById(@NotNull String id) {
-        try (Connection connection = getConnection()) {
-            String sqlCommand = ("SELECT `guild_name` FROM `known_guilds` WHERE `id`=? ;");
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlCommand);
-            preparedStatement.setString(1, id);
-
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                String guildName = resultSet.getString("guild_name");
-                return new GuildRecord(id, guildName);
-            }
-
-            return null;
-        } catch (SQLException ex) {
-            Logger logger = getLogger();
-            logger.error("An error occurred while searching for a known guild:", ex);
-            return null;
         }
     }
 
