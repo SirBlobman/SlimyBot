@@ -41,7 +41,6 @@ import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.BodyTag;
-import j2html.tags.specialized.BrTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.H1Tag;
 import j2html.tags.specialized.HeadTag;
@@ -409,26 +408,25 @@ public final class TicketArchiveManager extends Manager {
     }
 
     private DomContent fixLineBreaks(String content) {
-        DivTag div = div();
+        DivTag div = div().withClass("markdown");
 
         String[] split = content.split("\n\n");
         for (String lineString : split) {
             String[] lineParts = lineString.split("\n");
-            for (int index = 0; index < lineParts.length; index++) {
-                if (index != 0) {
-                    BrTag lineBreak = br();
-                    div = div.with(lineBreak);
+            for (String linePart : lineParts) {
+                ContainerTag<?> line = getContainerTag(linePart);
+                if(line != null) {
+                    div = div.with(line);
+                } else {
+                    div.withText(linePart).withText("\n");
                 }
-
-                String linePart = lineParts[index];
-                ContainerTag<?> line = getContainerTag(linePart).withClass("markdown");
-                div = div.with(line);
             }
         }
 
         return div;
     }
 
+    @Nullable
     private ContainerTag<?> getContainerTag(String line) {
         if (line.startsWith("> ")) {
             String quote = line.substring(2);
@@ -437,7 +435,7 @@ public final class TicketArchiveManager extends Manager {
 
         if (line.startsWith("[Embed: ") && line.endsWith("]")) {
             int length = line.length();
-            int begin = "[Embed: ]".length();
+            int begin = "[Embed: ".length();
             int end = (length - 1);
 
             String embedJson = line.substring(begin, end);
@@ -446,14 +444,14 @@ public final class TicketArchiveManager extends Manager {
 
         if (line.startsWith("[Attachment: ") && line.endsWith("]")) {
             int length = line.length();
-            int begin = "[Attachment: ]".length();
+            int begin = "[Attachment: ".length();
             int end = (length - 1);
 
             String attachmentJson = line.substring(begin, end);
             return parseAttachment(attachmentJson);
         }
 
-        return span(line);
+        return null;
     }
 
     private ContainerTag<?> parseEmbed(String embedJson) {
