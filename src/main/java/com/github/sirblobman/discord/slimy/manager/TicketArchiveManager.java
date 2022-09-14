@@ -147,9 +147,9 @@ public final class TicketArchiveManager extends Manager {
         Config htmlConfig = Config.global();
 
         StringBuilder builder = new StringBuilder();
-        FlatHtml<StringBuilder> indentedHtml = FlatHtml.into(builder, htmlConfig);
-        TagCreator.document().render(indentedHtml);
-        htmlElement.render(indentedHtml);
+        FlatHtml<StringBuilder> flatHtml = FlatHtml.into(builder, htmlConfig);
+        TagCreator.document().render(flatHtml);
+        htmlElement.render(flatHtml);
 
         String channelName = channel.getName();
         String channelNameNormal = Normalizer.normalize(channelName, Form.NFD);
