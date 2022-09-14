@@ -37,7 +37,7 @@ import com.github.sirblobman.discord.slimy.object.MessageInformation;
 
 import j2html.Config;
 import j2html.TagCreator;
-import j2html.rendering.IndentedHtml;
+import j2html.rendering.FlatHtml;
 import j2html.tags.ContainerTag;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ATag;
@@ -147,7 +147,7 @@ public final class TicketArchiveManager extends Manager {
         Config htmlConfig = Config.global();
 
         StringBuilder builder = new StringBuilder();
-        IndentedHtml<StringBuilder> indentedHtml = IndentedHtml.into(builder, htmlConfig);
+        FlatHtml<StringBuilder> indentedHtml = FlatHtml.into(builder, htmlConfig);
         TagCreator.document().render(indentedHtml);
         htmlElement.render(indentedHtml);
 
