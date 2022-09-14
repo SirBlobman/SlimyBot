@@ -12,6 +12,7 @@ import java.text.Normalizer.Form;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,6 +48,7 @@ import j2html.tags.specialized.HeadTag;
 import j2html.tags.specialized.HtmlTag;
 import j2html.tags.specialized.ImgTag;
 import j2html.tags.specialized.SectionTag;
+import j2html.tags.specialized.SpanTag;
 import j2html.tags.specialized.TimeTag;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -195,9 +197,11 @@ public final class TicketArchiveManager extends Manager {
 
         String title = ("Ticket " + ticketId);
         String baseUrl = "https://www.sirblobman.xyz";
+        String scriptUrl = (baseUrl + "/script");
         String stylesheetUrl = (baseUrl + "/style/ticket.min.css");
-        String markdownScriptUrl = (baseUrl + "/script/discord-markdown.min.js");
-        String convertScriptUrl = (baseUrl + "/script/discord-convert.js");
+        String markdownScriptUrl = (scriptUrl + "/discord-markdown.min.js");
+        String convertScriptUrl = (scriptUrl + "/discord-convert.js");
+        String highlightScriptUrl = (scriptUrl + "/highlight/highlight.min.js");
 
         return head(
                 title(title),
@@ -210,7 +214,8 @@ public final class TicketArchiveManager extends Manager {
                         .attr("content", "Olivo, SirBlobman"),
                 link().withRel("stylesheet").withType("text/css").withHref(stylesheetUrl),
                 script().withSrc(markdownScriptUrl).isDefer(),
-                script().withSrc(convertScriptUrl).isDefer()
+                script().withSrc(convertScriptUrl).isDefer(),
+                script().withSrc(highlightScriptUrl).isDefer()
         );
     }
 
@@ -408,22 +413,38 @@ public final class TicketArchiveManager extends Manager {
     }
 
     private DomContent fixLineBreaks(String content) {
-        DivTag div = div().withClass("markdown");
-
+        DivTag div = div();
         String[] split = content.split("\n\n");
+        List<DomContent> contentList = new ArrayList<>();
+
+        SpanTag currentText = null;
         for (String lineString : split) {
             String[] lineParts = lineString.split("\n");
             for (String linePart : lineParts) {
                 ContainerTag<?> line = getContainerTag(linePart);
                 if(line != null) {
-                    div = div.with(line);
+                    if(currentText != null) {
+                        contentList.add(currentText.withClass("markdown"));
+                        currentText = null;
+                    }
+
+                    contentList.add(line);
                 } else {
-                    div.withText(linePart).withText("\n");
+                    String lineWithNew = (linePart + "\n");
+                    if(currentText == null) {
+                        currentText = span(lineWithNew);
+                    } else {
+                        currentText.withText(lineWithNew);
+                    }
                 }
             }
         }
 
-        return div;
+        if(currentText != null) {
+            contentList.add(currentText.withClass("markdown"));
+        }
+
+        return div.with(contentList);
     }
 
     @Nullable
