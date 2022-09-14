@@ -203,7 +203,7 @@ public final class TicketArchiveManager extends Manager {
         String markdownScriptUrl = (scriptUrl + "/discord-markdown.min.js");
         String convertScriptUrl = (scriptUrl + "/discord-convert.js");
         String highlightScriptUrl = (scriptUrl + "/highlight/highlight.min.js");
-        String highlightStyleUrl = (scriptUrl + "/highlight/highlight/styles/dark.min.css");
+        String highlightStyleUrl = (scriptUrl + "/highlight/styles/dark.min.css");
 
         return head(
                 title(title),
