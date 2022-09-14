@@ -197,11 +197,13 @@ public final class TicketArchiveManager extends Manager {
 
         String title = ("Ticket " + ticketId);
         String baseUrl = "https://www.sirblobman.xyz";
-        String scriptUrl = (baseUrl + "/script");
         String stylesheetUrl = (baseUrl + "/style/ticket.min.css");
+
+        String scriptUrl = (baseUrl + "/script");
         String markdownScriptUrl = (scriptUrl + "/discord-markdown.min.js");
         String convertScriptUrl = (scriptUrl + "/discord-convert.js");
         String highlightScriptUrl = (scriptUrl + "/highlight/highlight.min.js");
+        String highlightStyleUrl = (scriptUrl + "/highlight/highlight/styles/dark.min.css");
 
         return head(
                 title(title),
@@ -213,9 +215,10 @@ public final class TicketArchiveManager extends Manager {
                 meta().attr("name", "author")
                         .attr("content", "Olivo, SirBlobman"),
                 link().withRel("stylesheet").withType("text/css").withHref(stylesheetUrl),
+                link().withRel("stylesheet").withType("text/css").withHref(highlightStyleUrl),
+                script().withSrc(highlightScriptUrl),
                 script().withSrc(markdownScriptUrl).isDefer(),
-                script().withSrc(convertScriptUrl).isDefer(),
-                script().withSrc(highlightScriptUrl).isDefer()
+                script().withSrc(convertScriptUrl).isDefer()
         );
     }
 
