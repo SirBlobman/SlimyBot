@@ -490,8 +490,7 @@ public final class TicketArchiveManager extends Manager {
             }
 
             String hex = String.format(Locale.US, "#%06X", color);
-            embedDiv = embedDiv.with(div().withStyle("background-color: " + hex + ";")
-                    .withClass("embed-color"));
+            embedDiv = embedDiv.withStyle("border-left-color: " + hex + ";");
 
             if (jsonObject.has("author")) {
                 JSONObject authorObject = jsonObject.getJSONObject("author");
