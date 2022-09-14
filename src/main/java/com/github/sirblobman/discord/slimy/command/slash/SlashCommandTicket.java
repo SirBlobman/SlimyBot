@@ -73,7 +73,9 @@ public final class SlashCommandTicket extends SlashCommand {
                 new SubcommandData("new", "Create a new ticket.")
                         .addOption(OptionType.STRING, "title", "The name of your ticket.",
                         false),
-                new SubcommandData("close", "Close your current ticket."),
+                new SubcommandData("close", "Close your current ticket.")
+                        .addOption(OptionType.STRING, "reason", "The reason for closing this ticket",
+                        false),
                 new SubcommandData("add", "Add a user to your ticket.")
                         .addOption(OptionType.USER, "user", "The user to add to this ticket.",
                         true),
@@ -164,6 +166,13 @@ public final class SlashCommandTicket extends SlashCommand {
         deleteChannelLater(ticketChannel);
         EmbedBuilder message = getExecutedByEmbed(member).setTitle("Ticket Close")
                 .setDescription("The ticket was marked as closed. It will be archived soon.");
+
+        OptionMapping reasonOption = e.getOption("reason");
+        if(reasonOption != null) {
+            String reason = reasonOption.getAsString();
+            message.addField("Reason", reason, false);
+        }
+
         return getMessage(message);
     }
 
