@@ -63,7 +63,7 @@ tasks {
             attributes["Class-Path"] = manifestDependencies
         }
 
-        archiveFileName.set("SlimyBot-$calculatedVersion.jar")
+        archiveFileName.set("SlimyBot-$baseVersion.jar")
     }
 
     named<Tar>("distTar") {
