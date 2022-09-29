@@ -1,0 +1,1 @@
+rootProject.name = "Slimy Bot"
