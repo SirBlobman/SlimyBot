@@ -19,7 +19,7 @@ public final class ConsoleCommandStop extends ConsoleCommand {
     }
 
     @Override
-    public void execute(String label, String[] args) {
+    public void execute(String[] args) {
         Logger logger = getLogger();
         logger.info("Logging out...");
 

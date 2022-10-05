@@ -79,7 +79,7 @@ public final class SlashCommandVoter extends SlashCommand {
             return null;
         }
 
-        String voterRoleId = guildConfiguration.getSupportRoleId();
+        String voterRoleId = guildConfiguration.getVoterRoleId();
         if (voterRoleId == null || voterRoleId.isBlank() || voterRoleId.equals("<none>")) {
             return null;
         }

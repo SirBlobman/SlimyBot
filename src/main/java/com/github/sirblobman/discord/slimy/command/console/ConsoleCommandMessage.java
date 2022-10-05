@@ -21,7 +21,7 @@ public class ConsoleCommandMessage extends ConsoleCommand {
     }
 
     @Override
-    protected void execute(String label, String[] args) {
+    protected void execute(String[] args) {
         Logger logger = getLogger();
 
         if (args.length < 2) {

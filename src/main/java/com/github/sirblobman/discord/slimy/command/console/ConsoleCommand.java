@@ -13,7 +13,7 @@ public abstract class ConsoleCommand extends AbstractCommand {
 
     public final void onCommand(String label, String[] args) {
         try {
-            execute(label, args);
+            execute(args);
         } catch (Exception ex) {
             Logger logger = getLogger();
             logger.error("Failed to execute console command '" + label + "':", ex);
@@ -25,5 +25,5 @@ public abstract class ConsoleCommand extends AbstractCommand {
         return discordBot.getConsoleCommandManager();
     }
 
-    protected abstract void execute(String label, String[] args);
+    protected abstract void execute(String[] args);
 }

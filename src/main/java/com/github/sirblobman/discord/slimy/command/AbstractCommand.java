@@ -3,7 +3,6 @@ package com.github.sirblobman.discord.slimy.command;
 import java.util.Objects;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.configuration.MainConfiguration;
 
 import net.dv8tion.jda.api.JDA;
 import org.apache.logging.log4j.Logger;
@@ -27,11 +26,6 @@ public abstract class AbstractCommand {
     protected final JDA getDiscordAPI() {
         DiscordBot discordBot = getDiscordBot();
         return discordBot.getDiscordAPI();
-    }
-
-    protected final MainConfiguration getMainConfiguration() {
-        DiscordBot discordBot = getDiscordBot();
-        return discordBot.getMainConfiguration();
     }
 
     public abstract CommandInformation getCommandInformation();
