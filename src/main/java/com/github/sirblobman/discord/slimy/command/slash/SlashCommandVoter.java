@@ -3,10 +3,9 @@ package com.github.sirblobman.discord.slimy.command.slash;
 import java.util.List;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.object.MainConfiguration;
+import com.github.sirblobman.discord.slimy.configuration.GuildConfiguration;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -28,18 +27,20 @@ public final class SlashCommandVoter extends SlashCommand {
 
     @Override
     public CommandData getCommandData() {
-        return Commands.slash(getCommandName(), "Receive the 'Voter' role on this server.");
+        String commandName = getCommandName();
+        return Commands.slash(commandName, "Receive the 'Voter' role on this server.");
     }
 
     @Override
     public MessageCreateData execute(SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
         if (sender == null) {
-            EmbedBuilder builder = getErrorEmbed(sender);
+            EmbedBuilder builder = getErrorEmbed(null);
             builder.addField("Error", "This command can only be executed in a server.", false);
             return getMessage(builder);
         }
 
+        Guild guild = sender.getGuild();
         if (hasRole(sender)) {
             EmbedBuilder builder = getErrorEmbed(sender);
             builder.addField("Error", "You already have the Voter role. " +
@@ -47,7 +48,7 @@ public final class SlashCommandVoter extends SlashCommand {
             return getMessage(builder);
         }
 
-        Role voterRole = getVoterRole();
+        Role voterRole = getVoterRole(guild);
         if (voterRole == null) {
             EmbedBuilder builder = getErrorEmbed(sender);
             builder.addField("Error", "The Voter role is not available on this server.", false);
@@ -55,7 +56,6 @@ public final class SlashCommandVoter extends SlashCommand {
         }
 
         try {
-            Guild guild = sender.getGuild();
             guild.addRoleToMember(sender, voterRole).submit(true).join();
             EmbedBuilder builder = getExecutedByEmbed(sender);
             builder.setTitle("Role Added");
@@ -72,19 +72,24 @@ public final class SlashCommandVoter extends SlashCommand {
     }
 
     @Nullable
-    private Role getVoterRole() {
-        MainConfiguration mainConfiguration = getMainConfiguration();
-        String supportRoleId = mainConfiguration.getVoterRoleId();
-        if (supportRoleId.equalsIgnoreCase("<none>")) {
+    private Role getVoterRole(Guild guild) {
+        DiscordBot discordBot = getDiscordBot();
+        GuildConfiguration guildConfiguration = discordBot.getGuildConfiguration(guild);
+        if (guildConfiguration == null) {
             return null;
         }
 
-        JDA discordAPI = getDiscordAPI();
-        return discordAPI.getRoleById(supportRoleId);
+        String voterRoleId = guildConfiguration.getSupportRoleId();
+        if (voterRoleId == null || voterRoleId.isBlank() || voterRoleId.equals("<none>")) {
+            return null;
+        }
+
+        return guild.getRoleById(voterRoleId);
     }
 
     private boolean hasRole(Member member) {
-        Role voterRole = getVoterRole();
+        Guild guild = member.getGuild();
+        Role voterRole = getVoterRole(guild);
         if (voterRole == null) {
             return false;
         }

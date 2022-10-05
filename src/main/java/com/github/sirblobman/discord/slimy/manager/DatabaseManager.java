@@ -15,8 +15,8 @@ import java.util.Locale;
 import java.util.Set;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.object.ChannelRecord;
-import com.github.sirblobman.discord.slimy.object.MemberRecord;
+import com.github.sirblobman.discord.slimy.data.ChannelRecord;
+import com.github.sirblobman.discord.slimy.data.MemberRecord;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

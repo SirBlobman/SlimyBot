@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.manager.TicketManager;
-import com.github.sirblobman.discord.slimy.object.InvalidConfigurationException;
+import com.github.sirblobman.discord.slimy.data.InvalidConfigurationException;
 import com.github.sirblobman.discord.slimy.task.ArchiveAndDeleteTask;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -103,7 +103,8 @@ public final class SlashCommandTicket extends SlashCommand {
         String title = (titleOption == null ? "N/A" : titleOption.getAsString());
 
         try {
-            Role supportRole = ticketManager.getSupportRole();
+            Guild guild = member.getGuild();
+            Role supportRole = ticketManager.getSupportRole(guild);
             if (supportRole == null) {
                 throw new InvalidConfigurationException("Invalid support role!");
             }
@@ -134,22 +135,16 @@ public final class SlashCommandTicket extends SlashCommand {
     }
 
     private MessageCreateData commandClose(Member member, SlashCommandInteractionEvent e) {
+        Guild guild = member.getGuild();
         TicketManager ticketManager = getTicketManager();
-        Guild guild = ticketManager.getGuild();
-        if (guild == null) {
-            EmbedBuilder errorEmbed = getErrorEmbed(null);
-            errorEmbed.addField("Error", "This command can only be executed in a guild.", false);
-            return getMessage(errorEmbed);
-        }
-
-        Role supportRole = ticketManager.getSupportRole();
+        Role supportRole = ticketManager.getSupportRole(guild);
         if (supportRole == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "Invalid support role!", false);
             return getMessage(errorEmbed);
         }
 
-        Category category = ticketManager.getTicketCategory();
+        Category category = ticketManager.getTicketCategory(guild);
         if (category == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
             errorEmbed.addField("Error", "Invalid ticket category!", false);

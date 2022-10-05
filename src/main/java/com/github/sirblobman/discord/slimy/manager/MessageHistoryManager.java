@@ -12,8 +12,8 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.object.MessageActionType;
-import com.github.sirblobman.discord.slimy.object.MessageEntry;
+import com.github.sirblobman.discord.slimy.data.MessageActionType;
+import com.github.sirblobman.discord.slimy.data.MessageEntry;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;

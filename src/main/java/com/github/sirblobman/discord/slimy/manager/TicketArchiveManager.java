@@ -27,13 +27,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.object.ChannelRecord;
-import com.github.sirblobman.discord.slimy.object.InvalidConfigurationException;
-import com.github.sirblobman.discord.slimy.object.MainConfiguration;
-import com.github.sirblobman.discord.slimy.object.MemberRecord;
-import com.github.sirblobman.discord.slimy.object.MessageActionType;
-import com.github.sirblobman.discord.slimy.object.MessageEntry;
-import com.github.sirblobman.discord.slimy.object.MessageInformation;
+import com.github.sirblobman.discord.slimy.configuration.GuildConfiguration;
+import com.github.sirblobman.discord.slimy.data.ChannelRecord;
+import com.github.sirblobman.discord.slimy.data.InvalidConfigurationException;
+import com.github.sirblobman.discord.slimy.data.MemberRecord;
+import com.github.sirblobman.discord.slimy.data.MessageActionType;
+import com.github.sirblobman.discord.slimy.data.MessageEntry;
+import com.github.sirblobman.discord.slimy.data.MessageInformation;
 
 import j2html.Config;
 import j2html.TagCreator;
@@ -130,10 +130,14 @@ public final class TicketArchiveManager extends Manager {
     }
 
     private void archiveInternal(TextChannel channel) throws IOException, InvalidConfigurationException {
-        MainConfiguration mainConfiguration = getDiscordBot().getMainConfiguration();
-        String ticketHistoryChannelId = mainConfiguration.getTicketHistoryChannelId();
-
         Guild guild = channel.getGuild();
+        DiscordBot discordBot = getDiscordBot();
+        GuildConfiguration guildConfiguration = discordBot.getGuildConfiguration(guild);
+        if (guildConfiguration == null) {
+            throw new InvalidConfigurationException("Missing guild config!");
+        }
+
+        String ticketHistoryChannelId = guildConfiguration.getTicketHistoryChannelId();
         TextChannel historyChannel = guild.getTextChannelById(ticketHistoryChannelId);
         if (historyChannel == null) {
             throw new InvalidConfigurationException("Invalid ticket history channel!");

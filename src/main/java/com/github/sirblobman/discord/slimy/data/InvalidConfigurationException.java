@@ -1,4 +1,4 @@
-package com.github.sirblobman.discord.slimy.object;
+package com.github.sirblobman.discord.slimy.data;
 
 public final class InvalidConfigurationException extends Exception {
     public InvalidConfigurationException() {

@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.object.MainConfiguration;
+import com.github.sirblobman.discord.slimy.configuration.MainConfiguration;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;

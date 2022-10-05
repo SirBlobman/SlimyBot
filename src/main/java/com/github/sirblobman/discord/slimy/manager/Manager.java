@@ -3,7 +3,7 @@ package com.github.sirblobman.discord.slimy.manager;
 import java.util.Objects;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.object.MainConfiguration;
+import com.github.sirblobman.discord.slimy.configuration.MainConfiguration;
 
 import net.dv8tion.jda.api.JDA;
 import org.apache.logging.log4j.Logger;

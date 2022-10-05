@@ -1,25 +1,14 @@
 # Should the bot try to link to your terminal/console for commands?
-enable-console: true
+enableConsole: true
 
 # Please copy your Discord API token here.
 # If the token is set to "<none>", the bot will not load.
 # If the token is invalid or discord does not allow it, the bot will not load.
-api-token: "<none>"
+apiToken: "<none>"
 
 # This is the Discord user ID of the bot owner. This may be used for certain commands.
-bot-owner-id: "<none>"
+botOwnerId: "<none>"
 
-# This is the Guild ID that the bot will be used in. This may be used for certain commands.
-guild-id: "<none>"
-
-# What is the Discord category ID for tickets?
-ticket-category-id: "<none>"
-
-# What is the Discord channel ID for ticket history?
-ticket-history-channel-id: "<none>"
-
-# What is the Discord role ID for the Support role?
-support-role-id: "<none>"
-
-# What is the Discord role ID for the Voter role?
-voter-role-id: "<none>"
+# This is a list of guilds that the bot is active in.
+# The list is empty until configured and the bot will not load.
+guilds: []

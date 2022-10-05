@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.object.FAQSolution;
+import com.github.sirblobman.discord.slimy.data.FAQSolution;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;

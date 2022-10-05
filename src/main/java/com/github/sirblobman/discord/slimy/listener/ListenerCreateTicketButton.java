@@ -5,9 +5,10 @@ import java.util.concurrent.CompletableFuture;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.manager.TicketManager;
-import com.github.sirblobman.discord.slimy.object.InvalidConfigurationException;
+import com.github.sirblobman.discord.slimy.data.InvalidConfigurationException;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
@@ -79,6 +80,7 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
             return;
         }
 
+        Guild guild = member.getGuild();
         TicketManager ticketManager = getTicketManager();
         if (ticketManager.hasTicketChannel(member)) {
             EmbedBuilder errorEmbed = getErrorEmbed(member);
@@ -91,7 +93,7 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
         String pluginName = pluginMapping.getAsString();
         String title = titleMapping.getAsString();
         String description = descriptionMapping.getAsString();
-        Role supportRole = ticketManager.getSupportRole();
+        Role supportRole = ticketManager.getSupportRole(guild);
         if (supportRole == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(member);
             errorEmbed.addField("Error", "An error occurred while creating your ticket.", false);

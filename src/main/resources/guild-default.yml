@@ -1,0 +1,11 @@
+# What is the Discord category ID for tickets?
+ticketCategoryId: "<none>"
+
+# What is the Discord channel ID for ticket history?
+ticketHistoryChannelId: "<none>"
+
+# What is the Discord role ID for the Support role?
+supportRoleId: "<none>"
+
+# What is the Discord role ID for the Voter role?
+voterRoleId: "<none>"
