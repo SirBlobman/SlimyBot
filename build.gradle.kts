@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-alpha.21") {
+    implementation("net.dv8tion:JDA:5.0.0-alpha.22") {
         exclude("club.minnced", "opus-java")
     }
 
