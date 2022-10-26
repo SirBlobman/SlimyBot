@@ -4,8 +4,8 @@ import java.awt.Color;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.manager.TicketManager;
 import com.github.sirblobman.discord.slimy.data.InvalidConfigurationException;
+import com.github.sirblobman.discord.slimy.manager.TicketManager;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -17,10 +17,10 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.components.Modal;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -28,8 +28,11 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 public final class ListenerCreateTicketButton extends SlimyBotListener {
+    private Modal.Builder modalBuilder;
+
     public ListenerCreateTicketButton(DiscordBot discordBot) {
         super(discordBot);
+        this.modalBuilder = getCreateTicketModalBuilder();
     }
 
     @Override
@@ -161,10 +164,19 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
     }
 
     private Modal getCreateTicketModal() {
+        Modal.Builder builder = getCreateTicketModalBuilder();
+        return builder.build();
+    }
+
+    private Modal.Builder getCreateTicketModalBuilder() {
+        if (this.modalBuilder != null) {
+            return this.modalBuilder;
+        }
+
         TextInput.Builder pluginComponentBuilder = TextInput.create("plugin", "Plugin", TextInputStyle.SHORT);
         pluginComponentBuilder.setRequiredRange(1, 32);
         pluginComponentBuilder.setRequired(true);
-        pluginComponentBuilder.setPlaceholder("CombatLogX");
+        pluginComponentBuilder.setPlaceholder("PluginName");
 
         TextInput.Builder titleComponentBuilder = TextInput.create("title", "Title", TextInputStyle.SHORT);
         titleComponentBuilder.setRequiredRange(1, 64);
@@ -186,6 +198,7 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
         modalBuilder.addActionRow(pluginComponent);
         modalBuilder.addActionRow(titleComponent);
         modalBuilder.addActionRow(descriptionComponent);
-        return modalBuilder.build();
+
+        return (this.modalBuilder = modalBuilder);
     }
 }

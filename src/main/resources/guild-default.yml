@@ -9,3 +9,7 @@ supportRoleId: "<none>"
 
 # What is the Discord role ID for the Voter role?
 voterRoleId: "<none>"
+
+# Which Bukkit/Spigot/Paper plugins are supported in this guild?
+plugins:
+  - "<none>"
