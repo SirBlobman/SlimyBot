@@ -30,7 +30,7 @@ dependencies {
     implementation("com.github.oshi:oshi-core:6.3.2")
     implementation("com.j2html:j2html:1.6.0")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.19.0")
-    implementation("org.jetbrains:annotations:23.0.0")
+    implementation("org.jetbrains:annotations:23.1.0")
     implementation("org.xerial:sqlite-jdbc:3.40.0.0")
     implementation("org.yaml:snakeyaml:1.33")
 }
