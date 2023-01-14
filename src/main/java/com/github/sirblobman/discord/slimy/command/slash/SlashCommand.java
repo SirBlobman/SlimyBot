@@ -13,9 +13,11 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.CommandAutoCompleteInteraction;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class SlashCommand extends AbstractCommand {
@@ -72,4 +74,6 @@ public abstract class SlashCommand extends AbstractCommand {
     protected final String formatBold(String message) {
         return String.format(Locale.US, "**%s**", message);
     }
+
+    public void onAutoComplete(final @NotNull CommandAutoCompleteInteraction event) {}
 }
