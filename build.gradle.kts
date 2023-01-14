@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.1") {
+    implementation("net.dv8tion:JDA:5.0.0-beta.2") {
         exclude("club.minnced", "opus-java")
     }
 
@@ -27,10 +27,10 @@ dependencies {
     implementation("com.github.minndevelopment:emoji-java:6.1.0")
 
     // Other Dependencies
-    implementation("com.github.oshi:oshi-core:6.3.2")
+    implementation("com.github.oshi:oshi-core:6.4.0")
     implementation("com.j2html:j2html:1.6.0")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.19.0")
-    implementation("org.jetbrains:annotations:23.0.0")
+    implementation("org.jetbrains:annotations:24.0.0")
     implementation("org.xerial:sqlite-jdbc:3.40.0.0")
     implementation("org.yaml:snakeyaml:1.33")
 }
