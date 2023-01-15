@@ -57,7 +57,7 @@ empty-lists:
 expansion-configs:
   plugin: "CombatLogX"
   question: "Where is the expansion configs?"
-  answer: "You can an expansions config in `/plugins/CombatLogX/expansions/<expansion name>.`"
+  answer: "You can an expansions configs in `/plugins/CombatLogX/expansions/<expansion name>`."
   related: []
 
 expansion-folder:
