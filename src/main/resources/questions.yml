@@ -1,19 +1,94 @@
 damage-tagger:
   plugin: "CombatLogX"
   question: "Why are players getting tagged by lava/fall/cactus damage?"
-  answer: "You have the `Damage Tagger` expansion installed. This expansion is also known as 'NotCombatLogX'."
+  answer: "You have the `Damage Tagger` expansion installed. Configure it to disable specific non-pvp and non-pve damage causes or delete the expansion."
+  related:
+    - "delete-expansion"
+    - "expansion-configs"
 
-cheat-prevention:
+block-commands:
   plugin: "CombatLogX"
   question: "How do I prevent players from executing commands during combat?"
-  answer: "Install the `Cheat Prevention` expansion and open the `cheat prevention.yml` file to modify the commands that are blocked and allowed."
+  answer: "Install the `Cheat Prevention` expansion and open its the `commands.yml` file to modify the commands that are blocked and allowed."
+  related:
+    - "expansion-configs"
+    - "empty-lists"
 
 plugin-yml:
   plugin: "CombatLogX"
   question: "Why do I get a `jar does not contain plugin.yml` error?"
-  answer: "Expansions are not plugins. Please read the installation guide on the spigot page for CombatLogX"
+  answer: "Expansions are not plugins. They should be place in the expansions folder."
+  related:
+    - "expansion-folder"
 
 rewards:
   plugin: "CombatLogX"
   question: "Why am I getting console messages and money when killing mobs?"
   answer: "Configure or remove the Rewards expansion to fix this problem."
+  related:
+    - "expansion-configs"
+
+potions:
+  plugin: "CombatLogX"
+  question: "Why are potion effects being removed?"
+  answer: "Configure the CheatPrevention expansions potions.yml."
+  related:
+    - "expansion-configs"
+
+pvp-only:
+  plugin: "CombatLogX"
+  question: "How can I make CombatLogX only tag from pvp?"
+  answer: "Delete the Mob Tagger and Damage Tagger expansions."
+  related:
+    - "delete-expansion"
+
+commands:
+  plugin: "CombatLogX"
+  question: "Why are commands being ran when I enter combat?"
+  answer: "You can disable or configure the commands in the commands.yml that's located in the CombatLogX folder. \n **Follow the instructions in the file!!!**"
+  related:
+    - "empty-lists"
+
+empty-lists:
+  question: "How do I make an empty list?"
+  answer: "An empty list in yaml looks like this: \n```yaml\nlist-name: []\n```"
+  related: []
+
+expansion-configs:
+  plugin: "CombatLogX"
+  question: "Where is the expansion configs?"
+  answer: "You can an expansions config in `/plugins/CombatLogX/expansions/<expansion name>.`"
+  related: []
+
+expansion-folder:
+  plugin: "CombatLogX"
+  question: "Where is the expansions folder?"
+  answer: "You can find the expansions folder at `/plugins/CombatLogX/expansions`."
+  related:
+    - "install-expansion"
+    - "delete-expansion"
+
+delete-expansion:
+  plugin: "CombatLogX"
+  question: "How do I delete expansions?"
+  answer: "Delete the expansion jar and it's folder that's inside the expansion folder and restart."
+  related:
+    - "expansion-folder"
+
+install-expansion:
+  plugin: "CombatLogX"
+  question: "How do I install expansions?"
+  answer: "Place the expansion jar in the expansions folder and restart."
+  related:
+    - "expansion-folder"
+    - "find-expansion"
+    - "delete-expansion"
+
+find-expansion:
+  plugin: "CombatLogX"
+  question: "Where can I find expansions?"
+  answer: "All official expansions come in the zip file. You can find them in `/CombatLogX/expansions`. "
+  related:
+    - "expansion-folder"
+    - "install-expansion"
+    - "delete-expansion"
