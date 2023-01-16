@@ -1,6 +1,7 @@
 package com.github.sirblobman.discord.slimy.listener;
 
 import java.awt.Color;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
@@ -24,7 +25,6 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 public final class ListenerCreateTicketButton extends SlimyBotListener {
@@ -40,11 +40,7 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
         Button button = e.getButton();
         String buttonId = button.getId();
 
-        DiscordBot discordBot = getDiscordBot();
-        Logger logger = discordBot.getLogger();
-        logger.info("Detected button click with id '" + buttonId + "'.");
-
-        if (buttonId == null || !buttonId.equals("slimy-bot-create-ticket")) {
+        if (!Objects.equals(buttonId, "slimy-bot-create-ticket")) {
             return;
         }
 

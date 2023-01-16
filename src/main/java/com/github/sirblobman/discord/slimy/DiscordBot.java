@@ -27,6 +27,7 @@ import com.github.sirblobman.discord.slimy.command.slash.SlashCommandVoter;
 import com.github.sirblobman.discord.slimy.configuration.GuildConfiguration;
 import com.github.sirblobman.discord.slimy.configuration.MainConfiguration;
 import com.github.sirblobman.discord.slimy.listener.ListenerCreateTicketButton;
+import com.github.sirblobman.discord.slimy.listener.ListenerFAQButtons;
 import com.github.sirblobman.discord.slimy.listener.ListenerMessages;
 import com.github.sirblobman.discord.slimy.listener.ListenerReactions;
 import com.github.sirblobman.discord.slimy.listener.ListenerSlashCommands;
@@ -211,11 +212,10 @@ public final class DiscordBot {
     }
 
     public void onEnable() {
-        Logger logger = getLogger();
         logger.info("Enabling Slimy Bot...");
 
-        registerListeners();
         registerDiscordSlashCommands();
+        registerListeners();
         if (this.mainConfiguration.isEnableConsole()) {
             registerConsoleCommands();
             setupConsole();
@@ -231,12 +231,14 @@ public final class DiscordBot {
     }
 
     private void registerListeners() {
+
         JDA discordAPI = getDiscordAPI();
         discordAPI.addEventListener(
                 new ListenerMessages(this),
                 new ListenerReactions(this),
                 new ListenerSlashCommands(this),
-                new ListenerCreateTicketButton(this)
+                new ListenerCreateTicketButton(this),
+                new ListenerFAQButtons(this, (SlashCommandFAQ) slashCommandManager.getCommand("faq"))
         );
 
         Logger logger = getLogger();

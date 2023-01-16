@@ -4,9 +4,11 @@ import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommand;
 import com.github.sirblobman.discord.slimy.manager.SlashCommandManager;
 
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import org.jetbrains.annotations.NotNull;
 
 public final class ListenerSlashCommands extends SlimyBotListener {
     public ListenerSlashCommands(DiscordBot discordBot) {
@@ -35,5 +37,17 @@ public final class ListenerSlashCommands extends SlimyBotListener {
         } else {
             interaction.sendMessage("Done.").queue();
         }
+    }
+
+    @Override
+    public void onCommandAutoCompleteInteraction(final @NotNull CommandAutoCompleteInteractionEvent event) {
+        DiscordBot discordBot = getDiscordBot();
+        SlashCommandManager slashCommandManager = discordBot.getSlashCommandManager();
+
+        String commandName = event.getName();
+        SlashCommand command = slashCommandManager.getCommand(commandName);
+        if(command == null) return;
+
+        command.onAutoComplete(event);
     }
 }
