@@ -53,8 +53,8 @@ tasks {
 
     val mainClassName = findProperty("discord.bot.main") ?: "Main"
 
-    val manifestDependencies = configurations.runtimeClasspath.get().joinToString(" ") {
-            file -> file.name
+    val manifestDependencies = configurations.runtimeClasspath.get().joinToString(" ") { file ->
+        file.name
     }
 
     named<Jar>("jar") {

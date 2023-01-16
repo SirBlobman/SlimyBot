@@ -11,4 +11,4 @@ botOwnerId: "<none>"
 
 # This is a list of guilds that the bot is active in.
 # The list is empty until configured and the bot will not load.
-guilds: []
+guilds: [ ]

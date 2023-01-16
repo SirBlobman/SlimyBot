@@ -131,7 +131,7 @@ public final class TicketManager extends Manager {
     }
 
     @Nullable
-    private GuildConfiguration getGuildConfiguration(Guild guild){
+    private GuildConfiguration getGuildConfiguration(Guild guild) {
         DiscordBot discordBot = getDiscordBot();
         return discordBot.getGuildConfiguration(guild);
     }

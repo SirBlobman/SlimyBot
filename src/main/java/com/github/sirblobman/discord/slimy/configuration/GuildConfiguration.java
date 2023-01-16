@@ -5,11 +5,11 @@ import java.util.Collections;
 import java.util.List;
 
 public final class GuildConfiguration {
+    private final List<String> plugins;
     private String ticketCategoryId;
     private String ticketHistoryChannelId;
     private String supportRoleId;
     private String voterRoleId;
-    private final List<String> plugins;
 
     public GuildConfiguration() {
         this.ticketCategoryId = "<none>";

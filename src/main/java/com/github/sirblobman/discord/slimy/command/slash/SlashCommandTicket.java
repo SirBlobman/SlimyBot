@@ -163,7 +163,7 @@ public final class SlashCommandTicket extends SlashCommand {
                 .setDescription("The ticket was marked as closed. It will be archived soon.");
 
         OptionMapping reasonOption = e.getOption("reason");
-        if(reasonOption != null) {
+        if (reasonOption != null) {
             String reason = reasonOption.getAsString();
             message.addField("Reason", reason, false);
         }

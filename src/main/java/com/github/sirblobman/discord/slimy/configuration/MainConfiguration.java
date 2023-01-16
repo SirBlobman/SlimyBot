@@ -5,12 +5,10 @@ import java.util.Collections;
 import java.util.List;
 
 public final class MainConfiguration {
+    private final List<String> guilds;
     private boolean enableConsole;
-
     private String apiToken;
     private String botOwnerId;
-
-    private final List<String> guilds;
 
     private MainConfiguration() {
         this.enableConsole = false;

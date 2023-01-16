@@ -429,8 +429,8 @@ public final class TicketArchiveManager extends Manager {
             String[] lineParts = lineString.split("\n");
             for (String linePart : lineParts) {
                 ContainerTag<?> line = getContainerTag(linePart);
-                if(line != null) {
-                    if(currentText != null) {
+                if (line != null) {
+                    if (currentText != null) {
                         contentList.add(currentText.withClass("markdown"));
                         currentText = null;
                     }
@@ -438,7 +438,7 @@ public final class TicketArchiveManager extends Manager {
                     contentList.add(line);
                 } else {
                     String lineWithNew = (linePart + "\n");
-                    if(currentText == null) {
+                    if (currentText == null) {
                         currentText = span(lineWithNew);
                     } else {
                         currentText.withText(lineWithNew);
@@ -447,7 +447,7 @@ public final class TicketArchiveManager extends Manager {
             }
         }
 
-        if(currentText != null) {
+        if (currentText != null) {
             contentList.add(currentText.withClass("markdown"));
         }
 

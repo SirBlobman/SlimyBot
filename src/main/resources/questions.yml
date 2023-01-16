@@ -52,13 +52,13 @@ commands:
 empty-lists:
   question: "How do I make an empty list?"
   answer: "An empty list in yaml looks like this: \n```yaml\nlist-name: []\n```"
-  related: []
+  related: [ ]
 
 expansion-configs:
   plugin: "CombatLogX"
   question: "Where is the expansion configs?"
   answer: "You can an expansions configs in `/plugins/CombatLogX/expansions/<expansion name>`."
-  related: []
+  related: [ ]
 
 expansion-folder:
   plugin: "CombatLogX"

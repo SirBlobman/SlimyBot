@@ -75,5 +75,6 @@ public abstract class SlashCommand extends AbstractCommand {
         return String.format(Locale.US, "**%s**", message);
     }
 
-    public void onAutoComplete(final @NotNull CommandAutoCompleteInteraction event) {}
+    public void onAutoComplete(final @NotNull CommandAutoCompleteInteraction event) {
+    }
 }

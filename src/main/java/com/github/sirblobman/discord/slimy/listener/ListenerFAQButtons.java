@@ -2,6 +2,7 @@ package com.github.sirblobman.discord.slimy.listener;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandFAQ;
+
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -25,19 +26,19 @@ public final class ListenerFAQButtons extends SlimyBotListener {
         Member member = event.getMember();
         ButtonInteraction interaction = event.getInteraction();
 
-        if(id == null || !id.startsWith("faq-")) return;
+        if (id == null || !id.startsWith("faq-")) return;
         String questionId = id.substring(4);
 
-        if(questionId.equals("close")) {
+        if (questionId.equals("close")) {
             interaction.getMessage()
-                .delete()
-                .queue();
+                    .delete()
+                    .queue();
 
             return;
         }
 
         MessageEditData messageEditData = MessageEditData.fromCreateData(slashCommandFAQ.buildResponse(questionId, member));
         interaction.editMessage(messageEditData)
-            .queue();
+                .queue();
     }
 }

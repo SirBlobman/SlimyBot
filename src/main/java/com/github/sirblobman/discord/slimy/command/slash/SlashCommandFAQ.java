@@ -6,8 +6,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.StringJoiner;
 
@@ -31,7 +33,6 @@ import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
 public final class SlashCommandFAQ extends SlashCommand {
-
     private static final Button CLOSE = Button.danger("faq-close", "Close");
 
     private final Map<String, FAQSolution> solutionMap;
@@ -68,26 +69,37 @@ public final class SlashCommandFAQ extends SlashCommand {
             throw new IllegalStateException("'questions.yml' does not exist!");
         }
 
-        try(FileInputStream inputStream = new FileInputStream(file)) {
+        try (FileInputStream inputStream = new FileInputStream(file)) {
             Map<String, Map<String, Object>> objects = new Yaml().load(inputStream);
-            return Map.ofEntries(objects.entrySet()
-                .stream()
-                .map((entry) -> {
-                    String key = entry.getKey();
-                    Map<String, Object> value = entry.getValue();
+            Map<String, FAQSolution> solutionMap = new HashMap<>();
+            for (Entry<String, Map<String, Object>> mapEntry : objects.entrySet()) {
+                String key = mapEntry.getKey();
+                Map<String, Object> nestedMap = mapEntry.getValue();
 
-                    return Map.entry(key, new FAQSolution((String) value.get("plugin"), (String) value.get("question"), (String) value.get("answer"), ((ArrayList<String>) value.get("related")).toArray(String[]::new)));
-                })
-                .toArray(Map.Entry[]::new));
-        } catch(IOException ex) {
+                String plugin = nestedMap.get("plugin").toString();
+                String question = nestedMap.get("question").toString();
+                String answer = nestedMap.get("answer").toString();
+
+                Object relatedObject = nestedMap.get("related");
+                List<?> relatedList = (relatedObject instanceof List ? (List<?>) relatedObject : new ArrayList<>());
+                String[] related = relatedList.stream().map(Object::toString).toArray(String[]::new);
+
+                FAQSolution solution = new FAQSolution(plugin, question, answer, related);
+                solutionMap.put(key, solution);
+            }
+
+            return solutionMap;
+        } catch (IOException ex) {
             throw new IllegalStateException(ex);
         }
     }
 
     private FAQSolution getSolution(String questionId) {
-        if(this.solutionMap == null) throw new IllegalStateException("Could not find a solution with id '" + questionId + "'.");
+        if (this.solutionMap == null)
+            throw new IllegalStateException("Could not find a solution with id '" + questionId + "'.");
         FAQSolution faqSolution = this.solutionMap.get(questionId);
-        if(faqSolution == null) throw new IllegalStateException("Could not find a solution with id '" + questionId + "'.");
+        if (faqSolution == null)
+            throw new IllegalStateException("Could not find a solution with id '" + questionId + "'.");
 
         return faqSolution;
     }
@@ -114,9 +126,9 @@ public final class SlashCommandFAQ extends SlashCommand {
 
         String[] related = solution.related();
 
-        if(related.length > 0) {
+        if (related.length > 0) {
             StringJoiner stringJoiner = new StringJoiner(", ");
-            for(String relatedId : related) stringJoiner.add(relatedId);
+            for (String relatedId : related) stringJoiner.add(relatedId);
 
             builder.addField("Related", stringJoiner.toString(), false);
         }
@@ -127,10 +139,10 @@ public final class SlashCommandFAQ extends SlashCommand {
     @Override
     public void onAutoComplete(final @NotNull CommandAutoCompleteInteraction event) {
         List<Command.Choice> choices = this.solutionMap.keySet()
-            .stream()
-            .filter(word -> word.startsWith(event.getFocusedOption().getValue()))
-            .map(word -> new Command.Choice(word, word))
-            .toList();
+                .stream()
+                .filter(word -> word.startsWith(event.getFocusedOption().getValue()))
+                .map(word -> new Command.Choice(word, word))
+                .toList();
 
         event.replyChoices(choices).queue();
     }
@@ -141,16 +153,16 @@ public final class SlashCommandFAQ extends SlashCommand {
             MessageEmbed embed = getEmbed(sender, solution, questionId).build();
 
             Button[] buttons = Arrays.stream(solution.related())
-                .map(related -> Button.primary("faq-" + related, related))
-                .toArray(Button[]::new);
+                    .map(related -> Button.primary("faq-" + related, related))
+                    .toArray(Button[]::new);
 
             MessageCreateBuilder messageCreateBuilder = new MessageCreateBuilder().setEmbeds(embed);
 
-            if(buttons.length > 0) messageCreateBuilder.addActionRow(buttons);
+            if (buttons.length > 0) messageCreateBuilder.addActionRow(buttons);
 
             return messageCreateBuilder
-                .addActionRow(CLOSE)
-                .build();
+                    .addActionRow(CLOSE)
+                    .build();
 
         } catch (Exception ex) {
             ex.printStackTrace();

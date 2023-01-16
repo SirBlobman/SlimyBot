@@ -46,7 +46,7 @@ public final class ListenerSlashCommands extends SlimyBotListener {
 
         String commandName = event.getName();
         SlashCommand command = slashCommandManager.getCommand(commandName);
-        if(command == null) return;
+        if (command == null) return;
 
         command.onAutoComplete(event);
     }

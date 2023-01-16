@@ -61,12 +61,10 @@ public final class DiscordBot {
     private final MessageHistoryManager messageHistoryManager;
     private final TicketArchiveManager ticketArchiveManager;
     private final TicketManager ticketManager;
-
+    private final Map<String, GuildConfiguration> guildConfigurationMap;
     private JDA discordAPI;
     private long startupTimestamp;
     private MainConfiguration mainConfiguration;
-
-    private final Map<String, GuildConfiguration> guildConfigurationMap;
 
     public DiscordBot(Logger logger) {
         this.logger = Objects.requireNonNull(logger, "logger must not be null!");
@@ -300,7 +298,7 @@ public final class DiscordBot {
             BufferedReader reader = Files.newBufferedReader(path);
             GuildConfiguration guildConfiguration = yaml.loadAs(reader, GuildConfiguration.class);
             this.guildConfigurationMap.put(guildId, guildConfiguration);
-        } catch(IOException ex) {
+        } catch (IOException ex) {
             Logger logger = getLogger();
             logger.error("An error occurred while reading a guild configuration:", ex);
         }

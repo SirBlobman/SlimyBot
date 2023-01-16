@@ -14,8 +14,8 @@ public record FAQSolution(String pluginName, String question, String answer, Str
 
     @Override
     public boolean equals(final Object o) {
-        if(this == o) return true;
-        if(!(o instanceof FAQSolution solution)) return false;
+        if (this == o) return true;
+        if (!(o instanceof FAQSolution solution)) return false;
         return Objects.equals(pluginName, solution.pluginName) && question.equals(solution.question) && answer.equals(solution.answer) && Arrays.equals(related, solution.related);
     }
 
