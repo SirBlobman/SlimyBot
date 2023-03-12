@@ -16,3 +16,27 @@ JDA stands for "Java Discord API". You can find out more information by clicking
 - FAQ, Ping, Voter, User information, and Developer Information commands.
 - Ticket system for support teams.
 - Magic eight ball command for decision making.
+
+## How to compile?
+
+To compile this project, use the gradle wrapper:
+
+### Unix
+
+```shell
+./gradlew build
+```
+
+### Windows
+
+```shell
+gradlew.bat build
+```
+
+# How to use?
+
+To use this project, run the main jar with Java 17
+
+```shell
+java -Xms128M -Xmx128M -jar target/SlimyBot-VERSION.jar
+```
