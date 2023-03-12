@@ -12,7 +12,7 @@ block-commands:
   plugin: CombatLogX
   question: How do I prevent players from executing commands during combat?
   answer: >-
-    Install the `Cheat Prevention` expansion and open its the `commands.yml`
+    Install the `Cheat Prevention` expansion and open the `commands.yml`
     file to modify the commands that are blocked and allowed.
   related:
     - expansion-configs
