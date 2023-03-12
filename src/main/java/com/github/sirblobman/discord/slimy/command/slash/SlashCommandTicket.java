@@ -6,8 +6,8 @@ import java.util.Timer;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.manager.TicketManager;
 import com.github.sirblobman.discord.slimy.data.InvalidConfigurationException;
+import com.github.sirblobman.discord.slimy.manager.TicketManager;
 import com.github.sirblobman.discord.slimy.task.ArchiveAndDeleteTask;
 
 import net.dv8tion.jda.api.EmbedBuilder;
