@@ -17,7 +17,7 @@ block-commands:
 plugin-yml:
   plugin: "CombatLogX"
   question: "Why do I get a `jar does not contain plugin.yml` error?"
-  answer: "Expansions are not plugins. They should be place in the expansions folder."
+  answer: "Expansions are not plugins. They should be placed in the expansions folder."
   related:
     - "expansion-folder"
 
@@ -31,7 +31,7 @@ rewards:
 potions:
   plugin: "CombatLogX"
   question: "Why are potion effects being removed?"
-  answer: "Configure the CheatPrevention expansions potions.yml."
+  answer: "Configure the 'potions.yml' file from the CheatPrevention expansions."
   related:
     - "expansion-configs"
 
