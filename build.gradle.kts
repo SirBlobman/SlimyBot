@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.5") {
+    implementation("net.dv8tion:JDA:5.0.0-beta.3") {
         exclude("club.minnced", "opus-java")
     }
 
@@ -30,7 +30,7 @@ dependencies {
     implementation("com.github.oshi:oshi-core:6.4.0")
     implementation("com.j2html:j2html:1.6.0")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.20.0")
-    implementation("org.jetbrains:annotations:24.0.0")
+    implementation("org.jetbrains:annotations:24.0.1")
     implementation("org.xerial:sqlite-jdbc:3.40.1.0")
     implementation("org.yaml:snakeyaml:1.33")
 }
