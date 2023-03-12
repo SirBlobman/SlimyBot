@@ -25,7 +25,7 @@ pipeline {
 
     post {
         success {
-            archiveArtifacts artifacts: 'build/distributions/SlimyBot-*.zip', fingerprint: true
+            archiveArtifacts artifacts: 'build/distributions/SlimyBot-*.zip,build/libs/SlimyBot-*.jar', fingerprint: true
         }
     }
 }
