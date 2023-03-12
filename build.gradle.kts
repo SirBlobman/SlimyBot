@@ -5,16 +5,8 @@ plugins {
 
 repositories {
     mavenCentral()
-
-    maven {
-        name = "sirblobman-public"
-        url = uri("https://nexus.sirblobman.xyz/repository/public/")
-    }
-
-    maven {
-        name = "dv8tion"
-        url = uri("https://m2.dv8tion.net/releases/")
-    }
+    maven("https://m2.dv8tion.net/releases/")
+    maven("https://nexus.sirblobman.xyz/repository/public/")
 }
 
 dependencies {
@@ -52,10 +44,7 @@ tasks {
     val calculatedVersion = "$baseVersion-$jenkinsBuildNumber"
 
     val mainClassName = findProperty("discord.bot.main") ?: "Main"
-
-    val manifestDependencies = configurations.runtimeClasspath.get().joinToString(" ") { file ->
-        file.name
-    }
+    val manifestDependencies = configurations.runtimeClasspath.get().joinToString(" ") { it.name }
 
     named<Jar>("jar") {
         manifest {
