@@ -76,9 +76,13 @@ public final class SlashCommandFAQ extends SlashCommand {
                 String key = mapEntry.getKey();
                 Map<String, Object> nestedMap = mapEntry.getValue();
 
-                String plugin = nestedMap.get("plugin").toString();
-                String question = nestedMap.get("question").toString();
-                String answer = nestedMap.get("answer").toString();
+                Object pluginObject = nestedMap.get("plugin");
+                Object questionObject = nestedMap.get("question");
+                Object answerObject = nestedMap.get("answer");
+
+                String plugin = (pluginObject == null ? null : pluginObject.toString());
+                String question = questionObject.toString();
+                String answer = answerObject.toString();
 
                 Object relatedObject = nestedMap.get("related");
                 List<?> relatedList = (relatedObject instanceof List ? (List<?>) relatedObject : new ArrayList<>());
