@@ -6,7 +6,7 @@ plugins {
 repositories {
     mavenCentral()
     maven("https://m2.dv8tion.net/releases/")
-    maven("https://nexus.sirblobman.xyz/repository/public/")
+    maven("https://nexus.sirblobman.xyz/proxy-jitpack/")
 }
 
 dependencies {
@@ -16,7 +16,7 @@ dependencies {
     }
 
     // Emoji Handler Fork
-    implementation("com.github.minndevelopment:emoji-java:6.1.0")
+    implementation("com.github.MinnDevelopment:emoji-java:v6.1.0")
 
     // Other Dependencies
     implementation("com.github.oshi:oshi-core:6.4.0")
