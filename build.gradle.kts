@@ -19,7 +19,7 @@ dependencies {
     implementation("com.github.MinnDevelopment:emoji-java:v6.1.0")
 
     // Other Dependencies
-    implementation("com.github.oshi:oshi-core:6.4.0")
+    implementation("com.github.oshi:oshi-core:6.4.1")
     implementation("com.j2html:j2html:1.6.0")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.20.0")
     implementation("org.jetbrains:annotations:24.0.1")
