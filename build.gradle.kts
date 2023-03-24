@@ -23,7 +23,7 @@ dependencies {
     implementation("com.j2html:j2html:1.6.0")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.20.0")
     implementation("org.jetbrains:annotations:24.0.1")
-    implementation("org.xerial:sqlite-jdbc:3.41.0.0")
+    implementation("org.xerial:sqlite-jdbc:3.41.2.1")
     implementation("org.yaml:snakeyaml:2.0")
 }
 
