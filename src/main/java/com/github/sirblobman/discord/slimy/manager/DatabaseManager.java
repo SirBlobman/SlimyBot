@@ -15,7 +15,7 @@ import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.configuration.DatabaseConfiguration;
 import com.github.sirblobman.discord.slimy.data.GuildChannel;
 import com.github.sirblobman.discord.slimy.data.GuildMember;
@@ -29,7 +29,7 @@ import org.mariadb.jdbc.MariaDbDataSource;
 public final class DatabaseManager extends Manager {
     private MariaDbDataSource dataSource;
 
-    public DatabaseManager(@NotNull DiscordBot discordBot) {
+    public DatabaseManager(@NotNull SlimyBot discordBot) {
         super(discordBot);
         this.dataSource = null;
     }
@@ -39,7 +39,7 @@ public final class DatabaseManager extends Manager {
             return this.dataSource;
         }
 
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         DatabaseConfiguration configuration = discordBot.getDatabaseConfiguration();
 
         String hostname = configuration.getHost();

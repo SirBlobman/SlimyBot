@@ -2,14 +2,14 @@ package com.github.sirblobman.discord.slimy.command.console;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
 
 import net.dv8tion.jda.api.JDA;
 import org.apache.logging.log4j.Logger;
 
 public final class ConsoleCommandStop extends ConsoleCommand {
-    public ConsoleCommandStop(@NotNull DiscordBot discordBot) {
+    public ConsoleCommandStop(@NotNull SlimyBot discordBot) {
         super(discordBot);
     }
 

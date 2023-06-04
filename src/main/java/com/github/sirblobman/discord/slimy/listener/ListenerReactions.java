@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 
 import com.vdurmont.emoji.EmojiParser;
 import net.dv8tion.jda.api.entities.Guild;
@@ -17,7 +17,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public final class ListenerReactions extends SlimyBotListener {
-    public ListenerReactions(@NotNull DiscordBot discordBot) {
+    public ListenerReactions(@NotNull SlimyBot discordBot) {
         super(discordBot);
     }
 

@@ -7,7 +7,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommand;
 
@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 public final class ConsoleCommandManager extends Manager {
     private final Map<String, ConsoleCommand> commandMap = new HashMap<>();
 
-    public ConsoleCommandManager(DiscordBot discordBot) {
+    public ConsoleCommandManager(SlimyBot discordBot) {
         super(discordBot);
     }
 
@@ -44,8 +44,8 @@ public final class ConsoleCommandManager extends Manager {
 
     private void registerCommand(Class<? extends ConsoleCommand> commandClass) {
         try {
-            DiscordBot discordBot = getDiscordBot();
-            Constructor<? extends ConsoleCommand> constructor = commandClass.getConstructor(DiscordBot.class);
+            SlimyBot discordBot = getDiscordBot();
+            Constructor<? extends ConsoleCommand> constructor = commandClass.getConstructor(SlimyBot.class);
             ConsoleCommand command = constructor.newInstance(discordBot);
             CommandInformation commandInformation = command.getCommandInformation();
 

@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommand;
 import com.github.sirblobman.discord.slimy.manager.ConsoleCommandManager;
 
@@ -16,15 +16,15 @@ import net.dv8tion.jda.api.JDA.Status;
 import org.apache.logging.log4j.Logger;
 
 public final class ConsoleInputTask implements Runnable {
-    private final DiscordBot discordBot;
+    private final SlimyBot discordBot;
 
-    public ConsoleInputTask(DiscordBot discordBot) {
+    public ConsoleInputTask(SlimyBot discordBot) {
         this.discordBot = discordBot;
     }
 
     @Override
     public void run() {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         Logger logger = discordBot.getLogger();
         Console console = System.console();
         if (console != null) {
@@ -37,7 +37,7 @@ public final class ConsoleInputTask implements Runnable {
         setupInput();
     }
 
-    private DiscordBot getDiscordBot() {
+    private SlimyBot getDiscordBot() {
         return this.discordBot;
     }
 
@@ -51,7 +51,7 @@ public final class ConsoleInputTask implements Runnable {
     }
 
     private void tryRunCommand(String commandName, String[] args) {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         ConsoleCommandManager consoleCommandManager = discordBot.getConsoleCommandManager();
         ConsoleCommand consoleCommand = consoleCommandManager.getCommand(commandName);
         if (consoleCommand == null) {
@@ -70,7 +70,7 @@ public final class ConsoleInputTask implements Runnable {
     }
 
     private void setupConsole(Console console) {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         Logger logger = discordBot.getLogger();
         while (isOnline()) {
             String readLine = console.readLine();
@@ -80,7 +80,7 @@ public final class ConsoleInputTask implements Runnable {
     }
 
     private void setupInput() {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         Logger logger = discordBot.getLogger();
         InputStreamReader consoleReader = new InputStreamReader(System.in);
         BufferedReader console = new BufferedReader(consoleReader);

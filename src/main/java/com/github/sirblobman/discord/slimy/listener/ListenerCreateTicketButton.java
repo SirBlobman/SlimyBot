@@ -7,7 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.data.InvalidConfigurationException;
 import com.github.sirblobman.discord.slimy.manager.TicketManager;
 
@@ -32,7 +32,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 public final class ListenerCreateTicketButton extends SlimyBotListener {
     private Modal.Builder modalBuilder;
 
-    public ListenerCreateTicketButton(@NotNull DiscordBot discordBot) {
+    public ListenerCreateTicketButton(@NotNull SlimyBot discordBot) {
         super(discordBot);
         this.modalBuilder = getCreateTicketModalBuilder();
     }
@@ -132,7 +132,7 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
     }
 
     private @NotNull TicketManager getTicketManager() {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         return discordBot.getTicketManager();
     }
 

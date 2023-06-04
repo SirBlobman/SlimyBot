@@ -4,7 +4,7 @@ import java.util.Objects;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.manager.TicketArchiveManager;
 
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -12,16 +12,16 @@ import org.apache.logging.log4j.Logger;
 
 public final class ArchiveAndDeleteTask extends TimerTask {
     private final TextChannel channel;
-    private final DiscordBot discordBot;
+    private final SlimyBot discordBot;
 
-    public ArchiveAndDeleteTask(TextChannel channel, DiscordBot discordBot) {
+    public ArchiveAndDeleteTask(TextChannel channel, SlimyBot discordBot) {
         this.channel = Objects.requireNonNull(channel, "channel must not be null!");
         this.discordBot = Objects.requireNonNull(discordBot, "discordBot must not be null!");
     }
 
     @Override
     public void run() {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         TextChannel channel = getChannel();
 
         TicketArchiveManager ticketArchiveManager = discordBot.getTicketArchiveManager();
@@ -40,7 +40,7 @@ public final class ArchiveAndDeleteTask extends TimerTask {
         });
     }
 
-    private DiscordBot getDiscordBot() {
+    private SlimyBot getDiscordBot() {
         return this.discordBot;
     }
 

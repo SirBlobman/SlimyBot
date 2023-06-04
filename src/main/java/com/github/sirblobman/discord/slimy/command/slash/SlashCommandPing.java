@@ -4,7 +4,7 @@ import java.awt.Color;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -15,7 +15,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public final class SlashCommandPing extends SlashCommand {
-    public SlashCommandPing(@NotNull DiscordBot discordBot) {
+    public SlashCommandPing(@NotNull SlimyBot discordBot) {
         super(discordBot);
     }
 
@@ -38,7 +38,7 @@ public final class SlashCommandPing extends SlashCommand {
             return getMessage(errorEmbed);
         }
 
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         JDA discordAPI = discordBot.getDiscordAPI();
         long gatewayPing = discordAPI.getGatewayPing();
 

@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommand;
 
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -16,7 +16,7 @@ import org.apache.logging.log4j.Logger;
 public final class SlashCommandManager extends Manager {
     private final Map<String, SlashCommand> commandMap = new HashMap<>();
 
-    public SlashCommandManager(DiscordBot discordBot) {
+    public SlashCommandManager(SlimyBot discordBot) {
         super(discordBot);
     }
 
@@ -43,8 +43,8 @@ public final class SlashCommandManager extends Manager {
 
     private void registerCommand(Class<? extends SlashCommand> commandClass) {
         try {
-            DiscordBot discordBot = getDiscordBot();
-            Constructor<? extends SlashCommand> constructor = commandClass.getConstructor(DiscordBot.class);
+            SlimyBot discordBot = getDiscordBot();
+            Constructor<? extends SlashCommand> constructor = commandClass.getConstructor(SlimyBot.class);
             SlashCommand command = constructor.newInstance(discordBot);
 
             CommandData commandData = command.getCommandData();

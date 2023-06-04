@@ -6,7 +6,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -21,7 +21,7 @@ public final class SlashCommandMagicEightBall extends SlashCommand {
     private final String[] messageArray;
     private final int messageArraySize;
 
-    public SlashCommandMagicEightBall(@NotNull DiscordBot discordBot) {
+    public SlashCommandMagicEightBall(@NotNull SlimyBot discordBot) {
         super(discordBot);
         this.messageArray = new String[] {
                 "It is certain.", "It is decidedly so.", "Without a doubt.", "Yes - definitely.",

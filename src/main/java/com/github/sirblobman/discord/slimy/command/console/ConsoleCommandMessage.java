@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
 
 import net.dv8tion.jda.api.JDA;
@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.apache.logging.log4j.Logger;
 
 public class ConsoleCommandMessage extends ConsoleCommand {
-    public ConsoleCommandMessage(@NotNull DiscordBot discordBot) {
+    public ConsoleCommandMessage(@NotNull SlimyBot discordBot) {
         super(discordBot);
     }
 

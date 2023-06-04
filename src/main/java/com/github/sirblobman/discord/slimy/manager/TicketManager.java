@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.configuration.guild.GuildConfiguration;
 import com.github.sirblobman.discord.slimy.data.InvalidConfigurationException;
 
@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class TicketManager extends Manager {
-    public TicketManager(DiscordBot discordBot) {
+    public TicketManager(SlimyBot discordBot) {
         super(discordBot);
     }
 
@@ -132,7 +132,7 @@ public final class TicketManager extends Manager {
 
     @Nullable
     private GuildConfiguration getGuildConfiguration(Guild guild) {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         return discordBot.getGuildConfiguration(guild);
     }
 

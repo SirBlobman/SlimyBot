@@ -59,7 +59,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
-public final class DiscordBot {
+public final class SlimyBot {
     private final Logger logger;
     private final ConsoleCommandManager consoleCommandManager;
     private final SlashCommandManager slashCommandManager;
@@ -76,7 +76,7 @@ public final class DiscordBot {
     private DatabaseConfiguration databaseConfiguration;
     private QuestionConfiguration questionConfiguration;
 
-    public DiscordBot(@NotNull Logger logger) {
+    public SlimyBot(@NotNull Logger logger) {
         this.logger = logger;
         this.consoleCommandManager = new ConsoleCommandManager(this);
         this.slashCommandManager = new SlashCommandManager(this);

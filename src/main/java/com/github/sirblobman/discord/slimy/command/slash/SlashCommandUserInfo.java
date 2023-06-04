@@ -4,7 +4,7 @@ import java.time.OffsetDateTime;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.configuration.MainConfiguration;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.utils.TimeFormat;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public final class SlashCommandUserInfo extends SlashCommand {
-    public SlashCommandUserInfo(@NotNull DiscordBot discordBot) {
+    public SlashCommandUserInfo(@NotNull SlimyBot discordBot) {
         super(discordBot);
     }
 
@@ -44,7 +44,7 @@ public final class SlashCommandUserInfo extends SlashCommand {
         }
 
         String senderId = sender.getId();
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         MainConfiguration mainConfiguration = discordBot.getMainConfiguration();
         String botOwnerId = mainConfiguration.getBotOwnerId();
 

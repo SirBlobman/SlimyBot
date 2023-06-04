@@ -6,7 +6,7 @@ import java.util.Locale;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.command.Command;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
 
@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public abstract class SlashCommand extends Command {
-    public SlashCommand(@NotNull DiscordBot discordBot) {
+    public SlashCommand(@NotNull SlimyBot discordBot) {
         super(discordBot);
     }
 

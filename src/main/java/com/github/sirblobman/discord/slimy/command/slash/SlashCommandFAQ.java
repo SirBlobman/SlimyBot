@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.configuration.question.Question;
 import com.github.sirblobman.discord.slimy.configuration.question.QuestionConfiguration;
 
@@ -31,7 +31,7 @@ public final class SlashCommandFAQ extends SlashCommand {
         CLOSE = Button.danger("faq-close", "Close");
     }
 
-    public SlashCommandFAQ(DiscordBot discordBot) {
+    public SlashCommandFAQ(SlimyBot discordBot) {
         super(discordBot);
     }
 
@@ -64,7 +64,7 @@ public final class SlashCommandFAQ extends SlashCommand {
 
     @Override
     public void onAutoComplete(@NotNull CommandAutoCompleteInteraction e) {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         QuestionConfiguration configuration = discordBot.getQuestionConfiguration();
         Map<String, Question> questionMap = configuration.getQuestions();
         List<Command.Choice> choices = questionMap.keySet().stream()
@@ -75,7 +75,7 @@ public final class SlashCommandFAQ extends SlashCommand {
     }
 
     private @NotNull Question getQuestion(@NotNull String id) {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         QuestionConfiguration configuration = discordBot.getQuestionConfiguration();
 
         Question question = configuration.getQuestion(id);

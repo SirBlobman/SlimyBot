@@ -6,14 +6,14 @@ import java.util.Set;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
 import com.github.sirblobman.discord.slimy.manager.ConsoleCommandManager;
 
 import org.apache.logging.log4j.Logger;
 
 public final class ConsoleCommandHelp extends ConsoleCommand {
-    public ConsoleCommandHelp(@NotNull DiscordBot discordBot) {
+    public ConsoleCommandHelp(@NotNull SlimyBot discordBot) {
         super(discordBot);
     }
 

@@ -2,7 +2,7 @@ package com.github.sirblobman.discord.slimy.listener;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommand;
 import com.github.sirblobman.discord.slimy.manager.SlashCommandManager;
 
@@ -12,13 +12,13 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public final class ListenerSlashCommands extends SlimyBotListener {
-    public ListenerSlashCommands(@NotNull DiscordBot discordBot) {
+    public ListenerSlashCommands(@NotNull SlimyBot discordBot) {
         super(discordBot);
     }
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent e) {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         SlashCommandManager slashCommandManager = discordBot.getSlashCommandManager();
         InteractionHook interaction = e.getHook();
 
@@ -42,7 +42,7 @@ public final class ListenerSlashCommands extends SlimyBotListener {
 
     @Override
     public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent e) {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         SlashCommandManager commandManager = discordBot.getSlashCommandManager();
 
         String commandName = e.getName();

@@ -4,24 +4,24 @@ import java.util.Locale;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.logging.log4j.Logger;
 
 public abstract class SlimyBotListener extends ListenerAdapter {
-    protected final DiscordBot discordBot;
+    protected final SlimyBot discordBot;
 
-    public SlimyBotListener(@NotNull DiscordBot discordBot) {
+    public SlimyBotListener(@NotNull SlimyBot discordBot) {
         this.discordBot = discordBot;
     }
 
-    protected final @NotNull DiscordBot getDiscordBot() {
+    protected final @NotNull SlimyBot getDiscordBot() {
         return this.discordBot;
     }
 
     protected final void logError(@NotNull String message, @NotNull Throwable ex) {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         Logger logger = discordBot.getLogger();
         logger.warn(message, ex);
     }

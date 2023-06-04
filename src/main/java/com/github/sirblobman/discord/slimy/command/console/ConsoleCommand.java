@@ -2,14 +2,14 @@ package com.github.sirblobman.discord.slimy.command.console;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.command.Command;
 import com.github.sirblobman.discord.slimy.manager.ConsoleCommandManager;
 
 import org.apache.logging.log4j.Logger;
 
 public abstract class ConsoleCommand extends Command {
-    public ConsoleCommand(@NotNull DiscordBot discordBot) {
+    public ConsoleCommand(@NotNull SlimyBot discordBot) {
         super(discordBot);
     }
 
@@ -23,7 +23,7 @@ public abstract class ConsoleCommand extends Command {
     }
 
     protected final @NotNull ConsoleCommandManager getConsoleCommandManager() {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         return discordBot.getConsoleCommandManager();
     }
 

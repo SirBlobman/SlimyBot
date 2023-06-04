@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.data.MessageActionType;
 import com.github.sirblobman.discord.slimy.data.MessageEntry;
 
@@ -103,7 +103,7 @@ public final class MessageHistoryManager extends Manager {
 
     public synchronized void archiveChannel(TextChannel channel) {
         try {
-            DiscordBot discordBot = getDiscordBot();
+            SlimyBot discordBot = getDiscordBot();
             DatabaseManager databaseManager = discordBot.getDatabaseManager();
             databaseManager.register(channel);
 

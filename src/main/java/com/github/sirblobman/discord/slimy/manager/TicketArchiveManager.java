@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.configuration.guild.GuildConfiguration;
 import com.github.sirblobman.discord.slimy.data.GuildChannel;
 import com.github.sirblobman.discord.slimy.data.GuildMember;
@@ -88,7 +88,7 @@ import static j2html.TagCreator.time;
 import static j2html.TagCreator.title;
 
 public final class TicketArchiveManager extends Manager {
-    public TicketArchiveManager(DiscordBot discordBot) {
+    public TicketArchiveManager(SlimyBot discordBot) {
         super(discordBot);
     }
 
@@ -98,7 +98,7 @@ public final class TicketArchiveManager extends Manager {
 
     private void archive0(TextChannel channel) {
         try {
-            DiscordBot discordBot = getDiscordBot();
+            SlimyBot discordBot = getDiscordBot();
             MessageHistoryManager messageHistoryManager = discordBot.getMessageHistoryManager();
             messageHistoryManager.archiveChannel(channel);
             archiveInternal(channel);
@@ -116,7 +116,7 @@ public final class TicketArchiveManager extends Manager {
         Guild guild = channel.getGuild();
         Member member = guild.getMemberById(topic);
         if (member == null) {
-            DiscordBot discordBot = getDiscordBot();
+            SlimyBot discordBot = getDiscordBot();
             DatabaseManager databaseManager = discordBot.getDatabaseManager();
             GuildMember knownMember = databaseManager.getKnownMemberById(topic);
             if (knownMember == null) {
@@ -132,7 +132,7 @@ public final class TicketArchiveManager extends Manager {
 
     private void archiveInternal(TextChannel channel) throws IOException, InvalidConfigurationException {
         Guild guild = channel.getGuild();
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         GuildConfiguration guildConfiguration = discordBot.getGuildConfiguration(guild);
         if (guildConfiguration == null) {
             throw new InvalidConfigurationException("Missing guild config!");
@@ -246,7 +246,7 @@ public final class TicketArchiveManager extends Manager {
 
     private SectionTag getMessagesSection(TextChannel channel) {
         SectionTag section = section();
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         MessageHistoryManager messageHistoryManager = discordBot.getMessageHistoryManager();
 
         Map<String, MessageInformation> messageContentMap = new LinkedHashMap<>();
@@ -284,7 +284,7 @@ public final class TicketArchiveManager extends Manager {
     }
 
     private DivTag createDivTag(MessageInformation information, Guild guild) {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         DatabaseManager databaseManager = discordBot.getDatabaseManager();
         Optional<GuildMember> optionalMember = information.getMember(databaseManager);
 

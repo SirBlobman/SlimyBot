@@ -5,7 +5,7 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.configuration.guild.GuildConfiguration;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public final class SlashCommandVoter extends SlashCommand {
-    public SlashCommandVoter(@NotNull DiscordBot discordBot) {
+    public SlashCommandVoter(@NotNull SlimyBot discordBot) {
         super(discordBot);
     }
 
@@ -73,7 +73,7 @@ public final class SlashCommandVoter extends SlashCommand {
     }
 
     private @Nullable Role getVoterRole(@NotNull Guild guild) {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         GuildConfiguration guildConfiguration = discordBot.getGuildConfiguration(guild);
         if (guildConfiguration == null) {
             return null;

@@ -2,7 +2,7 @@ package com.github.sirblobman.discord.slimy.listener;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandFAQ;
 
 import net.dv8tion.jda.api.entities.Member;
@@ -17,7 +17,7 @@ public final class ListenerQuestionButtons extends SlimyBotListener {
 
     private final SlashCommandFAQ command;
 
-    public ListenerQuestionButtons(@NotNull DiscordBot discordBot, @NotNull SlashCommandFAQ command) {
+    public ListenerQuestionButtons(@NotNull SlimyBot discordBot, @NotNull SlashCommandFAQ command) {
         super(discordBot);
         this.command = command;
     }

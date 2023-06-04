@@ -6,7 +6,7 @@ import java.util.Timer;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.manager.TicketManager;
 import com.github.sirblobman.discord.slimy.task.ArchiveAndDeleteTask;
 
@@ -34,7 +34,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public final class SlashCommandTicket extends SlashCommand {
-    public SlashCommandTicket(DiscordBot discordBot) {
+    public SlashCommandTicket(SlimyBot discordBot) {
         super(discordBot);
     }
 
@@ -88,7 +88,7 @@ public final class SlashCommandTicket extends SlashCommand {
     }
 
     private @NotNull TicketManager getTicketManager() {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         return discordBot.getTicketManager();
     }
 

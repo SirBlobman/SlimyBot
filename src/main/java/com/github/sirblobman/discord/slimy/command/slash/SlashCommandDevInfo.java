@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.jetbrains.annotations.NotNull;
 
-import com.github.sirblobman.discord.slimy.DiscordBot;
+import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.configuration.MainConfiguration;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -37,7 +37,7 @@ import oshi.software.os.OperatingSystem.OSVersionInfo;
 public final class SlashCommandDevInfo extends SlashCommand {
     private final SystemInfo systemInfo;
 
-    public SlashCommandDevInfo(@NotNull DiscordBot discordBot) {
+    public SlashCommandDevInfo(@NotNull SlimyBot discordBot) {
         super(discordBot);
         this.systemInfo = new SystemInfo();
     }
@@ -73,7 +73,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
         }
 
         String memberId = member.getId();
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         MainConfiguration mainConfiguration = discordBot.getMainConfiguration();
         String botOwnerId = mainConfiguration.getBotOwnerId();
         if (!memberId.equals(botOwnerId)) {
@@ -223,7 +223,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
     }
 
     private @NotNull EmbedBuilder getBotUserInformationEmbed(@NotNull Member member) {
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         JDA discordAPI = discordBot.getDiscordAPI();
         SelfUser selfUser = discordAPI.getSelfUser();
 
@@ -258,7 +258,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
         String systemUptimeString = getSystemUptime();
         builder.addField("System Uptime", systemUptimeString, false);
 
-        DiscordBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getDiscordBot();
         long startupTimestamp = discordBot.getStartupTimestamp();
         String uptimeString = TimeFormat.RELATIVE.format(startupTimestamp);
         builder.addField("Bot Uptime", uptimeString, false);
