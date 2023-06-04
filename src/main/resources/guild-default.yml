@@ -13,3 +13,10 @@ voterRoleId: "<none>"
 # Which Bukkit/Spigot/Paper plugins are supported in this guild?
 plugins:
   - "<none>"
+
+# Which self roles can users apply to themselves?
+selfRoles:
+  voter:
+    id: "<none>"
+    emojiType: UNICODE # Valid types are UNICODE, CUSTOM_STATIC, CUSTOM_ANIMATED
+    emojiText: "U+1F5F3U+FE0F"

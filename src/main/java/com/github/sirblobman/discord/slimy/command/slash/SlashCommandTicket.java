@@ -3,10 +3,10 @@ package com.github.sirblobman.discord.slimy.command.slash;
 import java.awt.Color;
 import java.util.Set;
 import java.util.Timer;
-import java.util.concurrent.CompletableFuture;
+
+import org.jetbrains.annotations.NotNull;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.data.InvalidConfigurationException;
 import com.github.sirblobman.discord.slimy.manager.TicketManager;
 import com.github.sirblobman.discord.slimy.task.ArchiveAndDeleteTask;
 
@@ -32,47 +32,49 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import org.apache.logging.log4j.Logger;
 
 public final class SlashCommandTicket extends SlashCommand {
     public SlashCommandTicket(DiscordBot discordBot) {
-        super(discordBot, "ticket");
+        super(discordBot);
     }
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash(getCommandName(), "A command to manage tickets.")
-                .addSubcommands(getSubCommands());
+    public @NotNull CommandData getCommandData() {
+        SubcommandData[] subCommands = getSubCommands();
+        return Commands.slash("ticket", "A command to manage tickets.").addSubcommands(subCommands);
     }
 
     @Override
-    public MessageCreateData execute(SlashCommandInteractionEvent e) {
-        String subcommandName = e.getSubcommandName();
-        if (subcommandName == null) {
-            subcommandName = "help";
-        }
-
+    public @NotNull MessageCreateData execute(@NotNull SlashCommandInteractionEvent e) {
         Member member = e.getMember();
         if (member == null) {
-            EmbedBuilder errorEmbed = getErrorEmbed(null);
-            errorEmbed.addField("Error", "This command can only be executed in a guild.", false);
-            return getMessage(errorEmbed);
+            EmbedBuilder embed = getErrorEmbed(null);
+            embed.addField("Error", "This command can only be executed in a guild.", false);
+            return getMessage(embed);
+        }
+
+        String subcommandName = e.getSubcommandName();
+        if (subcommandName == null) {
+            EmbedBuilder embed = getErrorEmbed(member);
+            embed.addField("Error", "Missing sub command.", false);
+            return getMessage(embed);
         }
 
         return switch (subcommandName) {
             case "setup" -> commandSetup(member, e);
-            case "new" -> commandNew(member, e);
             case "close" -> commandClose(member, e);
             case "add" -> commandAdd(member, e);
-            default -> commandHelp(member);
+            case "help" -> commandHelp(member);
+            default -> {
+                EmbedBuilder embed = getErrorEmbed(member);
+                embed.addField("Error", "Unknown sub command '" + subcommandName + "'.", false);
+                yield getMessage(embed);
+            }
         };
     }
 
-    private SubcommandData[] getSubCommands() {
-        return new SubcommandData[]{
-                new SubcommandData("new", "Create a new ticket.")
-                        .addOption(OptionType.STRING, "title", "The name of your ticket.",
-                        false),
+    private SubcommandData @NotNull [] getSubCommands() {
+        return new SubcommandData[] {
                 new SubcommandData("close", "Close your current ticket.")
                         .addOption(OptionType.STRING, "reason", "The reason for closing this ticket",
                         false),
@@ -81,60 +83,16 @@ public final class SlashCommandTicket extends SlashCommand {
                         true),
                 new SubcommandData("help", "View a list of ticket commands."),
                 new SubcommandData("setup", "Create a ticket button panel.")
-                        .addOption(OptionType.CHANNEL, "channel",
-                        "The channel to create the panel in.", true)
+                        .addOption(OptionType.CHANNEL, "channel", "A text channel.", true)
         };
     }
 
-    private TicketManager getTicketManager() {
+    private @NotNull TicketManager getTicketManager() {
         DiscordBot discordBot = getDiscordBot();
         return discordBot.getTicketManager();
     }
 
-    private MessageCreateData commandNew(Member member, SlashCommandInteractionEvent e) {
-        TicketManager ticketManager = getTicketManager();
-        if (ticketManager.hasTicketChannel(member)) {
-            EmbedBuilder errorEmbed = getErrorEmbed(null);
-            errorEmbed.addField("Error", "Your previous ticket is still open.", false);
-            return getMessage(errorEmbed);
-        }
-
-        OptionMapping titleOption = e.getOption("title");
-        String title = (titleOption == null ? "N/A" : titleOption.getAsString());
-
-        try {
-            Guild guild = member.getGuild();
-            Role supportRole = ticketManager.getSupportRole(guild);
-            if (supportRole == null) {
-                throw new InvalidConfigurationException("Invalid support role!");
-            }
-
-            CompletableFuture<TextChannel> ticketChannelFuture = ticketManager.createTicketChannelFor(member);
-            TextChannel ticketChannel = ticketChannelFuture.join();
-
-            MessageCreateBuilder builder = new MessageCreateBuilder();
-            builder.addContent(supportRole.getAsMention()).addContent("\n");
-            builder.addContent(formatBold("New Ticket")).addContent("\n");
-            builder.addContent(formatBold("Made By: ")).addContent(member.getAsMention()).addContent("\n");
-            builder.addContent(formatBold("Title: ")).addContent(title);
-
-            MessageCreateData message = builder.build();
-            ticketChannel.sendMessage(message).queue();
-
-            EmbedBuilder embed = getExecutedByEmbed(member).setTitle("Success")
-                    .setDescription("Ticket created successfully.");
-            return getMessage(embed);
-        } catch (Exception ex) {
-            Logger logger = getLogger();
-            logger.error("Failed to create a ticket because an error occurred:", ex);
-
-            EmbedBuilder errorEmbed = getErrorEmbed(null);
-            errorEmbed.addField("Error", ex.getMessage(), false);
-            return getMessage(errorEmbed);
-        }
-    }
-
-    private MessageCreateData commandClose(Member member, SlashCommandInteractionEvent e) {
+    private @NotNull MessageCreateData commandClose(@NotNull Member member, @NotNull SlashCommandInteractionEvent e) {
         Guild guild = member.getGuild();
         TicketManager ticketManager = getTicketManager();
         Role supportRole = ticketManager.getSupportRole(guild);
@@ -171,7 +129,7 @@ public final class SlashCommandTicket extends SlashCommand {
         return getMessage(message);
     }
 
-    private MessageCreateData commandAdd(Member member, SlashCommandInteractionEvent e) {
+    private @NotNull MessageCreateData commandAdd(@NotNull Member member, @NotNull SlashCommandInteractionEvent e) {
         OptionMapping userOption = e.getOption("user");
         if (userOption == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
@@ -203,7 +161,7 @@ public final class SlashCommandTicket extends SlashCommand {
         return getMessage(embed);
     }
 
-    private MessageCreateData commandHelp(Member member) {
+    private @NotNull MessageCreateData commandHelp(@NotNull Member member) {
         EmbedBuilder builder = getExecutedByEmbed(member);
         builder.setColor(Color.GREEN);
         builder.setTitle("Ticket Command Usage");
@@ -215,12 +173,12 @@ public final class SlashCommandTicket extends SlashCommand {
         return getMessage(builder);
     }
 
-    private void deleteChannelLater(TextChannel channel) {
+    private void deleteChannelLater(@NotNull TextChannel channel) {
         ArchiveAndDeleteTask task = new ArchiveAndDeleteTask(channel, getDiscordBot());
         new Timer().schedule(task, 5000L);
     }
 
-    private MessageCreateData commandSetup(Member member, SlashCommandInteractionEvent e) {
+    private @NotNull MessageCreateData commandSetup(@NotNull Member member, @NotNull SlashCommandInteractionEvent e) {
         if (!member.isOwner()) {
             EmbedBuilder errorEmbed = getErrorEmbed(member);
             errorEmbed.addField("Error", "Only the server owner can create a ticket panel.", false);

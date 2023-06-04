@@ -4,6 +4,9 @@ import java.awt.Color;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.data.InvalidConfigurationException;
 import com.github.sirblobman.discord.slimy.manager.TicketManager;
@@ -25,18 +28,17 @@ import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import org.jetbrains.annotations.Nullable;
 
 public final class ListenerCreateTicketButton extends SlimyBotListener {
     private Modal.Builder modalBuilder;
 
-    public ListenerCreateTicketButton(DiscordBot discordBot) {
+    public ListenerCreateTicketButton(@NotNull DiscordBot discordBot) {
         super(discordBot);
         this.modalBuilder = getCreateTicketModalBuilder();
     }
 
     @Override
-    public void onButtonInteraction(ButtonInteractionEvent e) {
+    public void onButtonInteraction(@NotNull ButtonInteractionEvent e) {
         Button button = e.getButton();
         String buttonId = button.getId();
 
@@ -54,7 +56,7 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
     }
 
     @Override
-    public void onModalInteraction(ModalInteractionEvent e) {
+    public void onModalInteraction(@NotNull ModalInteractionEvent e) {
         String modalId = e.getModalId();
         if (!modalId.equals("slimy-bot-create-ticket")) {
             return;
@@ -107,11 +109,11 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
 
             MessageCreateBuilder builder = new MessageCreateBuilder();
             builder.addContent(supportRole.getAsMention()).addContent("\n");
-            builder.addContent(formatBold("New Ticket")).addContent("\n");
-            builder.addContent(formatBold("Made by: ")).addContent(member.getAsMention()).addContent("\n");
-            builder.addContent(formatBold("Title: ")).addContent(title).addContent("\n");
-            builder.addContent(formatBold("Plugin: ")).addContent(pluginName).addContent("\n");
-            builder.addContent(formatBold("Description: ")).addContent(description).addContent("\n");
+            builder.addContent(bold("New Ticket")).addContent("\n");
+            builder.addContent(bold("Made by: ")).addContent(member.getAsMention()).addContent("\n");
+            builder.addContent(bold("Title: ")).addContent(title).addContent("\n");
+            builder.addContent(bold("Plugin: ")).addContent(pluginName).addContent("\n");
+            builder.addContent(bold("Description: ")).addContent(description).addContent("\n");
 
             MessageCreateData message = builder.build();
             ticketChannel.sendMessage(message).queue();
@@ -129,12 +131,12 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
         }
     }
 
-    private TicketManager getTicketManager() {
+    private @NotNull TicketManager getTicketManager() {
         DiscordBot discordBot = getDiscordBot();
         return discordBot.getTicketManager();
     }
 
-    private EmbedBuilder getClickedByEmbed(Member sender) {
+    private @NotNull EmbedBuilder getClickedByEmbed(@NotNull Member sender) {
         User user = sender.getUser();
         String footerIconURL = user.getAvatarUrl();
 
@@ -144,7 +146,7 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
         return new EmbedBuilder().setFooter(footerMessage, footerIconURL);
     }
 
-    private EmbedBuilder getErrorEmbed(@Nullable Member sender) {
+    private @NotNull EmbedBuilder getErrorEmbed(@Nullable Member sender) {
         EmbedBuilder builder = (sender != null ? getClickedByEmbed(sender) : new EmbedBuilder());
         builder.setColor(Color.RED);
         builder.setTitle("Button Error");
@@ -152,19 +154,19 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
         return builder;
     }
 
-    private MessageCreateData getMessage(EmbedBuilder embedBuilder) {
-        MessageCreateBuilder messageBuilder = new MessageCreateBuilder();
+    private @NotNull MessageCreateData getMessage(@NotNull EmbedBuilder embedBuilder) {
+        MessageCreateBuilder builder = new MessageCreateBuilder();
         MessageEmbed embed = embedBuilder.build();
-        messageBuilder.setEmbeds(embed);
-        return messageBuilder.build();
+        builder.setEmbeds(embed);
+        return builder.build();
     }
 
-    private Modal getCreateTicketModal() {
+    private @NotNull Modal getCreateTicketModal() {
         Modal.Builder builder = getCreateTicketModalBuilder();
         return builder.build();
     }
 
-    private Modal.Builder getCreateTicketModalBuilder() {
+    private @NotNull Modal.Builder getCreateTicketModalBuilder() {
         if (this.modalBuilder != null) {
             return this.modalBuilder;
         }

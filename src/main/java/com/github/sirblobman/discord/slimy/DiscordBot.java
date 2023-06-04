@@ -9,9 +9,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommandHelp;
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommandMessage;
@@ -24,11 +26,15 @@ import com.github.sirblobman.discord.slimy.command.slash.SlashCommandPing;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandTicket;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandUserInfo;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandVoter;
-import com.github.sirblobman.discord.slimy.configuration.GuildConfiguration;
+import com.github.sirblobman.discord.slimy.configuration.DatabaseConfiguration;
 import com.github.sirblobman.discord.slimy.configuration.MainConfiguration;
+import com.github.sirblobman.discord.slimy.configuration.guild.GuildConfiguration;
+import com.github.sirblobman.discord.slimy.configuration.question.Question;
+import com.github.sirblobman.discord.slimy.configuration.question.QuestionConfiguration;
+import com.github.sirblobman.discord.slimy.configuration.question.QuestionConstructor;
 import com.github.sirblobman.discord.slimy.listener.ListenerCreateTicketButton;
-import com.github.sirblobman.discord.slimy.listener.ListenerFAQButtons;
 import com.github.sirblobman.discord.slimy.listener.ListenerMessages;
+import com.github.sirblobman.discord.slimy.listener.ListenerQuestionButtons;
 import com.github.sirblobman.discord.slimy.listener.ListenerReactions;
 import com.github.sirblobman.discord.slimy.listener.ListenerSlashCommands;
 import com.github.sirblobman.discord.slimy.manager.ConsoleCommandManager;
@@ -51,7 +57,6 @@ import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
 public final class DiscordBot {
@@ -66,10 +71,13 @@ public final class DiscordBot {
     private final Map<String, GuildConfiguration> guildConfigurationMap;
     private JDA discordAPI;
     private long startupTimestamp;
-    private MainConfiguration mainConfiguration;
 
-    public DiscordBot(Logger logger) {
-        this.logger = Objects.requireNonNull(logger, "logger must not be null!");
+    private MainConfiguration mainConfiguration;
+    private DatabaseConfiguration databaseConfiguration;
+    private QuestionConfiguration questionConfiguration;
+
+    public DiscordBot(@NotNull Logger logger) {
+        this.logger = logger;
         this.consoleCommandManager = new ConsoleCommandManager(this);
         this.slashCommandManager = new SlashCommandManager(this);
 
@@ -81,35 +89,35 @@ public final class DiscordBot {
         this.guildConfigurationMap = new ConcurrentHashMap<>();
     }
 
-    public Logger getLogger() {
+    public @NotNull Logger getLogger() {
         return this.logger;
     }
 
-    public ConsoleCommandManager getConsoleCommandManager() {
+    public @NotNull ConsoleCommandManager getConsoleCommandManager() {
         return this.consoleCommandManager;
     }
 
-    public SlashCommandManager getSlashCommandManager() {
+    public @NotNull SlashCommandManager getSlashCommandManager() {
         return this.slashCommandManager;
     }
 
-    public DatabaseManager getDatabaseManager() {
+    public @NotNull DatabaseManager getDatabaseManager() {
         return this.databaseManager;
     }
 
-    public MessageHistoryManager getMessageHistoryManager() {
+    public @NotNull MessageHistoryManager getMessageHistoryManager() {
         return this.messageHistoryManager;
     }
 
-    public TicketArchiveManager getTicketArchiveManager() {
+    public @NotNull TicketArchiveManager getTicketArchiveManager() {
         return this.ticketArchiveManager;
     }
 
-    public TicketManager getTicketManager() {
+    public @NotNull TicketManager getTicketManager() {
         return this.ticketManager;
     }
 
-    public JDA getDiscordAPI() {
+    public @NotNull JDA getDiscordAPI() {
         return this.discordAPI;
     }
 
@@ -117,19 +125,23 @@ public final class DiscordBot {
         return this.startupTimestamp;
     }
 
-    public MainConfiguration getMainConfiguration() {
+    public @NotNull MainConfiguration getMainConfiguration() {
         return this.mainConfiguration;
     }
 
-    @Nullable
-    public GuildConfiguration getGuildConfiguration(String guildId) {
-        Objects.requireNonNull(guildId, "guildId must not be null!");
+    public @NotNull DatabaseConfiguration getDatabaseConfiguration() {
+        return this.databaseConfiguration;
+    }
+
+    public @NotNull QuestionConfiguration getQuestionConfiguration() {
+        return this.questionConfiguration;
+    }
+
+    public @Nullable GuildConfiguration getGuildConfiguration(@NotNull String guildId) {
         return this.guildConfigurationMap.get(guildId);
     }
 
-    @Nullable
-    public GuildConfiguration getGuildConfiguration(Guild guild) {
-        Objects.requireNonNull(guild, "guild must not be null!");
+    public @Nullable GuildConfiguration getGuildConfiguration(@NotNull Guild guild) {
         String guildId = guild.getId();
         return getGuildConfiguration(guildId);
     }
@@ -140,7 +152,7 @@ public final class DiscordBot {
 
         saveDefaultConfigs();
 
-        if (!reloadConfigs()) {
+        if (!loadConfiguration()) {
             return;
         }
 
@@ -164,20 +176,42 @@ public final class DiscordBot {
 
     private void saveDefaultConfigs() {
         saveDefault("config.yml");
+        saveDefault("database.yml");
         saveDefault("questions.yml");
     }
 
-    private boolean reloadConfigs() {
+    private boolean loadConfiguration() {
         Yaml yaml = new Yaml();
-        Path path = Paths.get("config.yml");
+        this.mainConfiguration = reload(Paths.get("config.yml"), yaml, MainConfiguration.class);
+        this.databaseConfiguration = reload(Paths.get("database.yml"), yaml, DatabaseConfiguration.class);
 
-        try(BufferedReader configReader = Files.newBufferedReader(path)) {
-            this.mainConfiguration = yaml.loadAs(configReader, MainConfiguration.class);
-            return true;
+        this.questionConfiguration = new QuestionConfiguration();
+        Yaml questionYaml = new Yaml(new QuestionConstructor());
+        Map<String, Question> map = reload(Paths.get("questions.yml"), questionYaml);
+        if (map != null) {
+            map.forEach(this.questionConfiguration::addQuestion);
+        }
+
+        return (this.mainConfiguration != null && this.databaseConfiguration != null && this.questionConfiguration != null);
+    }
+
+    private <O> @Nullable O reload(@NotNull Path path, @NotNull Yaml yaml, Class<O> classType) {
+        try(BufferedReader reader = Files.newBufferedReader(path)) {
+            return yaml.loadAs(reader, classType);
         } catch (IOException ex) {
             Logger logger = getLogger();
-            logger.log(Level.ERROR, "An error occurred while loading the main configuration file:", ex);
-            return false;
+            logger.error("Failed to load a configuration file:", ex);
+            return null;
+        }
+    }
+
+    private <O> @Nullable O reload(@NotNull Path path, @NotNull Yaml yaml) {
+        try(BufferedReader reader = Files.newBufferedReader(path)) {
+            return yaml.load(reader);
+        } catch (IOException ex) {
+            Logger logger = getLogger();
+            logger.error("Failed to load a configuration file:", ex);
+            return null;
         }
     }
 
@@ -289,7 +323,7 @@ public final class DiscordBot {
                 new ListenerReactions(this),
                 new ListenerSlashCommands(this),
                 new ListenerCreateTicketButton(this),
-                new ListenerFAQButtons(this, faqCommand)
+                new ListenerQuestionButtons(this, faqCommand)
         );
     }
 
@@ -327,15 +361,14 @@ public final class DiscordBot {
     private void setupConsole() {
         ConsoleInputTask task = new ConsoleInputTask(this);
         Thread thread = new Thread(task, "Console Input");
-
         thread.setDaemon(true);
         thread.start();
     }
 
-    private void loadGuildConfiguration(String guildId) {
+    private void loadGuildConfiguration(@NotNull String guildId) {
         String fileName = ("guild/" + guildId + ".yml");
         saveDefault(fileName, "guild-default.yml");
-        Path path = Paths.get(fileName);
+        Path path = Paths.get("guild", guildId + ".yml");
 
         try {
             Yaml yaml = new Yaml();
@@ -348,11 +381,11 @@ public final class DiscordBot {
         }
     }
 
-    private void saveDefault(String fileName) {
+    private void saveDefault(@NotNull String fileName) {
         saveDefault(fileName, fileName);
     }
 
-    private void saveDefault(String fileName, String jarName) {
+    private void saveDefault(@NotNull String fileName, @NotNull String jarName) {
         try {
             Path path = Paths.get(fileName);
             if (Files.exists(path)) {

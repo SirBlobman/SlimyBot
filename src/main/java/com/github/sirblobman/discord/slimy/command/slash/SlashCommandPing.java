@@ -2,6 +2,8 @@ package com.github.sirblobman.discord.slimy.command.slash;
 
 import java.awt.Color;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.github.sirblobman.discord.slimy.DiscordBot;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -13,8 +15,8 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public final class SlashCommandPing extends SlashCommand {
-    public SlashCommandPing(DiscordBot discordBot) {
-        super(discordBot, "ping");
+    public SlashCommandPing(@NotNull DiscordBot discordBot) {
+        super(discordBot);
     }
 
     @Override
@@ -23,12 +25,12 @@ public final class SlashCommandPing extends SlashCommand {
     }
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash(getCommandName(), "A command to view the network latency of the bot.");
+    public @NotNull CommandData getCommandData() {
+        return Commands.slash("ping", "A command to view the network latency of the bot.");
     }
 
     @Override
-    public MessageCreateData execute(SlashCommandInteractionEvent e) {
+    public @NotNull MessageCreateData execute(@NotNull SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
         if (sender == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);

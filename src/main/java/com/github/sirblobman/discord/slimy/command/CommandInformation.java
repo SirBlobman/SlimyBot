@@ -1,46 +1,46 @@
 package com.github.sirblobman.discord.slimy.command;
 
+import org.jetbrains.annotations.NotNull;
+
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import org.jetbrains.annotations.Nullable;
 
 public final class CommandInformation {
     private final String name, description, usage;
     private final String[] aliases;
 
-    public CommandInformation(String commandName, String description, String usage, String... aliases) {
-        this.name = commandName;
+    public CommandInformation(String name, String description, String usage, String... aliases) {
+        this.name = name;
         this.description = description;
         this.usage = usage;
         this.aliases = aliases;
     }
 
-    public CommandInformation(CommandData commandData) {
+    public CommandInformation(@NotNull CommandData commandData) {
         this(commandData.getName(), getDescription(commandData), "");
     }
 
-    @Nullable
-    private static String getDescription(CommandData commandData) {
+    private static @NotNull String getDescription(CommandData commandData) {
         if (commandData instanceof SlashCommandData slashCommandData) {
             return slashCommandData.getDescription();
         }
 
-        return null;
+        return "";
     }
 
-    public String getName() {
+    public @NotNull String getName() {
         return this.name;
     }
 
-    public String getDescription() {
+    public @NotNull String getDescription() {
         return this.description;
     }
 
-    public String getUsage() {
+    public @NotNull String getUsage() {
         return this.usage;
     }
 
-    public String[] getAliases() {
+    public String @NotNull [] getAliases() {
         return this.aliases.clone();
     }
 }

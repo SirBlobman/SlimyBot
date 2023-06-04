@@ -1,17 +1,19 @@
 package com.github.sirblobman.discord.slimy.command.console;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.command.AbstractCommand;
+import com.github.sirblobman.discord.slimy.command.Command;
 import com.github.sirblobman.discord.slimy.manager.ConsoleCommandManager;
 
 import org.apache.logging.log4j.Logger;
 
-public abstract class ConsoleCommand extends AbstractCommand {
-    public ConsoleCommand(DiscordBot discordBot) {
+public abstract class ConsoleCommand extends Command {
+    public ConsoleCommand(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
-    public final void onCommand(String label, String[] args) {
+    public final void onCommand(@NotNull String label, String @NotNull [] args) {
         try {
             execute(args);
         } catch (Exception ex) {
@@ -20,10 +22,10 @@ public abstract class ConsoleCommand extends AbstractCommand {
         }
     }
 
-    protected final ConsoleCommandManager getConsoleCommandManager() {
+    protected final @NotNull ConsoleCommandManager getConsoleCommandManager() {
         DiscordBot discordBot = getDiscordBot();
         return discordBot.getConsoleCommandManager();
     }
 
-    protected abstract void execute(String[] args);
+    protected abstract void execute(String @NotNull [] args);
 }

@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.configuration.GuildConfiguration;
+import com.github.sirblobman.discord.slimy.configuration.guild.GuildConfiguration;
 import com.github.sirblobman.discord.slimy.data.InvalidConfigurationException;
 
 import net.dv8tion.jda.api.Permission;

@@ -1,5 +1,6 @@
 package com.github.sirblobman.discord.slimy.data;
 
+import java.sql.Timestamp;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -7,11 +8,11 @@ import com.github.sirblobman.discord.slimy.manager.DatabaseManager;
 
 public final class MessageInformation {
     private final String messageId, memberId;
-    private final long timestamp;
+    private final Timestamp timestamp;
 
     private String contentRaw;
 
-    public MessageInformation(String messageId, String memberId, String contentRaw, long timestamp) {
+    public MessageInformation(String messageId, String memberId, String contentRaw, Timestamp timestamp) {
         this.messageId = Objects.requireNonNull(messageId, "messageId must not be null!");
         this.memberId = memberId;
         this.contentRaw = contentRaw;
@@ -26,18 +27,18 @@ public final class MessageInformation {
         return Optional.ofNullable(memberId);
     }
 
-    public Optional<MemberRecord> getMember(DatabaseManager databaseManager) {
+    public Optional<GuildMember> getMember(DatabaseManager databaseManager) {
         Optional<String> optionalMemberId = getMemberId();
         if (optionalMemberId.isPresent()) {
             String memberId = optionalMemberId.get();
-            MemberRecord member = databaseManager.getKnownMemberById(memberId);
+            GuildMember member = databaseManager.getKnownMemberById(memberId);
             return Optional.ofNullable(member);
         }
 
         return Optional.empty();
     }
 
-    public long getTimestamp() {
+    public Timestamp getTimestamp() {
         return this.timestamp;
     }
 

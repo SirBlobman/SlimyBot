@@ -1,55 +1,59 @@
 package com.github.sirblobman.discord.slimy.data;
 
+import java.sql.Timestamp;
 import java.util.Objects;
 import java.util.Optional;
+
+import org.jetbrains.annotations.NotNull;
 
 public final class MessageEntry {
     private final String messageId, guildId, channelId, memberId;
     private final MessageActionType actionType;
     private final String oldContentRaw, newContentRaw;
-    private final long timestamp;
+    private final Timestamp timestamp;
 
-    public MessageEntry(String messageId, String guildId, String channelId, String memberId,
-                        MessageActionType actionType, String oldContentRaw, String newContentRaw, long timestamp) {
-        this.messageId = Objects.requireNonNull(messageId, "messageId must not be null!");
-        this.guildId = Objects.requireNonNull(guildId, "guildId must not be null!");
-        this.channelId = Objects.requireNonNull(channelId, "channelId must not be null!");
+    public MessageEntry(@NotNull String messageId, @NotNull String guildId, @NotNull String channelId, String memberId,
+                        @NotNull MessageActionType actionType, String oldContentRaw, String newContentRaw,
+                        Timestamp timestamp) {
+        this.messageId = messageId;
+        this.guildId = guildId;
+        this.channelId = channelId;
+        this.actionType = actionType;
         this.memberId = memberId;
-        this.actionType = Objects.requireNonNull(actionType, "actionType must not be null!");
         this.oldContentRaw = oldContentRaw;
         this.newContentRaw = newContentRaw;
         this.timestamp = timestamp;
     }
 
-    public String getMessageId() {
+    public @NotNull String getMessageId() {
         return messageId;
     }
 
-    public String getGuildId() {
+    public @NotNull String getGuildId() {
         return guildId;
     }
 
-    public String getChannelId() {
+    public @NotNull String getChannelId() {
         return channelId;
     }
 
-    public Optional<String> getMemberId() {
+    public @NotNull Optional<String> getMemberId() {
         return Optional.ofNullable(memberId);
     }
 
-    public MessageActionType getActionType() {
+    public @NotNull MessageActionType getActionType() {
         return actionType;
     }
 
-    public long getTimestamp() {
+    public Timestamp getTimestamp() {
         return this.timestamp;
     }
 
-    public Optional<String> getOldContentRaw() {
+    public @NotNull Optional<String> getOldContentRaw() {
         return Optional.ofNullable(this.oldContentRaw);
     }
 
-    public Optional<String> getNewContentRaw() {
+    public @NotNull Optional<String> getNewContentRaw() {
         return Optional.ofNullable(this.newContentRaw);
     }
 
@@ -70,8 +74,7 @@ public final class MessageEntry {
         boolean checkActionType = Objects.equals(this.actionType, other.actionType);
         boolean checkOldContentRaw = Objects.equals(this.oldContentRaw, other.oldContentRaw);
         boolean checkNewContentRaw = Objects.equals(this.newContentRaw, other.newContentRaw);
-        boolean checkTimestamp = Objects.equals(this.timestamp, other.timestamp);
         return (checkMessageId && checkGuildId && checkChannelId && checkMemberId && checkActionType
-                && checkOldContentRaw && checkNewContentRaw && checkTimestamp);
+                && checkOldContentRaw && checkNewContentRaw);
     }
 }

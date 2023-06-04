@@ -2,8 +2,11 @@ package com.github.sirblobman.discord.slimy.command.slash;
 
 import java.util.List;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.configuration.GuildConfiguration;
+import com.github.sirblobman.discord.slimy.configuration.guild.GuildConfiguration;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -13,11 +16,10 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import org.jetbrains.annotations.Nullable;
 
 public final class SlashCommandVoter extends SlashCommand {
-    public SlashCommandVoter(DiscordBot discordBot) {
-        super(discordBot, "voter");
+    public SlashCommandVoter(@NotNull DiscordBot discordBot) {
+        super(discordBot);
     }
 
     @Override
@@ -26,13 +28,12 @@ public final class SlashCommandVoter extends SlashCommand {
     }
 
     @Override
-    public CommandData getCommandData() {
-        String commandName = getCommandName();
-        return Commands.slash(commandName, "Receive the 'Voter' role on this server.");
+    public @NotNull CommandData getCommandData() {
+        return Commands.slash("voter", "Receive the 'Voter' role on this server.");
     }
 
     @Override
-    public MessageCreateData execute(SlashCommandInteractionEvent e) {
+    public @NotNull MessageCreateData execute(@NotNull SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
         if (sender == null) {
             EmbedBuilder builder = getErrorEmbed(null);
@@ -71,8 +72,7 @@ public final class SlashCommandVoter extends SlashCommand {
         }
     }
 
-    @Nullable
-    private Role getVoterRole(Guild guild) {
+    private @Nullable Role getVoterRole(@NotNull Guild guild) {
         DiscordBot discordBot = getDiscordBot();
         GuildConfiguration guildConfiguration = discordBot.getGuildConfiguration(guild);
         if (guildConfiguration == null) {

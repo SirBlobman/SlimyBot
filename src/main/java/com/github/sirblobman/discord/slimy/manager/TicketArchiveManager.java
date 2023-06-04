@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
@@ -26,11 +27,13 @@ import java.util.concurrent.CompletionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.configuration.GuildConfiguration;
-import com.github.sirblobman.discord.slimy.data.ChannelRecord;
+import com.github.sirblobman.discord.slimy.configuration.guild.GuildConfiguration;
+import com.github.sirblobman.discord.slimy.data.GuildChannel;
+import com.github.sirblobman.discord.slimy.data.GuildMember;
 import com.github.sirblobman.discord.slimy.data.InvalidConfigurationException;
-import com.github.sirblobman.discord.slimy.data.MemberRecord;
 import com.github.sirblobman.discord.slimy.data.MessageActionType;
 import com.github.sirblobman.discord.slimy.data.MessageEntry;
 import com.github.sirblobman.discord.slimy.data.MessageInformation;
@@ -55,11 +58,9 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import org.jetbrains.annotations.Nullable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -117,7 +118,7 @@ public final class TicketArchiveManager extends Manager {
         if (member == null) {
             DiscordBot discordBot = getDiscordBot();
             DatabaseManager databaseManager = discordBot.getDatabaseManager();
-            MemberRecord knownMember = databaseManager.getKnownMemberById(topic);
+            GuildMember knownMember = databaseManager.getKnownMemberById(topic);
             if (knownMember == null) {
                 return "Unknown";
             }
@@ -285,18 +286,18 @@ public final class TicketArchiveManager extends Manager {
     private DivTag createDivTag(MessageInformation information, Guild guild) {
         DiscordBot discordBot = getDiscordBot();
         DatabaseManager databaseManager = discordBot.getDatabaseManager();
-        Optional<MemberRecord> optionalMember = information.getMember(databaseManager);
+        Optional<GuildMember> optionalMember = information.getMember(databaseManager);
 
-        MemberRecord member = optionalMember.orElse(null);
+        GuildMember member = optionalMember.orElse(null);
         String rawContent = information.getContentRaw();
-        long timestamp = information.getTimestamp();
+        Timestamp timestamp = information.getTimestamp();
 
         ImgTag imgTag = getImgTag(member).withClass("author-icon");
-        DivTag messageTag = getDivTag(guild, member, rawContent, timestamp);
+        DivTag messageTag = getDivTag(guild, member, rawContent, timestamp.toInstant().toEpochMilli());
         return div(imgTag, messageTag);
     }
 
-    private ImgTag getImgTag(@Nullable MemberRecord member) {
+    private ImgTag getImgTag(@Nullable GuildMember member) {
         String unknownUserIconPNG = ("https://www.sirblobman.xyz/slimy_bot/images/discord_unknown_user.png");
         if (member == null) {
             return img().withSrc(unknownUserIconPNG).withAlt("Avatar for an unknown user.");
@@ -307,7 +308,7 @@ public final class TicketArchiveManager extends Manager {
         return img().withSrc(avatarUrl).withOnerror(unknownUserIconPNG).withAlt(altString);
     }
 
-    private DivTag getDivTag(Guild guild, @Nullable MemberRecord member, String message, long timestamp) {
+    private DivTag getDivTag(Guild guild, @Nullable GuildMember member, String message, long timestamp) {
         DateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy HH:mm:ss.SSS zzz");
         String timestampDateString = dateFormat.format(new Date(timestamp));
         String timestampString = Long.toString(timestamp);
@@ -343,7 +344,7 @@ public final class TicketArchiveManager extends Manager {
             }
 
             DatabaseManager databaseManager = getDiscordBot().getDatabaseManager();
-            MemberRecord memberRecord = databaseManager.getKnownMemberById(memberId);
+            GuildMember memberRecord = databaseManager.getKnownMemberById(memberId);
             if (memberRecord != null) {
                 String tagName = memberRecord.tag();
                 return Matcher.quoteReplacement("@" + tagName);
@@ -368,7 +369,7 @@ public final class TicketArchiveManager extends Manager {
             }
 
             DatabaseManager databaseManager = getDiscordBot().getDatabaseManager();
-            MemberRecord memberRecord = databaseManager.getKnownMemberById(memberId);
+            GuildMember memberRecord = databaseManager.getKnownMemberById(memberId);
             if (memberRecord != null) {
                 String tagName = memberRecord.tag();
                 return Matcher.quoteReplacement("@" + tagName);
@@ -402,14 +403,14 @@ public final class TicketArchiveManager extends Manager {
 
         return matcher.replaceAll(result -> {
             String channelId = result.group(1);
-            GuildChannel guildChannel = guild.getGuildChannelById(channelId);
+            net.dv8tion.jda.api.entities.channel.middleman.GuildChannel guildChannel = guild.getGuildChannelById(channelId);
             if (guildChannel != null) {
                 String channelName = guildChannel.getName();
                 return Matcher.quoteReplacement("#" + channelName);
             }
 
             DatabaseManager databaseManager = getDiscordBot().getDatabaseManager();
-            ChannelRecord channelRecord = databaseManager.getKnownChannelById(channelId);
+            GuildChannel channelRecord = databaseManager.getKnownChannelById(channelId);
             if (channelRecord != null) {
                 String channelName = channelRecord.name();
                 return Matcher.quoteReplacement("#" + channelName);

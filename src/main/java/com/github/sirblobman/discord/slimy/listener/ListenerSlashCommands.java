@@ -1,5 +1,7 @@
 package com.github.sirblobman.discord.slimy.listener;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommand;
 import com.github.sirblobman.discord.slimy.manager.SlashCommandManager;
@@ -8,15 +10,14 @@ import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInterac
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import org.jetbrains.annotations.NotNull;
 
 public final class ListenerSlashCommands extends SlimyBotListener {
-    public ListenerSlashCommands(DiscordBot discordBot) {
+    public ListenerSlashCommands(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
-    public void onSlashCommandInteraction(SlashCommandInteractionEvent e) {
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent e) {
         DiscordBot discordBot = getDiscordBot();
         SlashCommandManager slashCommandManager = discordBot.getSlashCommandManager();
         InteractionHook interaction = e.getHook();
@@ -40,14 +41,16 @@ public final class ListenerSlashCommands extends SlimyBotListener {
     }
 
     @Override
-    public void onCommandAutoCompleteInteraction(final @NotNull CommandAutoCompleteInteractionEvent event) {
+    public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent e) {
         DiscordBot discordBot = getDiscordBot();
-        SlashCommandManager slashCommandManager = discordBot.getSlashCommandManager();
+        SlashCommandManager commandManager = discordBot.getSlashCommandManager();
 
-        String commandName = event.getName();
-        SlashCommand command = slashCommandManager.getCommand(commandName);
-        if (command == null) return;
+        String commandName = e.getName();
+        SlashCommand command = commandManager.getCommand(commandName);
+        if (command == null) {
+            return;
+        }
 
-        command.onAutoComplete(event);
+        command.onAutoComplete(e);
     }
 }

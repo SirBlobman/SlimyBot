@@ -1,9 +1,8 @@
 package com.github.sirblobman.discord.slimy.command.slash;
 
-import java.awt.Color;
 import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
+
+import org.jetbrains.annotations.NotNull;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.configuration.MainConfiguration;
@@ -16,11 +15,12 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.utils.TimeFormat;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public final class SlashCommandUserInfo extends SlashCommand {
-    public SlashCommandUserInfo(DiscordBot discordBot) {
-        super(discordBot, "userinfo");
+    public SlashCommandUserInfo(@NotNull DiscordBot discordBot) {
+        super(discordBot);
     }
 
     @Override
@@ -29,19 +29,18 @@ public final class SlashCommandUserInfo extends SlashCommand {
     }
 
     @Override
-    public CommandData getCommandData() {
-        return Commands.slash(getCommandName(),
-                        "View information about users in this guild.")
+    public @NotNull CommandData getCommandData() {
+        return Commands.slash("userinfo", "View information about users in this guild.")
                 .addOption(OptionType.USER, "user", "The user you want to check.", true);
     }
 
     @Override
-    public MessageCreateData execute(SlashCommandInteractionEvent e) {
+    public @NotNull MessageCreateData execute(@NotNull SlashCommandInteractionEvent e) {
         Member sender = e.getMember();
         if (sender == null) {
-            EmbedBuilder errorEmbed = getErrorEmbed(null);
-            errorEmbed.addField("Error", "This command can only be executed in a guild.", false);
-            return getMessage(errorEmbed);
+            EmbedBuilder embed = getErrorEmbed(null);
+            embed.addField("Error", "This command can only be executed in a guild.", false);
+            return getMessage(embed);
         }
 
         String senderId = sender.getId();
@@ -50,44 +49,39 @@ public final class SlashCommandUserInfo extends SlashCommand {
         String botOwnerId = mainConfiguration.getBotOwnerId();
 
         if (!senderId.equals(botOwnerId)) {
-            EmbedBuilder errorEmbed = getErrorEmbed(null);
-            errorEmbed.addField("Error", "This command can only be executed by the bot owner.",
-                    false);
-            return getMessage(errorEmbed);
+            EmbedBuilder embed = getErrorEmbed(null);
+            embed.addField("Error", "This command can only be executed by the bot owner.", false);
+            return getMessage(embed);
         }
 
-        OptionMapping typeOptionMapping = e.getOption("user");
-        if (typeOptionMapping == null) {
+        OptionMapping userOption = e.getOption("user");
+        if (userOption == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(sender);
             errorEmbed.addField("Error", "Missing Argument 'type'.", false);
             return getMessage(errorEmbed);
         }
 
-        Member member = typeOptionMapping.getAsMember();
+        Member member = userOption.getAsMember();
         if (member == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(sender);
             errorEmbed.addField("Error", "That user is not available on this server.", false);
             return getMessage(errorEmbed);
         }
 
-        String memberTag = member.getAsMention();
         String nickname = member.getEffectiveName();
-
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy hh:mm:ss.SSSa",
-                Locale.US);
         OffsetDateTime timeJoined = member.getTimeJoined();
-        String dateJoinedString = timeJoined.format(dateTimeFormatter) + " UTC";
-
         OffsetDateTime timeCreated = member.getTimeCreated();
-        String dateCreatedString = timeCreated.format(dateTimeFormatter) + " UTC";
+        String dateJoinedString = TimeFormat.DATE_TIME_LONG.format(timeJoined);
+        String dateCreatedString = TimeFormat.DATE_TIME_LONG.format(timeCreated);
 
         User user = member.getUser();
+        String memberTag = user.getAsTag();
         String memberName = user.getName();
         String memberId = user.getId();
         String avatarURL = user.getEffectiveAvatarUrl();
 
         EmbedBuilder builder = getExecutedByEmbed(sender);
-        builder.setColor(Color.BLACK);
+        builder.setColor(0x1F000000);
         builder.setThumbnail(avatarURL);
         builder.setTitle("User Information");
         builder.addField("Name", memberName, true);

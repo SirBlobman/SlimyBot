@@ -1,32 +1,32 @@
 package com.github.sirblobman.discord.slimy.command;
 
-import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 
 import net.dv8tion.jda.api.JDA;
 import org.apache.logging.log4j.Logger;
 
-public abstract class AbstractCommand {
+public abstract class Command {
     private final DiscordBot discordBot;
 
-    public AbstractCommand(DiscordBot discordBot) {
-        this.discordBot = Objects.requireNonNull(discordBot, "discordBot must not be null!");
+    public Command(@NotNull DiscordBot discordBot) {
+        this.discordBot = discordBot;
     }
 
-    protected final DiscordBot getDiscordBot() {
+    protected final @NotNull DiscordBot getDiscordBot() {
         return this.discordBot;
     }
 
-    protected final Logger getLogger() {
+    protected final @NotNull Logger getLogger() {
         DiscordBot discordBot = getDiscordBot();
         return discordBot.getLogger();
     }
 
-    protected final JDA getDiscordAPI() {
+    protected final @NotNull JDA getDiscordAPI() {
         DiscordBot discordBot = getDiscordBot();
         return discordBot.getDiscordAPI();
     }
 
-    public abstract CommandInformation getCommandInformation();
+    public abstract @NotNull CommandInformation getCommandInformation();
 }

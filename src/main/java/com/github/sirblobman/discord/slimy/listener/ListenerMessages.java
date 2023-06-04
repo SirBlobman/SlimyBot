@@ -1,7 +1,12 @@
 package com.github.sirblobman.discord.slimy.listener;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.List;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.data.MessageActionType;
@@ -20,15 +25,14 @@ import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.utils.data.DataObject;
-import org.jetbrains.annotations.Nullable;
 
 public final class ListenerMessages extends SlimyBotListener {
-    public ListenerMessages(DiscordBot discordBot) {
+    public ListenerMessages(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent e) {
+    public void onMessageReceived(@NotNull MessageReceivedEvent e) {
         if (!e.isFromGuild()) {
             return;
         }
@@ -36,11 +40,11 @@ public final class ListenerMessages extends SlimyBotListener {
         Guild guild = e.getGuild();
         MessageChannelUnion channel = e.getChannel();
         Message message = e.getMessage();
-        logCreatedMessage(guild, channel, message);
+        logCreate(guild, channel, message);
     }
 
     @Override
-    public void onMessageUpdate(MessageUpdateEvent e) {
+    public void onMessageUpdate(@NotNull MessageUpdateEvent e) {
         if (!e.isFromGuild()) {
             return;
         }
@@ -48,11 +52,11 @@ public final class ListenerMessages extends SlimyBotListener {
         Guild guild = e.getGuild();
         MessageChannelUnion channel = e.getChannel();
         Message message = e.getMessage();
-        logEditedMessage(guild, channel, message);
+        logEdit(guild, channel, message);
     }
 
     @Override
-    public void onMessageDelete(MessageDeleteEvent e) {
+    public void onMessageDelete(@NotNull MessageDeleteEvent e) {
         if (!e.isFromGuild()) {
             return;
         }
@@ -60,15 +64,15 @@ public final class ListenerMessages extends SlimyBotListener {
         Guild guild = e.getGuild();
         MessageChannelUnion channel = e.getChannel();
         String messageId = e.getMessageId();
-        logDeletedMessage(guild, channel, messageId);
+        logDelete(guild, channel, messageId);
     }
 
-    private MessageHistoryManager getMessageHistoryManager() {
+    private @NotNull MessageHistoryManager getMessageHistoryManager() {
         DiscordBot discordBot = getDiscordBot();
         return discordBot.getMessageHistoryManager();
     }
 
-    private void logCreatedMessage(Guild guild, MessageChannelUnion channel, Message message) {
+    private void logCreate(@NotNull Guild guild, @NotNull MessageChannelUnion channel, @NotNull Message message) {
         String messageId = message.getId();
         String guildId = guild.getId();
         String channelId = channel.getId();
@@ -78,7 +82,7 @@ public final class ListenerMessages extends SlimyBotListener {
         register(guild, channel, member);
 
         OffsetDateTime timeCreated = message.getTimeCreated();
-        long timestamp = timeCreated.toInstant().toEpochMilli();
+        Timestamp timestamp = Timestamp.from(timeCreated.toInstant());
         StringBuilder contentRaw = new StringBuilder(message.getContentRaw());
 
         List<MessageEmbed> messageEmbedList = message.getEmbeds();
@@ -94,7 +98,7 @@ public final class ListenerMessages extends SlimyBotListener {
         messageHistoryManager.addMessageEntry(messageEntry);
     }
 
-    private void logEditedMessage(Guild guild, MessageChannelUnion channel, Message message) {
+    private void logEdit(@NotNull Guild guild, @NotNull MessageChannelUnion channel, @NotNull Message message) {
         String messageId = message.getId();
         String guildId = guild.getId();
         String channelId = channel.getId();
@@ -108,7 +112,7 @@ public final class ListenerMessages extends SlimyBotListener {
             timeEdited = message.getTimeCreated();
         }
 
-        long timestamp = timeEdited.toInstant().toEpochMilli();
+        Timestamp timestamp = Timestamp.from(timeEdited.toInstant());
         StringBuilder contentRaw = new StringBuilder(message.getContentRaw());
 
         List<MessageEmbed> messageEmbedList = message.getEmbeds();
@@ -135,10 +139,10 @@ public final class ListenerMessages extends SlimyBotListener {
         messageHistoryManager.addMessageEntry(messageEntry);
     }
 
-    private void logDeletedMessage(Guild guild, MessageChannelUnion channel, String messageId) {
+    private void logDelete(@NotNull Guild guild, @NotNull MessageChannelUnion channel, String messageId) {
         String guildId = guild.getId();
         String channelId = channel.getId();
-        long timestamp = System.currentTimeMillis();
+        Timestamp timestamp = Timestamp.from(Instant.now());
         register(guild, channel, null);
 
         MessageEntry messageEntry = new MessageEntry(messageId, guildId, channelId, null,

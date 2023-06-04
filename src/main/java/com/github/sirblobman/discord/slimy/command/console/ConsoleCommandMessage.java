@@ -2,6 +2,8 @@ package com.github.sirblobman.discord.slimy.command.console;
 
 import java.util.Arrays;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
 
@@ -10,20 +12,19 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.apache.logging.log4j.Logger;
 
 public class ConsoleCommandMessage extends ConsoleCommand {
-    public ConsoleCommandMessage(DiscordBot discordBot) {
+    public ConsoleCommandMessage(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
-    public CommandInformation getCommandInformation() {
+    public @NotNull CommandInformation getCommandInformation() {
         return new CommandInformation("message",
                 "Send a message to a text channel.", "<channel-id> <message...>");
     }
 
     @Override
-    protected void execute(String[] args) {
+    protected void execute(String @NotNull [] args) {
         Logger logger = getLogger();
-
         if (args.length < 2) {
             logger.info("Required Arguments: <channel-id> <message...>");
             return;

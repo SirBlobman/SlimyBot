@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,29 +40,29 @@ public final class MessageHistoryManager extends Manager {
             String channelId = channel.getId();
 
             String sqlCode = getCommandFromSQL("select_message_history_by_channel");
-            PreparedStatement preparedStatement = connection.prepareStatement(sqlCode);
-            preparedStatement.setString(1, guildId);
-            preparedStatement.setString(2, channelId);
+            PreparedStatement statement = connection.prepareStatement(sqlCode);
+            statement.setString(1, guildId);
+            statement.setString(2, channelId);
 
             List<MessageEntry> messageHistory = new ArrayList<>();
-            ResultSet results = preparedStatement.executeQuery();
+            ResultSet results = statement.executeQuery();
             while (results.next()) {
-                String messageId = results.getString("id");
+                String messageId = results.getString("message_id");
                 String memberId = results.getString("member_id");
                 String oldContentRaw = results.getString("old_content");
                 String newContentRaw = results.getString("new_content");
-                long timestamp = results.getLong("timestamp");
+                Timestamp actionTime = results.getTimestamp("action_time");
 
                 String actionTypeName = results.getString("action_type");
                 MessageActionType actionType = MessageActionType.valueOf(actionTypeName);
 
                 MessageEntry messageEntry = new MessageEntry(messageId, guildId, channelId, memberId, actionType,
-                        oldContentRaw, newContentRaw, timestamp);
+                        oldContentRaw, newContentRaw, actionTime);
                 messageHistory.add(messageEntry);
             }
 
             results.close();
-            preparedStatement.close();
+            statement.close();
             return Collections.unmodifiableList(messageHistory);
         } catch (SQLException ex) {
             Logger logger = getLogger();
@@ -79,7 +80,7 @@ public final class MessageHistoryManager extends Manager {
             String actionTypeName = entry.getActionType().name();
             String oldContentRaw = entry.getOldContentRaw().orElse(null);
             String newContentRaw = entry.getNewContentRaw().orElse(null);
-            long timestamp = entry.getTimestamp();
+            Timestamp timestamp = entry.getTimestamp();
 
             String sqlCode = getCommandFromSQL("insert_message_entry");
             PreparedStatement preparedStatement = connection.prepareStatement(sqlCode);
@@ -90,7 +91,7 @@ public final class MessageHistoryManager extends Manager {
             preparedStatement.setString(5, actionTypeName);
             preparedStatement.setString(6, oldContentRaw);
             preparedStatement.setString(7, newContentRaw);
-            preparedStatement.setLong(8, timestamp);
+            preparedStatement.setTimestamp(8, timestamp);
 
             preparedStatement.executeUpdate();
             preparedStatement.close();
@@ -133,7 +134,7 @@ public final class MessageHistoryManager extends Manager {
                         timeEdited = message.getTimeCreated();
                     }
 
-                    long timestamp = timeEdited.toInstant().toEpochMilli();
+                    Timestamp timestamp = Timestamp.from(timeEdited.toInstant());
                     MessageEntry messageEntry = new MessageEntry(messageId, guildId, channelId, memberId,
                             MessageActionType.EDIT, null, contentRaw, timestamp);
                     if (!existingMessageHistory.contains(messageEntry)) {
@@ -141,8 +142,7 @@ public final class MessageHistoryManager extends Manager {
                     }
                 } else {
                     OffsetDateTime timeCreated = message.getTimeCreated();
-                    long timestamp = timeCreated.toInstant().toEpochMilli();
-
+                    Timestamp timestamp = Timestamp.from(timeCreated.toInstant());
                     MessageEntry messageEntry = new MessageEntry(messageId, guildId, channelId, memberId,
                             MessageActionType.CREATE, null, contentRaw, timestamp);
                     if (!existingMessageHistory.contains(messageEntry)) {

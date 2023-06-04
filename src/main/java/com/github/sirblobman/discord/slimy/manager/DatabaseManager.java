@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -14,32 +12,61 @@ import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import com.github.sirblobman.discord.slimy.DiscordBot;
-import com.github.sirblobman.discord.slimy.data.ChannelRecord;
-import com.github.sirblobman.discord.slimy.data.MemberRecord;
+import com.github.sirblobman.discord.slimy.configuration.DatabaseConfiguration;
+import com.github.sirblobman.discord.slimy.data.GuildChannel;
+import com.github.sirblobman.discord.slimy.data.GuildMember;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.sqlite.JDBC;
-import org.sqlite.SQLiteDataSource;
+import org.mariadb.jdbc.MariaDbDataSource;
 
 public final class DatabaseManager extends Manager {
-    private final SQLiteDataSource dataSource;
+    private MariaDbDataSource dataSource;
 
-    public DatabaseManager(DiscordBot discordBot) {
+    public DatabaseManager(@NotNull DiscordBot discordBot) {
         super(discordBot);
-        this.dataSource = new SQLiteDataSource();
+        this.dataSource = null;
+    }
 
-        Path path = Paths.get("database.sqlite");
-        String filePath = path.toAbsolutePath().toString();
+    private @NotNull MariaDbDataSource getDataSource() {
+        if (this.dataSource != null) {
+            return this.dataSource;
+        }
 
-        this.dataSource.setDatabaseName("Slimy Bot Database");
-        this.dataSource.setUrl(JDBC.PREFIX + filePath);
+        DiscordBot discordBot = getDiscordBot();
+        DatabaseConfiguration configuration = discordBot.getDatabaseConfiguration();
+
+        String hostname = configuration.getHost();
+        int port = configuration.getPort();
+        String databaseName = configuration.getDatabase();
+        String username = configuration.getUsername();
+        String password = configuration.getPassword();
+
+        String urlFormat = "jdbc:mariadb://%s:%s/%s";
+        String url = String.format(Locale.US, urlFormat, hostname, port, databaseName);
+
+        try {
+            this.dataSource = new MariaDbDataSource();
+            this.dataSource.setUrl(url);
+            this.dataSource.setUser(username);
+            this.dataSource.setPassword(password);
+            this.dataSource.setLoginTimeout(5);
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Invalid database configuration.");
+        }
+
+        return this.dataSource;
+    }
+
+    synchronized Connection getConnection() throws SQLException {
+        MariaDbDataSource dataSource = getDataSource();
+        return dataSource.getConnection();
     }
 
     public synchronized boolean connectToDatabase() {
@@ -49,10 +76,7 @@ public final class DatabaseManager extends Manager {
             String driverName = connectionMeta.getDriverName();
             String driverVersion = connectionMeta.getDriverVersion();
             String driverFullName = String.format(Locale.US, "%s v%s", driverName, driverVersion);
-            logger.info("Successfully connected to SQLite database with driver " + driverFullName + ".");
-
-            String url = this.dataSource.getUrl();
-            logger.info("Database URL: " + url);
+            logger.info("Successfully connected to MariaDB Database with driver " + driverFullName + ".");
 
             logger.info("Creating any non-existing database tables...");
             checkTables(connection);
@@ -83,7 +107,7 @@ public final class DatabaseManager extends Manager {
         }
     }
 
-    public synchronized void register(GuildChannel channel) {
+    public synchronized void register(net.dv8tion.jda.api.entities.channel.middleman.GuildChannel channel) {
         try (Connection connection = getConnection()) {
             Guild guild = channel.getGuild();
             String guildId = guild.getId();
@@ -136,7 +160,7 @@ public final class DatabaseManager extends Manager {
     }
 
     @Nullable
-    public synchronized ChannelRecord getKnownChannelById(String id) {
+    public synchronized GuildChannel getKnownChannelById(String id) {
         try (Connection connection = getConnection()) {
             String sqlCommand = ("SELECT `guild_id`,`name`,`type` FROM `known_channels` WHERE `id`=? ;");
             PreparedStatement preparedStatement = connection.prepareStatement(sqlCommand);
@@ -147,7 +171,7 @@ public final class DatabaseManager extends Manager {
                 String guildId = resultSet.getString("guild_id");
                 String channelName = resultSet.getString("name");
                 String channelType = resultSet.getString("type");
-                return new ChannelRecord(id, guildId, channelName, channelType);
+                return new GuildChannel(id, guildId, channelName, channelType);
             }
 
             return null;
@@ -159,7 +183,7 @@ public final class DatabaseManager extends Manager {
     }
 
     @Nullable
-    public synchronized MemberRecord getKnownMemberById(String id) {
+    public synchronized GuildMember getKnownMemberById(String id) {
         try (Connection connection = getConnection()) {
             String sqlCommand = ("SELECT `guild_id`,`name`,`tag`,`avatar_url` FROM `known_members` WHERE `id`=? ;");
             PreparedStatement preparedStatement = connection.prepareStatement(sqlCommand);
@@ -171,7 +195,7 @@ public final class DatabaseManager extends Manager {
                 String memberName = resultSet.getString("name");
                 String memberTag = resultSet.getString("tag");
                 String avatarUrl = resultSet.getString("avatar_url");
-                return new MemberRecord(id, guildId, memberName, memberTag, avatarUrl);
+                return new GuildMember(id, guildId, memberName, memberTag, avatarUrl);
             }
 
             return null;
@@ -180,10 +204,6 @@ public final class DatabaseManager extends Manager {
             logger.error("An error occurred while searching for a known member:", ex);
             return null;
         }
-    }
-
-    synchronized Connection getConnection() throws SQLException {
-        return this.dataSource.getConnection();
     }
 
     synchronized String getCommandFromSQL(String commandName, Object... replacements) {

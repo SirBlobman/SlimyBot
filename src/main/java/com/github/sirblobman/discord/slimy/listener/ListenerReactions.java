@@ -1,8 +1,9 @@
 package com.github.sirblobman.discord.slimy.listener;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+
+import org.jetbrains.annotations.NotNull;
 
 import com.github.sirblobman.discord.slimy.DiscordBot;
 
@@ -13,17 +14,15 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.entities.emoji.UnicodeEmoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.requests.RestAction;
 
 public final class ListenerReactions extends SlimyBotListener {
-    public ListenerReactions(DiscordBot discordBot) {
+    public ListenerReactions(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent e) {
+    public void onMessageReceived(@NotNull MessageReceivedEvent e) {
         if (!e.isFromGuild()) {
             return;
         }
@@ -42,9 +41,9 @@ public final class ListenerReactions extends SlimyBotListener {
 
         Message message = e.getMessage();
         String rawMessage = message.getContentRaw();
-        Set<String> emojiSet = getEmojis(rawMessage);
-        for (String emoji : emojiSet) {
-            addReaction(message, emoji);
+        List<String> unicodeEmojiList = getEmojis(rawMessage);
+        for (String unicodeEmoji : unicodeEmojiList) {
+            addReaction(message, unicodeEmoji);
         }
 
         Mentions mentions = message.getMentions();
@@ -54,19 +53,22 @@ public final class ListenerReactions extends SlimyBotListener {
         }
     }
 
-    private void addReaction(Message message, Emoji emoji) {
-        RestAction<Void> addReaction = message.addReaction(emoji);
-        addReaction.queue(null,
-                error -> logError("An error occurred while trying to add a reaction to a message", error));
+    private void addReaction(@NotNull Message message, @NotNull Emoji emoji) {
+        message.addReaction(emoji).submit(true).whenComplete((success, error) -> {
+            if (error != null) {
+                String errorMessage = error.getMessage();
+                logError("Failed to add a reaction to a message: " + errorMessage, error);
+            }
+        });
     }
 
-    private void addReaction(Message message, String emoji) {
-        UnicodeEmoji unicodeEmoji = Emoji.fromUnicode(emoji);
+    private void addReaction(@NotNull Message message, @NotNull String emoji) {
+        Emoji unicodeEmoji = Emoji.fromUnicode(emoji);
         addReaction(message, unicodeEmoji);
     }
 
-    private Set<String> getEmojis(String message) {
+    private @NotNull List<String> getEmojis(@NotNull String message) {
         List<String> basicEmojiList = EmojiParser.extractEmojis(message);
-        return new HashSet<>(basicEmojiList);
+        return Collections.unmodifiableList(basicEmojiList);
     }
 }

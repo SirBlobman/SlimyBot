@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.github.sirblobman.discord.slimy.DiscordBot;
 import com.github.sirblobman.discord.slimy.command.CommandInformation;
 import com.github.sirblobman.discord.slimy.manager.ConsoleCommandManager;
@@ -11,18 +13,18 @@ import com.github.sirblobman.discord.slimy.manager.ConsoleCommandManager;
 import org.apache.logging.log4j.Logger;
 
 public final class ConsoleCommandHelp extends ConsoleCommand {
-    public ConsoleCommandHelp(DiscordBot discordBot) {
+    public ConsoleCommandHelp(@NotNull DiscordBot discordBot) {
         super(discordBot);
     }
 
     @Override
-    public CommandInformation getCommandInformation() {
-        return new CommandInformation("help", "View a list of console commands.",
-                "", "?");
+    public @NotNull CommandInformation getCommandInformation() {
+        return new CommandInformation("help", "View a list of console commands.", "",
+                "?");
     }
 
     @Override
-    public void execute(String[] args) {
+    public void execute(String @NotNull [] args) {
         Logger logger = getLogger();
         logger.info("Console Command List:");
 
@@ -30,12 +32,12 @@ public final class ConsoleCommandHelp extends ConsoleCommand {
         commandInformationSet.forEach(this::logInformation);
     }
 
-    private Set<ConsoleCommand> getConsoleCommands() {
+    private @NotNull Set<ConsoleCommand> getConsoleCommands() {
         ConsoleCommandManager consoleCommandManager = getConsoleCommandManager();
         return consoleCommandManager.getConsoleCommandSet();
     }
 
-    private Set<CommandInformation> getCommandInformationSet() {
+    private @NotNull Set<CommandInformation> getCommandInformationSet() {
         Set<ConsoleCommand> consoleCommandSet = getConsoleCommands();
         Set<CommandInformation> commandInformationSet = new HashSet<>();
 
@@ -47,13 +49,13 @@ public final class ConsoleCommandHelp extends ConsoleCommand {
         return commandInformationSet;
     }
 
-    private void logInformation(CommandInformation command) {
+    private void logInformation(@NotNull CommandInformation command) {
         String name = command.getName();
         String usage = command.getUsage();
         String description = command.getDescription();
 
         String fullUsage = name;
-        if (usage != null && !usage.isBlank()) {
+        if (!usage.isBlank()) {
             fullUsage += (" " + usage);
         }
 

@@ -1,0 +1,6 @@
+## MariaDB Database Configuration
+host: "localhost"
+port: 3306
+username: "root"
+password: "toor"
+database: "slimy_bot"
