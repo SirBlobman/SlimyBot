@@ -281,7 +281,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
     private @NotNull String getOperatingSystemImageName() {
         OperatingSystem os = this.systemInfo.getOperatingSystem();
         String familyName = os.getFamily().toLowerCase(Locale.US);
-        return String.format(Locale.US, "%s.svg", familyName);
+        return String.format(Locale.US, "%s.png", familyName);
     }
 
     private @NotNull EmbedBuilder getEmbedExample() {

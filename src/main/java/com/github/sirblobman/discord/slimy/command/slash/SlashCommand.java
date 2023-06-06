@@ -50,6 +50,12 @@ public abstract class SlashCommand extends Command {
         return builder.build();
     }
 
+    protected final @NotNull MessageCreateData createError(@Nullable Member member, @NotNull String error) {
+        EmbedBuilder embed = getErrorEmbed(member);
+        embed.addField("Error", error, false);
+        return getMessage(embed);
+    }
+
     public boolean isEphemeral() {
         return false;
     }

@@ -70,12 +70,48 @@ public final class GuildConfiguration {
         this.ticketHistoryChannelId = ticketHistoryChannelId;
     }
 
-    public String getSupportRoleId() {
+    public @NotNull TextChannel getTicketHistoryChannel(@NotNull Guild guild) {
+        if (this.ticketHistoryChannel != null) {
+            return this.ticketHistoryChannel;
+        }
+
+        String channelId = getTicketHistoryChannelId();
+        if (channelId.isBlank() || channelId.equals("<none>")) {
+            throw new IllegalStateException("Invalid ticket history channel id configuration.");
+        }
+
+        TextChannel channel = guild.getTextChannelById(channelId);
+        if (channel == null) {
+            throw new IllegalStateException("Invalid ticket history channel id: " + channelId);
+        }
+
+        return (this.ticketHistoryChannel = channel);
+    }
+
+    public @NotNull String getSupportRoleId() {
         return supportRoleId;
     }
 
-    public void setSupportRoleId(String supportRoleId) {
+    public void setSupportRoleId(@NotNull String supportRoleId) {
         this.supportRoleId = supportRoleId;
+    }
+
+    public @NotNull Role getSupportRole(@NotNull Guild guild) {
+        if (this.supportRole != null) {
+            return this.supportRole;
+        }
+
+        String roleId = getSupportRoleId();
+        if (roleId.isBlank() || roleId.equals("<none>")) {
+            throw new IllegalStateException("Invalid support role configuration.");
+        }
+
+        Role role = guild.getRoleById(roleId);
+        if (role == null) {
+            throw new IllegalStateException("Invalid support role id: " + roleId);
+        }
+
+        return (this.supportRole = role);
     }
 
     public String getVoterRoleId() {

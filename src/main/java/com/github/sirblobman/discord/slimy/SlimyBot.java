@@ -21,6 +21,7 @@ import com.github.sirblobman.discord.slimy.command.console.ConsoleCommandStop;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommand;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandDevInfo;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandFAQ;
+import com.github.sirblobman.discord.slimy.command.slash.SlashCommandFAQAdmin;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandMagicEightBall;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandPing;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandTicket;
@@ -244,6 +245,9 @@ public final class SlimyBot {
             this.discordAPI = discordApi.awaitReady();
             logger.info("Successfully logged in.");
 
+            List<String> scopeList = List.of("bot", "applications.commands");
+            this.discordAPI.setRequiredScopes(scopeList);
+
             String inviteURL = discordApi.getInviteUrl(Permission.ADMINISTRATOR);
             logger.info("Invite URL: '" + inviteURL + "'");
             return true;
@@ -337,9 +341,9 @@ public final class SlimyBot {
     private void registerDiscordSlashCommands() {
         SlashCommandManager slashCommandManager = getSlashCommandManager();
         slashCommandManager.registerCommands(
-                SlashCommandDevInfo.class, SlashCommandFAQ.class, SlashCommandMagicEightBall.class,
-                SlashCommandPing.class, SlashCommandTicket.class, SlashCommandUserInfo.class,
-                SlashCommandVoter.class
+                SlashCommandDevInfo.class, SlashCommandFAQ.class, SlashCommandFAQAdmin.class,
+                SlashCommandMagicEightBall.class, SlashCommandPing.class, SlashCommandTicket.class,
+                SlashCommandUserInfo.class, SlashCommandVoter.class
         );
 
         Set<SlashCommand> commandSet = slashCommandManager.getDiscordSlashCommandSet();

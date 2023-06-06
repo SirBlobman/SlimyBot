@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -31,15 +32,15 @@ public final class SlashCommandFAQ extends SlashCommand {
         CLOSE = Button.danger("faq-close", "Close");
     }
 
-    public SlashCommandFAQ(SlimyBot discordBot) {
+    public SlashCommandFAQ(@NotNull SlimyBot discordBot) {
         super(discordBot);
     }
 
     @Override
     public @NotNull CommandData getCommandData() {
-        return Commands.slash("faq", "Get some default answers to common questions.")
-                .addOption(OptionType.STRING, "id", "The ID of the question.",
-                        true, true);
+        OptionData id = new OptionData(OptionType.STRING, "id", "The identifier of the question.",
+                true, true);
+        return Commands.slash("faq", "Get some default answers to common questions.").addOptions(id);
     }
 
     @Override
