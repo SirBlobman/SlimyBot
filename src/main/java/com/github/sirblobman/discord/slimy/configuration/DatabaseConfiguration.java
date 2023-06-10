@@ -13,7 +13,7 @@ public class DatabaseConfiguration {
         this.host = "localhost";
         this.port = 3306;
         this.username = "root";
-        this.password = "toor";
+        this.password = "password";
         this.database = "slimy_bot";
     }
 

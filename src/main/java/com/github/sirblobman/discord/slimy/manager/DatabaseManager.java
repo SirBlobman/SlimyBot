@@ -39,7 +39,7 @@ public final class DatabaseManager extends Manager {
             return this.dataSource;
         }
 
-        SlimyBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getBot();
         DatabaseConfiguration configuration = discordBot.getDatabaseConfiguration();
 
         String hostname = configuration.getHost();
@@ -159,8 +159,7 @@ public final class DatabaseManager extends Manager {
         }
     }
 
-    @Nullable
-    public synchronized GuildChannel getKnownChannelById(String id) {
+    public synchronized @Nullable GuildChannel getKnownChannelById(String id) {
         try (Connection connection = getConnection()) {
             String sqlCommand = ("SELECT `guild_id`,`name`,`type` FROM `known_channels` WHERE `id`=? ;");
             PreparedStatement preparedStatement = connection.prepareStatement(sqlCommand);

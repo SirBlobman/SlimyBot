@@ -7,6 +7,8 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.command.console.ConsoleCommand;
 import com.github.sirblobman.discord.slimy.manager.ConsoleCommandManager;
@@ -16,16 +18,15 @@ import net.dv8tion.jda.api.JDA.Status;
 import org.apache.logging.log4j.Logger;
 
 public final class ConsoleInputTask implements Runnable {
-    private final SlimyBot discordBot;
+    private final SlimyBot bot;
 
-    public ConsoleInputTask(SlimyBot discordBot) {
-        this.discordBot = discordBot;
+    public ConsoleInputTask(@NotNull SlimyBot bot) {
+        this.bot = bot;
     }
 
     @Override
     public void run() {
-        SlimyBot discordBot = getDiscordBot();
-        Logger logger = discordBot.getLogger();
+        Logger logger = getLogger();
         Console console = System.console();
         if (console != null) {
             setupConsole(console);
@@ -37,65 +38,60 @@ public final class ConsoleInputTask implements Runnable {
         setupInput();
     }
 
-    private SlimyBot getDiscordBot() {
-        return this.discordBot;
+    private @NotNull SlimyBot getBot() {
+        return this.bot;
     }
 
-    private void tryRunCommand(String inputLine) {
+    private @NotNull Logger getLogger() {
+        SlimyBot bot = getBot();
+        return bot.getLogger();
+    }
+
+    private void runCommand(@NotNull String input) {
+        getLogger().info("Console Command Detected: '" + input + "'");
         String spacePattern = Pattern.quote(" ");
-        String[] split = inputLine.split(spacePattern);
+        String[] split = input.split(spacePattern);
 
         String commandName = split[0];
         String[] args = (split.length < 2 ? new String[0] : Arrays.copyOfRange(split, 1, split.length));
-        tryRunCommand(commandName, args);
+        runCommand(commandName, args);
     }
 
-    private void tryRunCommand(String commandName, String[] args) {
-        SlimyBot discordBot = getDiscordBot();
-        ConsoleCommandManager consoleCommandManager = discordBot.getConsoleCommandManager();
-        ConsoleCommand consoleCommand = consoleCommandManager.getCommand(commandName);
-        if (consoleCommand == null) {
-            Logger logger = discordBot.getLogger();
-            logger.info("Unknown Command '" + commandName + "'.");
+    private void runCommand(@NotNull String commandName, String @NotNull [] args) {
+        SlimyBot bot = getBot();
+        ConsoleCommandManager commandManager = bot.getConsoleCommandManager();
+        ConsoleCommand command = commandManager.getCommand(commandName);
+
+        if (command == null) {
+            getLogger().info("Unknown Command '" + commandName + "'.");
             return;
         }
 
-        consoleCommand.onCommand(commandName, args);
+        command.onCommand(commandName, args);
     }
 
     private boolean isOnline() {
-        JDA discordAPI = this.discordBot.getDiscordAPI();
-        Status status = discordAPI.getStatus();
+        JDA api = getBot().getAPI();
+        Status status = api.getStatus();
         return (status != Status.SHUTDOWN && status != Status.SHUTTING_DOWN);
     }
 
-    private void setupConsole(Console console) {
-        SlimyBot discordBot = getDiscordBot();
-        Logger logger = discordBot.getLogger();
+    private void setupConsole(@NotNull Console console) {
         while (isOnline()) {
             String readLine = console.readLine();
-            logger.info("Console Command Detected: '" + readLine + "'");
-            tryRunCommand(readLine);
+            runCommand(readLine);
         }
     }
 
     private void setupInput() {
-        SlimyBot discordBot = getDiscordBot();
-        Logger logger = discordBot.getLogger();
-        InputStreamReader consoleReader = new InputStreamReader(System.in);
-        BufferedReader console = new BufferedReader(consoleReader);
-
-        while (isOnline()) {
-            String readLine;
-            try {
-                readLine = console.readLine();
-                logger.info("Console Command Detected: '" + readLine + "'");
-            } catch (IOException ex) {
-                logger.warn("Failed to read a line from the System.in, console commands will not be possible!");
-                break;
+        Logger logger = getLogger();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
+            while(isOnline()) {
+                String readLine = reader.readLine();
+                runCommand(readLine);
             }
-
-            tryRunCommand(readLine);
+        } catch (IOException ex) {
+            logger.warn("Failed to read a line from the System.in, console commands are unavailable.");
         }
     }
 }

@@ -14,11 +14,10 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import net.dv8tion.jda.api.utils.messages.MessageEditData;
 
 public final class ListenerQuestionButtons extends SlimyBotListener {
-
     private final SlashCommandFAQ command;
 
-    public ListenerQuestionButtons(@NotNull SlimyBot discordBot, @NotNull SlashCommandFAQ command) {
-        super(discordBot);
+    public ListenerQuestionButtons(@NotNull SlimyBot bot, @NotNull SlashCommandFAQ command) {
+        super(bot);
         this.command = command;
     }
 

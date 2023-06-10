@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
 import com.github.sirblobman.discord.slimy.SlimyBot;
-import com.github.sirblobman.discord.slimy.configuration.MainConfiguration;
+import com.github.sirblobman.discord.slimy.configuration.BotConfiguration;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -74,7 +74,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
 
         String memberId = member.getId();
         SlimyBot discordBot = getDiscordBot();
-        MainConfiguration mainConfiguration = discordBot.getMainConfiguration();
+        BotConfiguration mainConfiguration = discordBot.getConfiguration();
         String botOwnerId = mainConfiguration.getBotOwnerId();
         if (!memberId.equals(botOwnerId)) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
@@ -224,7 +224,7 @@ public final class SlashCommandDevInfo extends SlashCommand {
 
     private @NotNull EmbedBuilder getBotUserInformationEmbed(@NotNull Member member) {
         SlimyBot discordBot = getDiscordBot();
-        JDA discordAPI = discordBot.getDiscordAPI();
+        JDA discordAPI = discordBot.getAPI();
         SelfUser selfUser = discordAPI.getSelfUser();
 
         String avatarURL = selfUser.getEffectiveAvatarUrl();

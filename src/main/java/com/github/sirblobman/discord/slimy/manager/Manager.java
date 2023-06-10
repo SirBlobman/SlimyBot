@@ -1,36 +1,24 @@
 package com.github.sirblobman.discord.slimy.manager;
 
-import java.util.Objects;
+import org.jetbrains.annotations.NotNull;
 
 import com.github.sirblobman.discord.slimy.SlimyBot;
-import com.github.sirblobman.discord.slimy.configuration.MainConfiguration;
 
-import net.dv8tion.jda.api.JDA;
 import org.apache.logging.log4j.Logger;
 
 public abstract class Manager {
-    private final SlimyBot discordBot;
+    private final SlimyBot bot;
 
-    public Manager(SlimyBot discordBot) {
-        this.discordBot = Objects.requireNonNull(discordBot, "discordBot must not be null!");
+    public Manager(@NotNull SlimyBot bot) {
+        this.bot = bot;
     }
 
-    protected final SlimyBot getDiscordBot() {
-        return this.discordBot;
+    protected final @NotNull SlimyBot getBot() {
+        return this.bot;
     }
 
-    protected final Logger getLogger() {
-        SlimyBot discordBot = getDiscordBot();
-        return discordBot.getLogger();
-    }
-
-    protected final JDA getDiscordAPI() {
-        SlimyBot discordBot = getDiscordBot();
-        return discordBot.getDiscordAPI();
-    }
-
-    protected final MainConfiguration getMainConfiguration() {
-        SlimyBot discordBot = getDiscordBot();
-        return discordBot.getMainConfiguration();
+    protected final @NotNull Logger getLogger() {
+        SlimyBot bot = getBot();
+        return bot.getLogger();
     }
 }

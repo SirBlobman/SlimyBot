@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import com.github.sirblobman.discord.slimy.SlimyBot;
-import com.github.sirblobman.discord.slimy.data.InvalidConfigurationException;
 import com.github.sirblobman.discord.slimy.manager.TicketManager;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -26,14 +25,15 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
+import net.dv8tion.jda.api.utils.MarkdownUtil;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public final class ListenerCreateTicketButton extends SlimyBotListener {
     private Modal.Builder modalBuilder;
 
-    public ListenerCreateTicketButton(@NotNull SlimyBot discordBot) {
-        super(discordBot);
+    public ListenerCreateTicketButton(@NotNull SlimyBot bot) {
+        super(bot);
         this.modalBuilder = getCreateTicketModalBuilder();
     }
 
@@ -95,44 +95,29 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
         String title = titleMapping.getAsString();
         String description = descriptionMapping.getAsString();
         Role supportRole = ticketManager.getSupportRole(guild);
-        if (supportRole == null) {
-            EmbedBuilder errorEmbed = getErrorEmbed(member);
-            errorEmbed.addField("Error", "An error occurred while creating your ticket.", false);
-            MessageCreateData message = getMessage(errorEmbed);
-            interaction.sendMessage(message).setEphemeral(true).queue();
-            throw new IllegalStateException("Invalid support role!");
-        }
 
-        try {
-            CompletableFuture<TextChannel> ticketChannelFuture = ticketManager.createTicketChannelFor(member);
-            TextChannel ticketChannel = ticketChannelFuture.join();
+        CompletableFuture<TextChannel> ticketChannelFuture = ticketManager.createTicketChannelFor(member);
+        TextChannel ticketChannel = ticketChannelFuture.join();
 
-            MessageCreateBuilder builder = new MessageCreateBuilder();
-            builder.addContent(supportRole.getAsMention()).addContent("\n");
-            builder.addContent(bold("New Ticket")).addContent("\n");
-            builder.addContent(bold("Made by: ")).addContent(member.getAsMention()).addContent("\n");
-            builder.addContent(bold("Title: ")).addContent(title).addContent("\n");
-            builder.addContent(bold("Plugin: ")).addContent(pluginName).addContent("\n");
-            builder.addContent(bold("Description: ")).addContent(description).addContent("\n");
+        MessageCreateBuilder builder = new MessageCreateBuilder();
+        builder.addContent(supportRole.getAsMention()).addContent("\n");
+        builder.addContent(MarkdownUtil.bold("New Ticket")).addContent("\n");
+        builder.addContent(MarkdownUtil.bold("Made by: ")).addContent(member.getAsMention()).addContent("\n");
+        builder.addContent(MarkdownUtil.bold("Title: ")).addContent(title).addContent("\n");
+        builder.addContent(MarkdownUtil.bold("Plugin: ")).addContent(pluginName).addContent("\n");
+        builder.addContent(MarkdownUtil.bold("Description: ")).addContent(description).addContent("\n");
 
-            MessageCreateData message = builder.build();
-            ticketChannel.sendMessage(message).queue();
+        MessageCreateData message = builder.build();
+        ticketChannel.sendMessage(message).queue();
 
-            EmbedBuilder errorEmbed = getClickedByEmbed(member);
-            errorEmbed.addField("Success", "Your ticket was created successfully.", false);
-            MessageCreateData message2 = getMessage(errorEmbed);
-            interaction.sendMessage(message2).setEphemeral(true).queue();
-        } catch (InvalidConfigurationException ex) {
-            EmbedBuilder errorEmbed = getErrorEmbed(member);
-            errorEmbed.addField("Error", "An error occurred while creating your ticket.", false);
-            MessageCreateData message = getMessage(errorEmbed);
-            interaction.sendMessage(message).setEphemeral(true).queue();
-            throw new IllegalStateException(ex);
-        }
+        EmbedBuilder errorEmbed = getClickedByEmbed(member);
+        errorEmbed.addField("Success", "Your ticket was created successfully.", false);
+        MessageCreateData message2 = getMessage(errorEmbed);
+        interaction.sendMessage(message2).setEphemeral(true).queue();
     }
 
     private @NotNull TicketManager getTicketManager() {
-        SlimyBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getBot();
         return discordBot.getTicketManager();
     }
 

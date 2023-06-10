@@ -12,13 +12,13 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 public final class ListenerSlashCommands extends SlimyBotListener {
-    public ListenerSlashCommands(@NotNull SlimyBot discordBot) {
-        super(discordBot);
+    public ListenerSlashCommands(@NotNull SlimyBot bot) {
+        super(bot);
     }
 
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent e) {
-        SlimyBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getBot();
         SlashCommandManager slashCommandManager = discordBot.getSlashCommandManager();
         InteractionHook interaction = e.getHook();
 
@@ -42,7 +42,7 @@ public final class ListenerSlashCommands extends SlimyBotListener {
 
     @Override
     public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent e) {
-        SlimyBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getBot();
         SlashCommandManager commandManager = discordBot.getSlashCommandManager();
 
         String commandName = e.getName();

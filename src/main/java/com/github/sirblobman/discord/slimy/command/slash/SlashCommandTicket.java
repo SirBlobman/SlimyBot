@@ -8,15 +8,12 @@ import org.jetbrains.annotations.NotNull;
 
 import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.manager.TicketManager;
-import com.github.sirblobman.discord.slimy.task.ArchiveAndDeleteTask;
+import com.github.sirblobman.discord.slimy.task.ArchiveTicketTask;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.channel.concrete.Category;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.unions.GuildChannelUnion;
@@ -93,22 +90,7 @@ public final class SlashCommandTicket extends SlashCommand {
     }
 
     private @NotNull MessageCreateData commandClose(@NotNull Member member, @NotNull SlashCommandInteractionEvent e) {
-        Guild guild = member.getGuild();
         TicketManager ticketManager = getTicketManager();
-        Role supportRole = ticketManager.getSupportRole(guild);
-        if (supportRole == null) {
-            EmbedBuilder errorEmbed = getErrorEmbed(null);
-            errorEmbed.addField("Error", "Invalid support role!", false);
-            return getMessage(errorEmbed);
-        }
-
-        Category category = ticketManager.getTicketCategory(guild);
-        if (category == null) {
-            EmbedBuilder errorEmbed = getErrorEmbed(null);
-            errorEmbed.addField("Error", "Invalid ticket category!", false);
-            return getMessage(errorEmbed);
-        }
-
         TextChannel ticketChannel = ticketManager.getTicketChannel(member, e);
         if (ticketChannel == null) {
             EmbedBuilder errorEmbed = getErrorEmbed(null);
@@ -174,7 +156,7 @@ public final class SlashCommandTicket extends SlashCommand {
     }
 
     private void deleteChannelLater(@NotNull TextChannel channel) {
-        ArchiveAndDeleteTask task = new ArchiveAndDeleteTask(channel, getDiscordBot());
+        ArchiveTicketTask task = new ArchiveTicketTask(getDiscordBot(), channel);
         new Timer().schedule(task, 5000L);
     }
 

@@ -5,7 +5,7 @@ import java.time.OffsetDateTime;
 import org.jetbrains.annotations.NotNull;
 
 import com.github.sirblobman.discord.slimy.SlimyBot;
-import com.github.sirblobman.discord.slimy.configuration.MainConfiguration;
+import com.github.sirblobman.discord.slimy.configuration.BotConfiguration;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -45,7 +45,7 @@ public final class SlashCommandUserInfo extends SlashCommand {
 
         String senderId = sender.getId();
         SlimyBot discordBot = getDiscordBot();
-        MainConfiguration mainConfiguration = discordBot.getMainConfiguration();
+        BotConfiguration mainConfiguration = discordBot.getConfiguration();
         String botOwnerId = mainConfiguration.getBotOwnerId();
 
         if (!senderId.equals(botOwnerId)) {

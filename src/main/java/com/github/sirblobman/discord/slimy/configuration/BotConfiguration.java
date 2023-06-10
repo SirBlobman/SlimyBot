@@ -6,18 +6,13 @@ import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.User;
-
-public final class MainConfiguration {
+public final class BotConfiguration {
     private boolean enableConsole;
     private String apiToken;
     private String botOwnerId;
     private final List<String> guilds;
 
-    private transient User botOwner;
-
-    private MainConfiguration() {
+    private BotConfiguration() {
         this.enableConsole = false;
         this.apiToken = "<none>";
         this.botOwnerId = "<none>";
@@ -46,24 +41,6 @@ public final class MainConfiguration {
 
     public void setBotOwnerId(@NotNull String botOwnerId) {
         this.botOwnerId = botOwnerId;
-    }
-
-    public @NotNull User getBotOwner(@NotNull JDA api) {
-        if (this.botOwner != null) {
-            return this.botOwner;
-        }
-
-        String botOwnerId = getBotOwnerId();
-        if (botOwnerId.isBlank() || botOwnerId.equals("<none>")) {
-            throw new IllegalStateException("Invalid bot owner configuration.");
-        }
-
-        User user = api.getUserById(botOwnerId);
-        if (user == null) {
-            throw new IllegalStateException("Invalid bot owner configuration.");
-        }
-
-        return (this.botOwner = user);
     }
 
     public @NotNull List<String> getGuilds() {

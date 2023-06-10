@@ -17,8 +17,8 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 public final class ListenerReactions extends SlimyBotListener {
-    public ListenerReactions(@NotNull SlimyBot discordBot) {
-        super(discordBot);
+    public ListenerReactions(@NotNull SlimyBot bot) {
+        super(bot);
     }
 
     @Override
@@ -57,7 +57,7 @@ public final class ListenerReactions extends SlimyBotListener {
         message.addReaction(emoji).submit(true).whenComplete((success, error) -> {
             if (error != null) {
                 String errorMessage = error.getMessage();
-                logError("Failed to add a reaction to a message: " + errorMessage, error);
+                getLogger().warn("Failed to add a reaction to a message: " + errorMessage, error);
             }
         });
     }

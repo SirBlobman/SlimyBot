@@ -29,7 +29,7 @@ public final class MessageHistoryManager extends Manager {
     private final DatabaseManager databaseManager;
 
     public MessageHistoryManager(DatabaseManager databaseManager) {
-        super(databaseManager.getDiscordBot());
+        super(databaseManager.getBot());
         this.databaseManager = Objects.requireNonNull(databaseManager, "databaseManager must not be null!");
     }
 
@@ -103,7 +103,7 @@ public final class MessageHistoryManager extends Manager {
 
     public synchronized void archiveChannel(TextChannel channel) {
         try {
-            SlimyBot discordBot = getDiscordBot();
+            SlimyBot discordBot = getBot();
             DatabaseManager databaseManager = discordBot.getDatabaseManager();
             databaseManager.register(channel);
 

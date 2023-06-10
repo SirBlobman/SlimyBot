@@ -44,7 +44,7 @@ public final class ConsoleCommandManager extends Manager {
 
     private void registerCommand(Class<? extends ConsoleCommand> commandClass) {
         try {
-            SlimyBot discordBot = getDiscordBot();
+            SlimyBot discordBot = getBot();
             Constructor<? extends ConsoleCommand> constructor = commandClass.getConstructor(SlimyBot.class);
             ConsoleCommand command = constructor.newInstance(discordBot);
             CommandInformation commandInformation = command.getCommandInformation();

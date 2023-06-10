@@ -2,5 +2,5 @@
 host: "localhost"
 port: 3306
 username: "root"
-password: "toor"
+password: "password"
 database: "slimy_bot"

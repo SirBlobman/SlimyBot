@@ -27,8 +27,8 @@ import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.utils.data.DataObject;
 
 public final class ListenerMessages extends SlimyBotListener {
-    public ListenerMessages(@NotNull SlimyBot discordBot) {
-        super(discordBot);
+    public ListenerMessages(@NotNull SlimyBot bot) {
+        super(bot);
     }
 
     @Override
@@ -68,7 +68,7 @@ public final class ListenerMessages extends SlimyBotListener {
     }
 
     private @NotNull MessageHistoryManager getMessageHistoryManager() {
-        SlimyBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getBot();
         return discordBot.getMessageHistoryManager();
     }
 
@@ -152,7 +152,7 @@ public final class ListenerMessages extends SlimyBotListener {
     }
 
     private void register(@Nullable Guild guild, @Nullable MessageChannelUnion channel, @Nullable Member member) {
-        SlimyBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getBot();
         DatabaseManager databaseManager = discordBot.getDatabaseManager();
 
         if (guild != null) {

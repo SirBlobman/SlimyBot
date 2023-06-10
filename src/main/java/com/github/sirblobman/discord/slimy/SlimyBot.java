@@ -28,7 +28,7 @@ import com.github.sirblobman.discord.slimy.command.slash.SlashCommandTicket;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandUserInfo;
 import com.github.sirblobman.discord.slimy.command.slash.SlashCommandVoter;
 import com.github.sirblobman.discord.slimy.configuration.DatabaseConfiguration;
-import com.github.sirblobman.discord.slimy.configuration.MainConfiguration;
+import com.github.sirblobman.discord.slimy.configuration.BotConfiguration;
 import com.github.sirblobman.discord.slimy.configuration.guild.GuildConfiguration;
 import com.github.sirblobman.discord.slimy.configuration.question.Question;
 import com.github.sirblobman.discord.slimy.configuration.question.QuestionConfiguration;
@@ -70,10 +70,10 @@ public final class SlimyBot {
     private final TicketArchiveManager ticketArchiveManager;
     private final TicketManager ticketManager;
     private final Map<String, GuildConfiguration> guildConfigurationMap;
-    private JDA discordAPI;
+    private JDA api;
     private long startupTimestamp;
 
-    private MainConfiguration mainConfiguration;
+    private BotConfiguration configuration;
     private DatabaseConfiguration databaseConfiguration;
     private QuestionConfiguration questionConfiguration;
 
@@ -118,16 +118,16 @@ public final class SlimyBot {
         return this.ticketManager;
     }
 
-    public @NotNull JDA getDiscordAPI() {
-        return this.discordAPI;
+    public @NotNull JDA getAPI() {
+        return this.api;
     }
 
     public long getStartupTimestamp() {
         return this.startupTimestamp;
     }
 
-    public @NotNull MainConfiguration getMainConfiguration() {
-        return this.mainConfiguration;
+    public @NotNull BotConfiguration getConfiguration() {
+        return this.configuration;
     }
 
     public @NotNull DatabaseConfiguration getDatabaseConfiguration() {
@@ -152,7 +152,6 @@ public final class SlimyBot {
         logger.info("Loading Slimy Bot...");
 
         saveDefaultConfigs();
-
         if (!loadConfiguration()) {
             return;
         }
@@ -170,7 +169,6 @@ public final class SlimyBot {
         }
 
         setupShutdownHook();
-
         logger.info("Finished loading Slimy Bot.");
         onEnable();
     }
@@ -183,17 +181,17 @@ public final class SlimyBot {
 
     private boolean loadConfiguration() {
         Yaml yaml = new Yaml();
-        this.mainConfiguration = reload(Paths.get("config.yml"), yaml, MainConfiguration.class);
+        this.configuration = reload(Paths.get("config.yml"), yaml, BotConfiguration.class);
         this.databaseConfiguration = reload(Paths.get("database.yml"), yaml, DatabaseConfiguration.class);
-
         this.questionConfiguration = new QuestionConfiguration();
+
         Yaml questionYaml = new Yaml(new QuestionConstructor());
         Map<String, Question> map = reload(Paths.get("questions.yml"), questionYaml);
         if (map != null) {
             map.forEach(this.questionConfiguration::addQuestion);
         }
 
-        return (this.mainConfiguration != null && this.databaseConfiguration != null && this.questionConfiguration != null);
+        return (this.configuration != null && this.databaseConfiguration != null && this.questionConfiguration != null);
     }
 
     private <O> @Nullable O reload(@NotNull Path path, @NotNull Yaml yaml, Class<O> classType) {
@@ -222,7 +220,7 @@ public final class SlimyBot {
     }
 
     private boolean setupDiscordApi() {
-        MainConfiguration mainConfiguration = getMainConfiguration();
+        BotConfiguration mainConfiguration = getConfiguration();
         String discordApiToken = mainConfiguration.getApiToken();
         Logger logger = getLogger();
 
@@ -242,11 +240,11 @@ public final class SlimyBot {
 
         try {
             JDA discordApi = jdaBuilder.build();
-            this.discordAPI = discordApi.awaitReady();
+            this.api = discordApi.awaitReady();
             logger.info("Successfully logged in.");
 
             List<String> scopeList = List.of("bot", "applications.commands");
-            this.discordAPI.setRequiredScopes(scopeList);
+            this.api.setRequiredScopes(scopeList);
 
             String inviteURL = discordApi.getInviteUrl(Permission.ADMINISTRATOR);
             logger.info("Invite URL: '" + inviteURL + "'");
@@ -259,9 +257,9 @@ public final class SlimyBot {
 
     private boolean validateConfiguration() {
         Logger logger = getLogger();
-        JDA discordApi = getDiscordAPI();
+        JDA discordApi = getAPI();
 
-        MainConfiguration mainConfiguration = getMainConfiguration();
+        BotConfiguration mainConfiguration = getConfiguration();
         List<String> guildIdList = mainConfiguration.getGuilds();
         if (guildIdList.isEmpty()) {
             logger.error("Invalid guilds configuration: Empty.");
@@ -270,11 +268,11 @@ public final class SlimyBot {
         }
 
         for (String guildId : guildIdList) {
-            Guild guild = discordAPI.getGuildById(guildId);
+            Guild guild = api.getGuildById(guildId);
             if (guild == null) {
                 logger.error("Invalid guilds configuration:");
                 logger.error("Invalid Guild '" + guildId + "'.");
-                discordAPI.shutdown();
+                api.shutdown();
                 return false;
             }
 
@@ -302,7 +300,7 @@ public final class SlimyBot {
         registerDiscordSlashCommands();
         registerListeners();
 
-        MainConfiguration mainConfiguration = getMainConfiguration();
+        BotConfiguration mainConfiguration = getConfiguration();
         if (mainConfiguration.isEnableConsole()) {
             registerConsoleCommands();
             setupConsole();
@@ -313,7 +311,7 @@ public final class SlimyBot {
     }
 
     public void onDisable() {
-        JDA discordAPI = getDiscordAPI();
+        JDA discordAPI = getAPI();
         discordAPI.shutdownNow();
     }
 
@@ -321,7 +319,7 @@ public final class SlimyBot {
         SlashCommandManager slashCommandManager = getSlashCommandManager();
         SlashCommandFAQ faqCommand = (SlashCommandFAQ) slashCommandManager.getCommand("faq");
 
-        JDA discordApi = getDiscordAPI();
+        JDA discordApi = getAPI();
         discordApi.addEventListener(
                 new ListenerMessages(this),
                 new ListenerReactions(this),
@@ -349,8 +347,8 @@ public final class SlimyBot {
         Set<SlashCommand> commandSet = slashCommandManager.getDiscordSlashCommandSet();
         List<CommandData> commandDataList = commandSet.parallelStream().map(SlashCommand::getCommandData).toList();
 
-        JDA discordAPI = getDiscordAPI();
-        MainConfiguration mainConfiguration = getMainConfiguration();
+        JDA discordAPI = getAPI();
+        BotConfiguration mainConfiguration = getConfiguration();
         List<String> guilds = mainConfiguration.getGuilds();
 
         for (String guildId : guilds) {

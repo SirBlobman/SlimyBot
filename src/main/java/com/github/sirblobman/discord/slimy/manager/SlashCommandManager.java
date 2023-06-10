@@ -43,7 +43,7 @@ public final class SlashCommandManager extends Manager {
 
     private void registerCommand(Class<? extends SlashCommand> commandClass) {
         try {
-            SlimyBot discordBot = getDiscordBot();
+            SlimyBot discordBot = getBot();
             Constructor<? extends SlashCommand> constructor = commandClass.getConstructor(SlimyBot.class);
             SlashCommand command = constructor.newInstance(discordBot);
 

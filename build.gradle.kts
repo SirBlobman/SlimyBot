@@ -7,6 +7,12 @@ plugins {
     id("distribution")
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+}
+
 repositories {
     mavenCentral()
     maven("https://m2.dv8tion.net/releases/")
@@ -43,7 +49,6 @@ distributions {
 }
 
 tasks {
-
     named<Jar>("jar") {
         version = baseVersion
         archiveBaseName.set("SlimyBot")

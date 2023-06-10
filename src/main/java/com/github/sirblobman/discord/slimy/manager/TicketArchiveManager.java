@@ -34,7 +34,7 @@ public final class TicketArchiveManager extends Manager {
 
     private void archive0(@NotNull TextChannel channel) {
         try {
-            SlimyBot discordBot = getDiscordBot();
+            SlimyBot discordBot = getBot();
             MessageHistoryManager messageHistoryManager = discordBot.getMessageHistoryManager();
             messageHistoryManager.archiveChannel(channel);
             archiveInternal(channel);
@@ -52,7 +52,7 @@ public final class TicketArchiveManager extends Manager {
         Guild guild = channel.getGuild();
         Member member = guild.getMemberById(topic);
         if (member == null) {
-            SlimyBot discordBot = getDiscordBot();
+            SlimyBot discordBot = getBot();
             DatabaseManager databaseManager = discordBot.getDatabaseManager();
             GuildMember knownMember = databaseManager.getKnownMemberById(topic);
             if (knownMember == null) {
@@ -78,7 +78,7 @@ public final class TicketArchiveManager extends Manager {
 
     private void archiveInternal(@NotNull TextChannel channel) throws InvalidConfigurationException {
         Guild guild = channel.getGuild();
-        SlimyBot discordBot = getDiscordBot();
+        SlimyBot discordBot = getBot();
         GuildConfiguration guildConfiguration = discordBot.getGuildConfiguration(guild);
         if (guildConfiguration == null) {
             throw new InvalidConfigurationException("Missing guild config!");

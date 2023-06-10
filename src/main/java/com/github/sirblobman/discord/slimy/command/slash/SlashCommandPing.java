@@ -39,7 +39,7 @@ public final class SlashCommandPing extends SlashCommand {
         }
 
         SlimyBot discordBot = getDiscordBot();
-        JDA discordAPI = discordBot.getDiscordAPI();
+        JDA discordAPI = discordBot.getAPI();
         long gatewayPing = discordAPI.getGatewayPing();
 
         EmbedBuilder builder = getExecutedByEmbed(sender).setColor(Color.GREEN).setTitle("Pong!");

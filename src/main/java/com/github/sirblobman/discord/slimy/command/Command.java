@@ -25,7 +25,7 @@ public abstract class Command {
 
     protected final @NotNull JDA getDiscordAPI() {
         SlimyBot discordBot = getDiscordBot();
-        return discordBot.getDiscordAPI();
+        return discordBot.getAPI();
     }
 
     public abstract @NotNull CommandInformation getCommandInformation();

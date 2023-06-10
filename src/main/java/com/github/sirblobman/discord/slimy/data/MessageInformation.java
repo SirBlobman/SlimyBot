@@ -1,8 +1,9 @@
 package com.github.sirblobman.discord.slimy.data;
 
 import java.sql.Timestamp;
-import java.util.Objects;
 import java.util.Optional;
+
+import org.jetbrains.annotations.NotNull;
 
 import com.github.sirblobman.discord.slimy.manager.DatabaseManager;
 
@@ -12,14 +13,14 @@ public final class MessageInformation {
 
     private String contentRaw;
 
-    public MessageInformation(String messageId, String memberId, String contentRaw, Timestamp timestamp) {
-        this.messageId = Objects.requireNonNull(messageId, "messageId must not be null!");
+    public MessageInformation(@NotNull String messageId, String memberId, String contentRaw, Timestamp timestamp) {
+        this.messageId = messageId;
         this.memberId = memberId;
         this.contentRaw = contentRaw;
         this.timestamp = timestamp;
     }
 
-    public String getMessageId() {
+    public @NotNull String getMessageId() {
         return messageId;
     }
 
