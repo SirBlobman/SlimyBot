@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration name="Slimy Network Bot" status="INFO" strict="true">
+<Configuration name="Slimy Bot" status="INFO" strict="true">
     <Appenders>
         <Console name="Console Appender">
             <PatternLayout pattern="[%d{HH:mm:ss.SSS}] [%level]: %msg%n"/>
