@@ -25,7 +25,7 @@ dependencies {
 
     // JDA
     implementation("net.dv8tion:JDA:5.0.0-beta.10") {
-        exclude("club.minnced", "opus-java") // Exclude Opus
+        exclude(module = "opus-java") // Exclude Opus
     }
 
     // Other Dependencies
@@ -49,6 +49,12 @@ distributions {
 }
 
 tasks {
+    withType<JavaCompile> {
+        options.encoding = "UTF-8"
+        options.compilerArgs.add("-Xlint:deprecation")
+        options.compilerArgs.add("-Xlint:unchecked")
+    }
+
     named<Jar>("jar") {
         version = baseVersion
         archiveBaseName.set("SlimyBot")
@@ -63,7 +69,7 @@ tasks {
 
     named<Tar>("distTar") {
         compression = Compression.GZIP
-        archiveExtension.set(".tar.gz")
+        archiveExtension.set("tar.gz")
         archiveBaseName.set("SlimyBot")
     }
 

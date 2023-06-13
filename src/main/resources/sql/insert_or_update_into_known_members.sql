@@ -1,7 +1,7 @@
 INSERT INTO `known_members`
-(`id`, `guild_id`, `name`, `tag`, `avatar_url`)
+(`id`, `guild_id`, `username`, `display`, `avatar_url`)
 VALUES (?, ?, ?, ?, ?)
 ON DUPLICATE KEY UPDATE
-`name` = VALUES(`name`),
-`tag` = VALUES(`tag`),
+`username` = VALUES(`username`),
+`display` = VALUES(`display`),
 `avatar_url` = VALUES(`avatar_url`);

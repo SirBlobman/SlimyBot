@@ -14,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import com.github.sirblobman.discord.slimy.SlimyBot;
 import com.github.sirblobman.discord.slimy.configuration.guild.GuildConfiguration;
 import com.github.sirblobman.discord.slimy.data.GuildMember;
-import com.github.sirblobman.discord.slimy.data.InvalidConfigurationException;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -63,32 +62,21 @@ public final class TicketArchiveManager extends Manager {
                     }
 
                     databaseManager.register(memberRetrieve);
-                    return memberRetrieve.getUser().getAsTag();
+                    return memberRetrieve.getUser().getName();
                 } catch(CompletionException | CancellationException ex) {
                     return "Unknown";
                 }
             }
 
-            return knownMember.tag();
+            return knownMember.username();
         }
 
         User user = member.getUser();
-        return user.getAsTag();
+        return user.getName();
     }
 
-    private void archiveInternal(@NotNull TextChannel channel) throws InvalidConfigurationException {
-        Guild guild = channel.getGuild();
-        SlimyBot discordBot = getBot();
-        GuildConfiguration guildConfiguration = discordBot.getGuildConfiguration(guild);
-        if (guildConfiguration == null) {
-            throw new InvalidConfigurationException("Missing guild config!");
-        }
-
-        String ticketHistoryChannelId = guildConfiguration.getTicketHistoryChannelId();
-        TextChannel historyChannel = guild.getTextChannelById(ticketHistoryChannelId);
-        if (historyChannel == null) {
-            throw new InvalidConfigurationException("Invalid ticket history channel!");
-        }
+    private void archiveInternal(@NotNull TextChannel channel) {
+        TextChannel historyChannel = getHistoryChannel(channel);
 
         String urlFormat = "https://sirblobman.xyz/slimy_bot/ticket.php?ticket=%s";
         String channelId = channel.getId();
@@ -110,5 +98,16 @@ public final class TicketArchiveManager extends Manager {
 
         MessageCreateData message = messageBuilder.build();
         historyChannel.sendMessage(message).queue();
+    }
+
+    private @NotNull TextChannel getHistoryChannel(@NotNull TextChannel channel) {
+        SlimyBot bot = getBot();
+        Guild guild = channel.getGuild();
+        GuildConfiguration configuration = bot.getGuildConfiguration(guild);
+        if (configuration == null) {
+            throw new IllegalStateException("Invalid guild configuration.");
+        }
+
+        return configuration.getTicketHistoryChannel(guild);
     }
 }

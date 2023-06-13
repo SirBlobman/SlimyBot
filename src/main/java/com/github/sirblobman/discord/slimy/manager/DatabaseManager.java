@@ -134,21 +134,21 @@ public final class DatabaseManager extends Manager {
     public synchronized void register(@NotNull Member member) {
         try (Connection connection = getConnection()) {
             String memberId = member.getId();
-            String memberName = member.getEffectiveName();
+            String memberDisplayName = member.getEffectiveName();
 
             Guild guild = member.getGuild();
             String guildId = guild.getId();
 
             User user = member.getUser();
-            String memberTag = user.getAsTag();
+            String username = user.getName();
             String memberAvatarUrl = user.getEffectiveAvatarUrl();
 
             String insertCommand = getCommandFromSQL("insert_or_update_into_known_members");
             PreparedStatement preparedStatement = connection.prepareStatement(insertCommand);
             preparedStatement.setString(1, memberId);
             preparedStatement.setString(2, guildId);
-            preparedStatement.setString(3, memberName);
-            preparedStatement.setString(4, memberTag);
+            preparedStatement.setString(3, username);
+            preparedStatement.setString(4, memberDisplayName);
             preparedStatement.setString(5, memberAvatarUrl);
 
             preparedStatement.executeUpdate();
@@ -184,17 +184,17 @@ public final class DatabaseManager extends Manager {
     @Nullable
     public synchronized GuildMember getKnownMemberById(String id) {
         try (Connection connection = getConnection()) {
-            String sqlCommand = ("SELECT `guild_id`,`name`,`tag`,`avatar_url` FROM `known_members` WHERE `id`=? ;");
+            String sqlCommand = ("SELECT * FROM `known_members` WHERE `id`=? ;");
             PreparedStatement preparedStatement = connection.prepareStatement(sqlCommand);
             preparedStatement.setString(1, id);
 
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 String guildId = resultSet.getString("guild_id");
-                String memberName = resultSet.getString("name");
-                String memberTag = resultSet.getString("tag");
+                String username = resultSet.getString("username");
+                String display = resultSet.getString("display");
                 String avatarUrl = resultSet.getString("avatar_url");
-                return new GuildMember(id, guildId, memberName, memberTag, avatarUrl);
+                return new GuildMember(id, guildId, username, display, avatarUrl);
             }
 
             return null;

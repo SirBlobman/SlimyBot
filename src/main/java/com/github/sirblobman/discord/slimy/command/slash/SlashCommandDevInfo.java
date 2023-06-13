@@ -228,9 +228,9 @@ public final class SlashCommandDevInfo extends SlashCommand {
         SelfUser selfUser = discordAPI.getSelfUser();
 
         String avatarURL = selfUser.getEffectiveAvatarUrl();
-        String name = selfUser.getName();
+        String name = selfUser.getEffectiveName();
         String id = selfUser.getId();
-        String tag = selfUser.getAsTag();
+        String username = selfUser.getName();
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MMMM dd, yyyy hh:mm:ss.SSSa",
                 Locale.US);
@@ -243,11 +243,11 @@ public final class SlashCommandDevInfo extends SlashCommand {
         EmbedBuilder builder = getExecutedByEmbed(member);
         builder.setTitle("Bot Information");
         builder.setThumbnail(avatarURL);
-        builder.addField("Name", name, true);
-        builder.addField("Tag", tag, true);
         builder.addField("ID", id, true);
-        builder.addField("Date Created", dateCreatedString, false);
-        builder.addField("Date Joined", dateJoinedString, false);
+        builder.addField("Username", username, true);
+        builder.addField("Display Name", name, true);
+        builder.addField("Date Created", dateCreatedString, true);
+        builder.addField("Date Joined", dateJoinedString, true);
         return builder;
     }
 

@@ -75,8 +75,8 @@ public final class SlashCommandUserInfo extends SlashCommand {
         String dateCreatedString = TimeFormat.DATE_TIME_LONG.format(timeCreated);
 
         User user = member.getUser();
-        String memberTag = user.getAsTag();
-        String memberName = user.getName();
+        String username = user.getName();
+        String memberName = member.getEffectiveName();
         String memberId = user.getId();
         String avatarURL = user.getEffectiveAvatarUrl();
 
@@ -84,9 +84,9 @@ public final class SlashCommandUserInfo extends SlashCommand {
         builder.setColor(0x1F000000);
         builder.setThumbnail(avatarURL);
         builder.setTitle("User Information");
-        builder.addField("Name", memberName, true);
-        builder.addField("Tag", memberTag, true);
         builder.addField("ID", memberId, true);
+        builder.addField("Username", username, true);
+        builder.addField("Display Name", memberName, true);
         builder.addField("Nickname", nickname, true);
         builder.addField("Account Created", dateCreatedString, true);
         builder.addField("Join Date", dateJoinedString, true);
