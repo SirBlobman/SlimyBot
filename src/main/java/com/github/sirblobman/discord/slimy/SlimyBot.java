@@ -230,16 +230,16 @@ public final class SlimyBot {
             return false;
         }
 
-        JDABuilder jdaBuilder = JDABuilder.createLight(discordApiToken);
-        jdaBuilder.setMemberCachePolicy(MemberCachePolicy.ALL);
-        jdaBuilder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES,
+        JDABuilder apiBuilder = JDABuilder.createDefault(discordApiToken);
+        apiBuilder.setMemberCachePolicy(MemberCachePolicy.ALL);
+        apiBuilder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES,
                 GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.MESSAGE_CONTENT);
 
         Activity activity = Activity.listening("/ticket");
-        jdaBuilder.setActivity(activity);
+        apiBuilder.setActivity(activity);
 
         try {
-            JDA discordApi = jdaBuilder.build();
+            JDA discordApi = apiBuilder.build();
             this.api = discordApi.awaitReady();
             logger.info("Successfully logged in.");
 
