@@ -102,10 +102,10 @@ public final class ListenerCreateTicketButton extends SlimyBotListener {
         MessageCreateBuilder builder = new MessageCreateBuilder();
         builder.addContent(supportRole.getAsMention()).addContent("\n");
         builder.addContent(MarkdownUtil.bold("New Ticket")).addContent("\n");
-        builder.addContent(MarkdownUtil.bold("Made by: ")).addContent(member.getAsMention()).addContent("\n");
-        builder.addContent(MarkdownUtil.bold("Title: ")).addContent(title).addContent("\n");
-        builder.addContent(MarkdownUtil.bold("Plugin: ")).addContent(pluginName).addContent("\n");
-        builder.addContent(MarkdownUtil.bold("Description: ")).addContent(description).addContent("\n");
+        builder.addContent(MarkdownUtil.bold("Made by:") + " ").addContent(member.getAsMention()).addContent("\n");
+        builder.addContent(MarkdownUtil.bold("Title:") + " ").addContent(title).addContent("\n");
+        builder.addContent(MarkdownUtil.bold("Plugin:") + " ").addContent(pluginName).addContent("\n");
+        builder.addContent(MarkdownUtil.bold("Description:") + " ").addContent(description).addContent("\n");
 
         MessageCreateData message = builder.build();
         ticketChannel.sendMessage(message).queue();
