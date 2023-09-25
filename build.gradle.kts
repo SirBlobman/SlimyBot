@@ -31,7 +31,7 @@ dependencies {
     // Other Dependencies
     implementation("com.github.MinnDevelopment:emoji-java:v6.1.0") // Emoji Handler Fork
     implementation("org.mariadb.jdbc:mariadb-java-client:3.1.4") // MariaDB Java Client
-    implementation("com.github.oshi:oshi-core:6.4.4") // Operating System Hardware Information Core
+    implementation("com.github.oshi:oshi-core:6.4.6") // Operating System Hardware Information Core
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0") // Log4J SLF4J2 Implementation
     implementation("org.yaml:snakeyaml:2.1") // SnakeYAML
 }
