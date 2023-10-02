@@ -24,7 +24,7 @@ dependencies {
     compileOnly("org.jetbrains:annotations:24.0.1") // JetBrains Annotations
 
     // JDA
-    implementation("net.dv8tion:JDA:5.0.0-beta.13") {
+    implementation("net.dv8tion:JDA:5.0.0-beta.15") {
         exclude(module = "opus-java") // Exclude Opus
     }
 
