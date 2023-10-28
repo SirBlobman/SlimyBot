@@ -20,15 +20,13 @@ repositories {
 }
 
 dependencies {
-    // Java Dependencies
-    compileOnly("org.jetbrains:annotations:24.0.1") // JetBrains Annotations
-
-    // JDA
+    // JDA (without Opus)
     implementation("net.dv8tion:JDA:5.0.0-beta.16") {
-        exclude(module = "opus-java") // Exclude Opus
+        exclude(module = "opus-java")
     }
 
     // Other Dependencies
+    compileOnly("org.jetbrains:annotations:24.0.1") // JetBrains Annotations
     implementation("com.github.MinnDevelopment:emoji-java:v6.1.0") // Emoji Handler Fork
     implementation("org.mariadb.jdbc:mariadb-java-client:3.2.0") // MariaDB Java Client
     implementation("com.github.oshi:oshi-core:6.4.6") // Operating System Hardware Information Core
