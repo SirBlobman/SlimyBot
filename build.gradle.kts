@@ -8,9 +8,9 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-    toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
 repositories {
@@ -21,16 +21,16 @@ repositories {
 
 dependencies {
     // JDA (without Opus)
-    implementation("net.dv8tion:JDA:5.0.0-beta.16") {
+    implementation("net.dv8tion:JDA:5.0.2") {
         exclude(module = "opus-java")
     }
 
     // Other Dependencies
-    compileOnly("org.jetbrains:annotations:24.0.1") // JetBrains Annotations
-    implementation("com.github.MinnDevelopment:emoji-java:v6.1.0") // Emoji Handler Fork
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.2.0") // MariaDB Java Client
-    implementation("com.github.oshi:oshi-core:6.4.6") // Operating System Hardware Information Core
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.21.1") // Log4J SLF4J2 Implementation
+    compileOnly("org.jetbrains:annotations:24.1.0") // JetBrains Annotations
+    implementation("com.github.minndevelopment:emoji-java:6.1.0") // Emoji Handler Fork
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.4.1") // MariaDB Java Client
+    implementation("com.github.oshi:oshi-core:6.6.2") // Operating System Hardware Information Core
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1") // Log4J SLF4J2 Implementation
     implementation("org.yaml:snakeyaml:2.2") // SnakeYAML
 }
 
