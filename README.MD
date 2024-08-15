@@ -19,7 +19,7 @@ You can find out more information by checking out their repository:
 
 ## Requirements
 
-- Java 17
+- Java 21
 - Internet connection to login and receive data from Discord.
 - MariaDB database running v10.11 or higher.
 
