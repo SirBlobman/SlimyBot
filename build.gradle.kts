@@ -29,7 +29,7 @@ dependencies {
     compileOnly("org.jetbrains:annotations:24.1.0") // JetBrains Annotations
     implementation("com.github.minndevelopment:emoji-java:6.1.0") // Emoji Handler Fork
     implementation("org.mariadb.jdbc:mariadb-java-client:3.4.1") // MariaDB Java Client
-    implementation("com.github.oshi:oshi-core:6.6.2") // Operating System Hardware Information Core
+    implementation("com.github.oshi:oshi-core:6.6.4") // Operating System Hardware Information Core
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1") // Log4J SLF4J2 Implementation
     implementation("org.yaml:snakeyaml:2.2") // SnakeYAML
 }
