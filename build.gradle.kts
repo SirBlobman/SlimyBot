@@ -26,7 +26,7 @@ dependencies {
     }
 
     // Other Dependencies
-    compileOnly("org.jetbrains:annotations:24.1.0") // JetBrains Annotations
+    compileOnly("org.jetbrains:annotations:25.0.0") // JetBrains Annotations
     implementation("com.github.minndevelopment:emoji-java:6.1.0") // Emoji Handler Fork
     implementation("org.mariadb.jdbc:mariadb-java-client:3.4.1") // MariaDB Java Client
     implementation("com.github.oshi:oshi-core:6.6.2") // Operating System Hardware Information Core
