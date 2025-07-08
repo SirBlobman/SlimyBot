@@ -15,23 +15,23 @@ java {
 
 repositories {
     mavenCentral()
-    maven("https://m2.dv8tion.net/releases/")
     maven("https://nexus.sirblobman.xyz/proxy-jitpack/")
 }
 
 dependencies {
     // JDA (without Opus)
-    implementation("net.dv8tion:JDA:5.0.2") {
+    implementation("net.dv8tion:JDA:5.6.1") {
         exclude(module = "opus-java")
+        exclude(module = "tink")
     }
 
     // Other Dependencies
-    compileOnly("org.jetbrains:annotations:24.1.0") // JetBrains Annotations
+    compileOnly("org.jetbrains:annotations:26.0.2") // JetBrains Annotations
     implementation("com.github.minndevelopment:emoji-java:6.1.0") // Emoji Handler Fork
-    implementation("org.mariadb.jdbc:mariadb-java-client:3.4.1") // MariaDB Java Client
-    implementation("com.github.oshi:oshi-core:6.6.2") // Operating System Hardware Information Core
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1") // Log4J SLF4J2 Implementation
-    implementation("org.yaml:snakeyaml:2.2") // SnakeYAML
+    implementation("org.mariadb.jdbc:mariadb-java-client:3.5.4") // MariaDB Java Client
+    implementation("com.github.oshi:oshi-core:6.8.2") // Operating System Hardware Information Core
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.25.0") // Log4J SLF4J2 Implementation
+    implementation("org.yaml:snakeyaml:2.4") // SnakeYAML
 }
 
 distributions {
