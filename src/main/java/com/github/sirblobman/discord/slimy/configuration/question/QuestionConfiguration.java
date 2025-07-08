@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import com.github.sirblobman.discord.slimy.SlimyBot;
 
 import org.apache.logging.log4j.Logger;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 public final class QuestionConfiguration {
@@ -44,7 +45,7 @@ public final class QuestionConfiguration {
     }
 
     public void saveAll(@NotNull SlimyBot bot) {
-        Yaml yaml = new Yaml(new QuestionRepresenter());
+        Yaml yaml = new Yaml(new QuestionRepresenter(), new DumperOptions());
         Path path = Path.of("questions.yml");
         try(BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.TRUNCATE_EXISTING)) {
             yaml.dump(this.map, writer);
