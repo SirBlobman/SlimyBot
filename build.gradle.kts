@@ -20,7 +20,7 @@ repositories {
 
 dependencies {
     // JDA (without Opus)
-    implementation("net.dv8tion:JDA:5.6.1") {
+    implementation("net.dv8tion:JDA:6.0.0-preview") {
         exclude(module = "opus-java")
         exclude(module = "tink")
     }
